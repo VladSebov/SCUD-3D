@@ -51,5 +51,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "SCUD-3D.sln"
+    "dotnet.defaultSolution": "SCUD-3D.sln",
+    "editor.defaultFormatter": null
 }
