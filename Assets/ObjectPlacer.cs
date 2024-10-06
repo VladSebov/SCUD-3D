@@ -4,32 +4,32 @@ using UnityEngine;
 
 public class ObjectPlacer : MonoBehaviour
 {
-	public LayerMask layermask;
+    public LayerMask layermask;
     public GameObject objectPrefab; // Префаб объекта
     public GameObject Ground;
     private GameObject previewObject; // Объект для предварительного просмотра
-    private bool object_chosen = false; 
+    private bool object_chosen = false;
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.J))
-    {
-        // Переключаем видимость курсора
-        if (Cursor.visible)
         {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked; // Закрепляем курсор
+            // Переключаем видимость курсора
+            if (Cursor.visible)
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked; // Закрепляем курсор
+            }
+            else
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None; // Освобождаем курсор
+            }
         }
-        else
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None; // Освобождаем курсор
+            object_chosen = !object_chosen;
         }
-    }
-    if (Input.GetKeyDown(KeyCode.E))
-    {
-    	object_chosen = !object_chosen;
-    }
         // Проверяем нажатие ЛКМ
         if (Input.GetMouseButtonDown(0))
         {
@@ -47,8 +47,9 @@ public class ObjectPlacer : MonoBehaviour
 
         if (object_chosen && Physics.Raycast(ray, out hit, 150f, layermask))
         {
-            
-                if (previewObject == null) {
+
+            if (previewObject == null)
+            {
                 // Создаем объект предварительного просмотра
                 Vector3 previewPosition = hit.point;
                 previewPosition.y = Ground.transform.position.y + 0.5f;
@@ -58,16 +59,16 @@ public class ObjectPlacer : MonoBehaviour
                 Color color = previewObject.GetComponent<Renderer>().material.color;
                 color.a = 0.50f; // Устанавливаем уровень прозрачности
                 previewObject.GetComponent<Renderer>().material.color = color;
-                }
-                else if (hit.collider.name != previewObject.name)
-                {
+            }
+            else if (hit.collider.name != previewObject.name)
+            {
                 // Обновляем позицию объекта предварительного просмотра
                 Vector3 previewPosition = hit.point;
                 previewPosition.y = Ground.transform.position.y + 0.5f;
                 previewObject.transform.position = previewPosition;
-                }
+            }
 
-            
+
         }
     }
 }
