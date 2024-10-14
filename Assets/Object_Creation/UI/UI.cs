@@ -56,9 +56,9 @@ public class UI : MonoBehaviour
     void OnAddButtonClick()
     {
         ShowHideMenu();
+        ObjectAdder adder = myCanvas.GetComponent<ObjectAdder>();
+        adder.object_chosen = true;
     }
-
-    void AddObject() {}
 
     void ShowHideMenu() {
         myCanvas.planeDistance = (myCanvas.planeDistance == 0) ? 1 : 0;
@@ -95,24 +95,7 @@ public class UI : MonoBehaviour
             // Переключаем видимость элемента UI
             ShowHideMenu();
         }
-        if (Input.GetMouseButtonDown(0))
-        {
-            // Raycast для определения позиции курсора на земле
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit))
-            {
-                Debug.Log(hit.collider.name);
-                if (hit.collider.name == "table B")
-                {
-                    log = hit.collider.GetComponent<cam>().model_name;
-                    hit.collider.GetComponent<cam>().model_name += "5";
-                }
-
-
-            }
-        }
     }
 }
 
