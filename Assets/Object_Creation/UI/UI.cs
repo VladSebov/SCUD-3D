@@ -2,12 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using StarterAssets;
 
 public class UI : MonoBehaviour
 {
     public Canvas myCanvas;
-    public Button myButton;
+    public Button TurnstileButton;
+
+    public Button AddButton;
+
+    public Button CloseButton;
+
+    public GameObject previewPanel;
+
+    public GameObject infoPanel;
+
+    public TMP_Text infoPanel_text;
 
     private StarterAssetsInputs inputs;
 
@@ -20,29 +31,37 @@ public class UI : MonoBehaviour
         GameObject otherObject = GameObject.FindWithTag("Player");
         if (otherObject != null)
         {
+
             inputs = otherObject.GetComponent<StarterAssetsInputs>();
         }
-        myButton.onClick.AddListener(OnImageClick);
+        TurnstileButton.onClick.AddListener(OnButtonClick);
+        AddButton.onClick.AddListener(OnAddButtonClick);
+        CloseButton.onClick.AddListener(OnCloseClick);
+        previewPanel.SetActive(false);
+        infoPanel.SetActive(false);
+    }
+
+    void OnButtonClick()
+    {
+        previewPanel.SetActive(true);
+        infoPanel.SetActive(true);
 
     }
 
-    void OnImageClick()
+    void OnCloseClick()
     {
-        // Действие, которое произойдет при нажатии на Image
-        Debug.Log("Image был нажат!");
+        ShowHideMenu();
     }
 
-    void Update()
+    void OnAddButtonClick()
     {
-        // Проверяем, нажата ли клавиша "H"
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            Debug.Log(log);
-        }
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            // Переключаем видимость элемента UI
-            myCanvas.planeDistance = (myCanvas.planeDistance == 0) ? 1 : 0;
+        ShowHideMenu();
+    }
+
+    void AddObject() {}
+
+    void ShowHideMenu() {
+        myCanvas.planeDistance = (myCanvas.planeDistance == 0) ? 1 : 0;
             count = 0;
             if (myCanvas.planeDistance == 1)
             {
@@ -62,6 +81,19 @@ public class UI : MonoBehaviour
                     inputs.SetCursorState(inputs.cursorLocked);
                 }
             }
+    }
+
+    void Update()
+    {
+        // Проверяем, нажата ли клавиша "H"
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Debug.Log(log);
+        }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            // Переключаем видимость элемента UI
+            ShowHideMenu();
         }
         if (Input.GetMouseButtonDown(0))
         {
