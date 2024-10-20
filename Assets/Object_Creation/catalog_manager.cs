@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class CatalogManager : MonoBehaviour
 {
     public GameObject buttonPrefab; // Префаб элемента списка
-    public Image itemImage;
+    public GameObject itemImage;
     public TextMeshProUGUI itemText;
     public Transform contentPanel;    // Панель внутри Scroll View, куда будут добавляться элементы
     public TextAsset jsonFile;        // JSON файл, подключённый через инспектор
@@ -40,7 +40,11 @@ public class CatalogManager : MonoBehaviour
             Sprite loadedSprite = Resources.Load<Sprite>(itemData.icon);
             if (loadedSprite != null)
             {
-                itemImage.sprite = loadedSprite;
+                Image ImagePic = itemImage.GetComponent<Image>();
+                if (ImagePic != null)
+                {
+                    ImagePic.sprite = loadedSprite;
+                }
             }
             else
             {

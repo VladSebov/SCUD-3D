@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using UnityEngine;
 
+namespace SCUD3D
+{
 public class ObjectAdder : MonoBehaviour
 {
     public LayerMask layermask;
@@ -65,4 +67,5 @@ public class ObjectAdder : MonoBehaviour
 
 
     }
+}
 }
