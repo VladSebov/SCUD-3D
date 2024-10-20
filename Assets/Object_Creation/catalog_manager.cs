@@ -1,20 +1,46 @@
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UI;
+using StarterAssets;
+using SCUD3D;
 
 public class CatalogManager : MonoBehaviour
 {
+    public GameObject buttonAddPrefab;
+    public GameObject PanelItems;
+    public GameObject PanelPreview;
+    public GameObject PanelInfo;
     public GameObject buttonPrefab; // Префаб элемента списка
     public GameObject itemImage;
-    public TextMeshProUGUI itemText;
+    public TextMeshProUGUI itemName;
+    public TextMeshProUGUI itemDescription;
     public Transform contentPanel;    // Панель внутри Scroll View, куда будут добавляться элементы
     public TextAsset jsonFile;        // JSON файл, подключённый через инспектор
 
+    private bool isPreviewVisible = false;
+    private bool isItemsVisible = true;
+private StarterAssetsInputs inputs;
+
     private void Start()
     {
+        GameObject otherObject = GameObject.FindWithTag("Player");
+        if (otherObject != null)
+        {
+
+            inputs = otherObject.GetComponent<StarterAssetsInputs>();
+        }
+        PanelPreview.SetActive(isPreviewVisible);
+        PanelInfo.SetActive(isPreviewVisible);
         LoadCatalog();
+    }
+
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.I)) ShowHideItems();
+
+
     }
 
     // Метод для загрузки и отображения данных
@@ -26,31 +52,80 @@ public class CatalogManager : MonoBehaviour
         foreach (var itemData in itemList.items)
         {
             // Создаём элемент списка на основе префаба
-            GameObject newItem = Instantiate(buttonPrefab, contentPanel);
+            GameObject newItemButton = Instantiate(buttonPrefab, contentPanel);
+
 
             // Ищем текстовые и графические компоненты
-            Button itemButton = newItem.GetComponentInChildren<Button>();
+            Button itemButton = newItemButton.GetComponentInChildren<Button>();
             TextMeshProUGUI buttonText = itemButton.GetComponentInChildren<TextMeshProUGUI>();
             // Text descriptionText = newItem.transform.Find("DescriptionText").GetComponent<Text>();
+            //добавляем eventlistener
+            itemButton.onClick.AddListener(() => ViewItem(itemData));
 
-            // Устанавливаем данные для элемента
+            // дескрипшен
             buttonText.text = itemData.itemName;
-            itemText.text = itemData.description;
-            // descriptionText.text = itemData.description;
-            Sprite loadedSprite = Resources.Load<Sprite>(itemData.icon);
-            if (loadedSprite != null)
+        }
+    }
+
+    void ViewItem(CatalogItemData itemData)
+    {
+        if (!isPreviewVisible)
+        {
+            ShowHidePreview();
+        }
+        itemName.text = itemData.itemName;
+        itemDescription.text = itemData.description;
+
+        //подгружаем спрайт:
+        Sprite loadedSprite = Resources.Load<Sprite>(itemData.icon);
+        Image ImagePic = itemImage.GetComponent<Image>();
+        if (loadedSprite != null)
+        {
+            if (ImagePic != null) { ImagePic.sprite = loadedSprite; }
+        }
+        else { ImagePic.sprite = Resources.Load<Sprite>("no_preview_dark"); }
+                Button buttonAdd = buttonAddPrefab.GetComponentInChildren<Button>();
+        buttonAdd.onClick.AddListener(() => AddItemToScene(itemData));
+    }
+
+    void AddItemToScene(CatalogItemData itemData) {
+        ShowHidePreview();
+        ObjectAdder adder = this.GetComponent<ObjectAdder>();
+        adder.objectPrefab = Resources.Load<GameObject>(itemData.prefab);
+        if(adder.objectPrefab != null) adder.object_chosen = true;
+        else Debug.Log("Префаб не найден");
+    }
+
+    void ShowHideItems(){
+        isItemsVisible = !isItemsVisible;
+        PanelItems.SetActive(isItemsVisible);
+        if (isItemsVisible)
             {
-                Image ImagePic = itemImage.GetComponent<Image>();
-                if (ImagePic != null)
+                if (inputs != null)
                 {
-                    ImagePic.sprite = loadedSprite;
+                    inputs.cursorLocked = false;
+                    inputs.cursorInputForLook = false;
+                    inputs.SetCursorState(inputs.cursorLocked);
                 }
             }
-            else
+            if (!isItemsVisible)
             {
-                Debug.LogError($"Failed to load sprite: {itemData.icon}");
+                if (isPreviewVisible) ShowHidePreview();
+                if (inputs != null)
+                {
+                    inputs.cursorLocked = true;
+                    inputs.cursorInputForLook = true;
+                    inputs.SetCursorState(inputs.cursorLocked);
+                }
             }
-        }
+
+    }
+
+    void ShowHidePreview() {
+        isPreviewVisible = !isPreviewVisible;
+        PanelPreview.SetActive(isPreviewVisible);
+        PanelInfo.SetActive(isPreviewVisible);
+        Debug.Log(isPreviewVisible);
     }
 }
 
@@ -61,6 +136,7 @@ public class CatalogItemData
     public string itemName;
     public string description;
     public string icon;  // Название иконки
+    public string prefab;
 }
 
 [System.Serializable]

@@ -8,11 +8,13 @@ namespace SCUD3D
 {
 public class ObjectAdder : MonoBehaviour
 {
+
     public LayerMask layermask;
     public GameObject objectPrefab; // Префаб объекта
     public GameObject Ground;
     private GameObject previewObject; // Объект для предварительного просмотра
     public bool object_chosen = false;
+
 
     void Update()
     {
@@ -25,8 +27,8 @@ public class ObjectAdder : MonoBehaviour
                 if (previewObject != null)
                 {
                     // Добавляем объект на сцену
-                    turnstile turnstile_object = objectPrefab.GetComponent<turnstile>();
-                    turnstile_object.id = 1;
+                    //turnstile turnstile_object = objectPrefab.GetComponent<turnstile>();
+                    //turnstile_object.id = 1;
                     Instantiate(objectPrefab, previewObject.transform.position, Quaternion.identity);
                     Destroy(previewObject); // Удаляем объект предварительного просмотра
                     object_chosen = false;
