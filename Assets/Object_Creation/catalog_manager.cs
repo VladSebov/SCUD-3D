@@ -16,20 +16,20 @@ public class CatalogManager : MonoBehaviour
     public GameObject buttonPrefab; // Префаб элемента списка
     public GameObject itemImage;
     public TextMeshProUGUI itemName;
+    private CatalogItemData selectedItemData;
     public TextMeshProUGUI itemDescription;
     public Transform contentPanel;    // Панель внутри Scroll View, куда будут добавляться элементы
     public TextAsset jsonFile;        // JSON файл, подключённый через инспектор
 
     private bool isPreviewVisible = false;
     private bool isItemsVisible = true;
-private StarterAssetsInputs inputs;
+    private StarterAssetsInputs inputs;
 
     private void Start()
     {
         GameObject otherObject = GameObject.FindWithTag("Player");
         if (otherObject != null)
         {
-
             inputs = otherObject.GetComponent<StarterAssetsInputs>();
         }
         PanelPreview.SetActive(isPreviewVisible);
@@ -37,7 +37,8 @@ private StarterAssetsInputs inputs;
         LoadCatalog();
     }
 
-    private void Update() {
+    private void Update()
+    {
         if (Input.GetKeyDown(KeyCode.I)) ShowHideItems();
 
 
@@ -67,12 +68,13 @@ private StarterAssetsInputs inputs;
         }
     }
 
-    void ViewItem(CatalogItemData itemData)
+    public void ViewItem(CatalogItemData itemData)
     {
         if (!isPreviewVisible)
         {
             ShowHidePreview();
         }
+        selectedItemData = itemData;
         itemName.text = itemData.itemName;
         itemDescription.text = itemData.description;
 
@@ -84,44 +86,45 @@ private StarterAssetsInputs inputs;
             if (ImagePic != null) { ImagePic.sprite = loadedSprite; }
         }
         else { ImagePic.sprite = Resources.Load<Sprite>("no_preview_dark"); }
-                Button buttonAdd = buttonAddPrefab.GetComponentInChildren<Button>();
-        buttonAdd.onClick.AddListener(() => AddItemToScene(itemData));
     }
 
-    void AddItemToScene(CatalogItemData itemData) {
+    public void AddItemToScene()
+    {
         ShowHidePreview();
         ObjectAdder adder = this.GetComponent<ObjectAdder>();
-        adder.objectPrefab = Resources.Load<GameObject>(itemData.prefab);
-        if(adder.objectPrefab != null) adder.object_chosen = true;
+        adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab);
+        if (adder.objectPrefab != null) adder.object_chosen = true;
         else Debug.Log("Префаб не найден");
     }
 
-    void ShowHideItems(){
+    void ShowHideItems()
+    {
         isItemsVisible = !isItemsVisible;
         PanelItems.SetActive(isItemsVisible);
         if (isItemsVisible)
+        {
+            if (inputs != null)
             {
-                if (inputs != null)
-                {
-                    inputs.cursorLocked = false;
-                    inputs.cursorInputForLook = false;
-                    inputs.SetCursorState(inputs.cursorLocked);
-                }
+                inputs.cursorLocked = false;
+                inputs.cursorInputForLook = false;
+                inputs.SetCursorState(inputs.cursorLocked);
             }
-            if (!isItemsVisible)
+        }
+        if (!isItemsVisible)
+        {
+            if (isPreviewVisible) ShowHidePreview();
+            if (inputs != null)
             {
-                if (isPreviewVisible) ShowHidePreview();
-                if (inputs != null)
-                {
-                    inputs.cursorLocked = true;
-                    inputs.cursorInputForLook = true;
-                    inputs.SetCursorState(inputs.cursorLocked);
-                }
+                inputs.cursorLocked = true;
+                inputs.cursorInputForLook = true;
+                inputs.SetCursorState(inputs.cursorLocked);
             }
+        }
 
     }
 
-    void ShowHidePreview() {
+    void ShowHidePreview()
+    {
         isPreviewVisible = !isPreviewVisible;
         PanelPreview.SetActive(isPreviewVisible);
         PanelInfo.SetActive(isPreviewVisible);
