@@ -63,7 +63,7 @@ namespace SCUD3D
                         material.EnableKeyword("_ALPHABLEND_ON");
                         material.DisableKeyword("_ALPHATEST_ON");
                         material.DisableKeyword("_TRANSPARENT_ON");
-                        material.renderQueue = 2900; // Set to transparent render queue
+                        material.renderQueue = 3000; // Set to transparent render queue
                     }
                     else if (hit.collider.name != previewObject.name)
                     {
