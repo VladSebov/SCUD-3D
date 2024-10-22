@@ -52,5 +52,8 @@
         "Temp/": true
     },
     "dotnet.defaultSolution": "SCUD-3D.sln",
-    "editor.defaultFormatter": null
+    "editor.defaultFormatter": null,
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    }
 }
