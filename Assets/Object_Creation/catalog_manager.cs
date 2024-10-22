@@ -92,8 +92,8 @@ public class CatalogManager : MonoBehaviour
     {
         ShowHidePreview();
         ObjectAdder adder = this.GetComponent<ObjectAdder>();
-        adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab);
-        if (adder.objectPrefab != null) adder.object_chosen = true;
+        adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab).GetComponent<BoxCollider>().gameObject;
+        if (adder.objectPrefab != null) adder.gameState = 1;
         else Debug.Log("Префаб не найден");
     }
 
@@ -128,7 +128,6 @@ public class CatalogManager : MonoBehaviour
         isPreviewVisible = !isPreviewVisible;
         PanelPreview.SetActive(isPreviewVisible);
         PanelInfo.SetActive(isPreviewVisible);
-        Debug.Log(isPreviewVisible);
     }
 }
 

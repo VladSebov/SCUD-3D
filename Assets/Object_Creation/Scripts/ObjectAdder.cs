@@ -3,22 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 namespace SCUD3D
 {
     public class ObjectAdder : MonoBehaviour
     {
-
+        public int gameState = 0; // 0 - objectSelection; 1 - objectCreation; 2 - objectSettings;
+                                  // 3 - objectChangingPosition
         public LayerMask layermask;
         public GameObject objectPrefab; // Префаб объекта
 
-        public GameObject testObject;
+        public GameObject objectSettings;
         public GameObject Ground;
         private GameObject previewObject; // Объект для предварительного просмотра
         public bool object_chosen = false;
 
-        public GameObject[] gameObjects;
+        public List<GameObject> CreatedObjects;
 
         private float t = 0f;
 
@@ -50,85 +53,117 @@ namespace SCUD3D
             Material material = chosenObject.GetComponentInChildren<Renderer>().material;
 
             t += deltat;
-            material.color = Color.Lerp(Color.HSVToRGB(180 / 360f, 0.35f, 1f), Color.HSVToRGB(230 / 360f, 0.45f, 1f), t);
+            material.color = Color.Lerp(Color.HSVToRGB(200 / 360f, 0.7f, 1f), Color.HSVToRGB(240 / 360f, 0.5f, 1f), t);
             if (t > 1 || t <= 0) deltat *= -1f; // Сброс значения для повторения
         }
 
         void SelectObject(Ray ray, RaycastHit hit)
         {
-            if (gameObjects.Contains(hit.collider.gameObject))
+            if (CreatedObjects.Contains(hit.collider.gameObject))
             {
                 ColorAnimation(hit.collider.gameObject);
+                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E)) objectSettings.SetActive(true);
+                if (Input.GetKeyDown(KeyCode.T))
+                {
+                    objectPrefab = hit.collider.gameObject;
+                    gameState = 3;
+                }
+                if (Input.GetKeyDown(KeyCode.X))
+                {
+                    CreatedObjects.Remove(hit.collider.gameObject);
+                    Destroy(hit.collider.gameObject);
+                }
             }
             if (previousSelection == null) previousSelection = hit.collider.gameObject;
-                else if (previousSelection != null && hit.collider.gameObject != previousSelection)
-                {
-                    previousSelection.GetComponentInChildren<Renderer>().material.color = Color.white;
-                    previousSelection = hit.collider.gameObject;
+            else if (previousSelection != null && hit.collider.gameObject != previousSelection)
+            {
+                previousSelection.GetComponentInChildren<Renderer>().material.color = Color.white;
+                previousSelection = hit.collider.gameObject;
             }
+        }
+
+        void CreatePreviewObject(Ray ray, RaycastHit hit, Vector3 previewPosition)
+        {
+            {
+                previewPosition.y = Ground.transform.position.y;
+                previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
+                previewObject.layer = 2;
+                // Устанавливаем материал с полупрозрачностью
+                UpdateMaterial(previewObject);
+                //Material ghostMaterial = Resources.Load<Material>("Materials/Ghost_Material");
+            }
+        }
+
+        void MovePreviewObject(Ray ray, RaycastHit hit)
+        {
+            if (hit.collider.name != previewObject.name)
+            {
+                Vector3 previewPosition = hit.point;
+                previewPosition.y = Ground.transform.position.y;
+                previewObject.transform.position = previewPosition;
+                //previewObject.transform.eulerAngles = new Vector3(-90f, previewObject.transform.eulerAngles.y, previewObject.transform.eulerAngles.z);
+            }
+        }
+
+        void CreateObject(Vector3 position)
+        {
+            objectPrefab = Instantiate(objectPrefab, position, Quaternion.identity);
+            //objectPrefab.transform.eulerAngles = previewObject.transform.eulerAngles;
+            CreatedObjects.Add(objectPrefab);
+            Destroy(previewObject); // Удаляем объект предварительного просмотра
+            gameState = 0;
         }
 
         void Update()
         {
-            // Проверяем нажатие ЛКМ
-
-            // UpdateMaterial(testObject);
-
-
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (!object_chosen)
+            if (gameState == 0)
             {
                 if (Physics.Raycast(ray, out hit, 150f, layermask))
                     SelectObject(ray, hit);
             }
-
-            if (object_chosen)
+            if (gameState == 1)
             {
-                if (Input.GetMouseButtonDown(0))
+                if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null) CreatePreviewObject(ray, hit, hit.point);
+                else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null) MovePreviewObject(ray, hit);
+                if (Input.GetMouseButtonDown(0)) CreateObject(previewObject.transform.position);
+                else if (Input.GetMouseButtonDown(1))
                 {
-                    if (previewObject != null)
-                    {
-                        // Добавляем объект на сцену
-                        //turnstile turnstile_object = objectPrefab.GetComponent<turnstile>();
-                        //turnstile_object.id = 1;
-                        gameObjects.Append(objectPrefab);
-                        Instantiate(objectPrefab, previewObject.transform.position, Quaternion.identity);
-                        Destroy(previewObject); // Удаляем объект предварительного просмотра
-                        object_chosen = false;
-                    }
-                }
-                // Raycast для определения позиции курсора на земле
-
-                if (Physics.Raycast(ray, out hit, 150f, layermask))
-                {
-
-                    if (previewObject == null)
-                    {
-                        // Создаем объект предварительного просмотра
-                        Vector3 previewPosition = hit.point;
-                        previewPosition.y = Ground.transform.position.y;
-                        previewObject = Instantiate(objectPrefab, hit.point, Quaternion.identity);
-                        // Устанавливаем материал с полупрозрачностью
-                        
-                        UpdateMaterial(previewObject);
-                        //Material ghostMaterial = Resources.Load<Material>("Materials/Ghost_Material");
-
-
-                    }
-                    else if (hit.collider.name != previewObject.name)
-                    {
-                        // Обновляем позицию объекта предварительного просмотра
-                        Vector3 previewPosition = hit.point;
-                        previewPosition.y = Ground.transform.position.y;
-                        previewObject.transform.position = previewPosition;
-                    }
-
-
+                    Destroy(previewObject);
+                    gameState = 0;
                 }
             }
+            if (gameState == 2)
+            {
 
+            }
+            if (gameState == 3)
+            {
+                Vector3 previousPosition = objectPrefab.transform.position;
+                if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null)
+                {
+                    CreatePreviewObject(ray, hit, previousPosition);
+                    objectPrefab.SetActive(false);
+                }
+                else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null) MovePreviewObject(ray, hit);
+                if (Input.GetMouseButtonDown(0))
+                {
+                    Destroy(previewObject);
+                    objectPrefab.SetActive(true);
+                    objectPrefab.transform.position = previewObject.transform.position;
+
+                    gameState = 0;
+                }
+                else if (Input.GetMouseButtonDown(1))
+                {
+                    Destroy(previewObject);
+                    objectPrefab.SetActive(true);
+                    gameState = 0;
+                }
+
+            }
 
         }
     }
