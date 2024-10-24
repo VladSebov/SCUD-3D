@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using StarterAssets;
 using SCUD3D;
+using System;
 
 public class CatalogManager : MonoBehaviour
 {
@@ -48,7 +49,7 @@ public class CatalogManager : MonoBehaviour
     private void LoadCatalog()
     {
         // Читаем JSON файл
-        CatalogItemList itemList = JsonUtility.FromJson<CatalogItemList>(jsonFile.text);
+        CatalogItemsList itemList = JsonUtility.FromJson<CatalogItemsList>(jsonFile.text);
 
         foreach (var itemData in itemList.items)
         {
@@ -65,6 +66,7 @@ public class CatalogManager : MonoBehaviour
 
             // дескрипшен
             buttonText.text = itemData.itemName;
+            Debug.Log($"Item Name: {itemData.itemName}, Type: {itemData.type}, Raw Type: {itemData.type.ToString()}");
         }
     }
 
@@ -93,6 +95,8 @@ public class CatalogManager : MonoBehaviour
         ShowHidePreview();
         ObjectAdder adder = this.GetComponent<ObjectAdder>();
         adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab).GetComponent<BoxCollider>().gameObject;
+        Enum.TryParse(selectedItemData.type, true, out ObjectType type);
+        adder.objectType = type;
         if (adder.objectPrefab != null) adder.gameState = 1;
         else Debug.Log("Префаб не найден");
     }
@@ -137,12 +141,13 @@ public class CatalogItemData
 {
     public string itemName;
     public string description;
+    public string type;
     public string icon;  // Название иконки
     public string prefab;
 }
 
 [System.Serializable]
-public class CatalogItemList
+public class CatalogItemsList
 {
     public List<CatalogItemData> items;
 }

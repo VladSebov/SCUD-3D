@@ -1,9 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,13 +10,14 @@ namespace SCUD3D
                                   // 3 - objectChangingPosition
         public LayerMask layermask;
         public GameObject objectPrefab; // Префаб объекта
+        public ObjectType objectType; // Префаб объекта
 
         public GameObject objectSettings;
         public GameObject Ground;
         private GameObject previewObject; // Объект для предварительного просмотра
         public bool object_chosen = false;
 
-        public List<GameObject> CreatedObjects;
+        //public List<GameObject> CreatedObjects;
 
         private float t = 0f;
 
@@ -59,10 +55,14 @@ namespace SCUD3D
 
         void SelectObject(Ray ray, RaycastHit hit)
         {
-            if (CreatedObjects.Contains(hit.collider.gameObject))
+            var gameObjects = ObjectManager.Instance.GetAllObjects().Select(io => io.gameObject).ToList();
+            if (gameObjects.Contains(hit.collider.gameObject))
             {
                 ColorAnimation(hit.collider.gameObject);
-                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E)) objectSettings.SetActive(true);
+                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E)) 
+                { 
+                    objectSettings.SetActive(true); 
+                    }
                 if (Input.GetKeyDown(KeyCode.T))
                 {
                     objectPrefab = hit.collider.gameObject;
@@ -70,8 +70,8 @@ namespace SCUD3D
                 }
                 if (Input.GetKeyDown(KeyCode.X))
                 {
-                    CreatedObjects.Remove(hit.collider.gameObject);
-                    Destroy(hit.collider.gameObject);
+                    ObjectManager.Instance.RemoveObject(hit.collider.gameObject);
+                    //Destroy(hit.collider.gameObject);
                 }
             }
             if (previousSelection == null) previousSelection = hit.collider.gameObject;
@@ -86,7 +86,7 @@ namespace SCUD3D
         {
             {
                 previewPosition.y = Ground.transform.position.y;
-                previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
+                previewObject = Instantiate(objectPrefab.gameObject, previewPosition, Quaternion.identity);
                 previewObject.layer = 2;
                 // Устанавливаем материал с полупрозрачностью
                 UpdateMaterial(previewObject);
@@ -107,15 +107,17 @@ namespace SCUD3D
 
         void CreateObject(Vector3 position)
         {
-            objectPrefab = Instantiate(objectPrefab, position, Quaternion.identity);
+            objectPrefab = Instantiate(objectPrefab.gameObject, position, Quaternion.identity);
             //objectPrefab.transform.eulerAngles = previewObject.transform.eulerAngles;
-            CreatedObjects.Add(objectPrefab);
+            //CreatedObjects.Add(objectPrefab);
+            objectPrefab.name = ObjectManager.Instance.AddObject(objectType, objectPrefab);
             Destroy(previewObject); // Удаляем объект предварительного просмотра
             gameState = 0;
         }
 
         void Update()
         {
+            
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
@@ -128,7 +130,10 @@ namespace SCUD3D
             {
                 if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null) CreatePreviewObject(ray, hit, hit.point);
                 else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null) MovePreviewObject(ray, hit);
-                if (Input.GetMouseButtonDown(0)) CreateObject(previewObject.transform.position);
+                if (Input.GetMouseButtonDown(0)) 
+                {
+                    CreateObject(previewObject.transform.position);
+                }
                 else if (Input.GetMouseButtonDown(1))
                 {
                     Destroy(previewObject);
@@ -141,25 +146,25 @@ namespace SCUD3D
             }
             if (gameState == 3)
             {
-                Vector3 previousPosition = objectPrefab.transform.position;
+                Vector3 previousPosition = objectPrefab.gameObject.transform.position;
                 if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null)
                 {
                     CreatePreviewObject(ray, hit, previousPosition);
-                    objectPrefab.SetActive(false);
+                    objectPrefab.gameObject.SetActive(false);
                 }
                 else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null) MovePreviewObject(ray, hit);
                 if (Input.GetMouseButtonDown(0))
                 {
                     Destroy(previewObject);
-                    objectPrefab.SetActive(true);
-                    objectPrefab.transform.position = previewObject.transform.position;
+                    objectPrefab.gameObject.SetActive(true);
+                    objectPrefab.gameObject.transform.position = previewObject.transform.position;
 
                     gameState = 0;
                 }
                 else if (Input.GetMouseButtonDown(1))
                 {
                     Destroy(previewObject);
-                    objectPrefab.SetActive(true);
+                    objectPrefab.gameObject.SetActive(true);
                     gameState = 0;
                 }
 

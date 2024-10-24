@@ -1,0 +1,25 @@
+{
+    "items": [
+        {
+            "itemName": "Камера",
+            "description": "Описание камеры",
+            "icon": "camera1",
+            "prefab": "Mashes/Computer chair Prefab",
+            "type": "Camera"
+        },
+        {
+            "itemName": "Коммутатор",
+            "description": "Описание коммутатора",
+            "icon": "turnstile2",
+            "prefab": "Mashes/Computer Prefab",
+            "type": "Switch"
+        },
+        {
+            "itemName": "Турникет",
+            "description": "Описание турникета",
+            "icon": "turnstile3",
+            "prefab":"Mashes/Turnstile",
+            "type": "Turnstile"
+        }   
+    ]
+}

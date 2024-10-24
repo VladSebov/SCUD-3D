@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectSpawner : MonoBehaviour
-{    
+{
     public GameObject objectToSpawn; // Объект, который вы хотите добавлять
-    public Camera mainCamera; // Ссылка на основную камеру
+    public MyCamera mainCamera; // Ссылка на основную камеру
 
     void Update()
     {
@@ -16,21 +16,21 @@ public class ObjectSpawner : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(1)) // 0 - левая кнопка мыши
         {
-    
-    
-        // Создаем луч из позиции курсора мыши
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
 
-        // Проверяем, пересекает ли луч какой-либо объект
-        if (Physics.Raycast(ray, out hit))
-        {
-            // Если пересечение найдено, выводим информацию о объекте
-            Debug.Log("Пересечен объект: " + hit.collider.name);
-            Debug.Log("Точка пересечения: " + hit.point);
-            Debug.Log("Нормаль поверхности: " + hit.normal);
-            Debug.Log("Расстояние до объекта: " + hit.distance);
-        }
+
+            // Создаем луч из позиции курсора мыши
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            // Проверяем, пересекает ли луч какой-либо объект
+            if (Physics.Raycast(ray, out hit))
+            {
+                // Если пересечение найдено, выводим информацию о объекте
+                Debug.Log("Пересечен объект: " + hit.collider.name);
+                Debug.Log("Точка пересечения: " + hit.point);
+                Debug.Log("Нормаль поверхности: " + hit.normal);
+                Debug.Log("Расстояние до объекта: " + hit.distance);
+            }
         }
     }
 
@@ -47,4 +47,4 @@ public class ObjectSpawner : MonoBehaviour
             Instantiate(objectToSpawn, hit.point, Quaternion.identity);
         }
     }
-    }
+}
