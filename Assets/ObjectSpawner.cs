@@ -5,7 +5,7 @@ using UnityEngine;
 public class ObjectSpawner : MonoBehaviour
 {
     public GameObject objectToSpawn; // Объект, который вы хотите добавлять
-    public MyCamera mainCamera; // Ссылка на основную камеру
+    public Camera mainCamera; // Ссылка на основную камеру
 
     void Update()
     {

@@ -10,8 +10,13 @@ public enum ObjectType
 public static class IDManager
 {
     private static Dictionary<ObjectType, int> idCounters = new Dictionary<ObjectType, int>();
-   
-   // Constructor or initialization
+
+    static IDManager()
+    {
+        Start();
+    }
+
+    // Constructor or initialization
     private static void Start()
     {
         // Initialize counters for each object type
@@ -21,7 +26,7 @@ public static class IDManager
         }
     }
 
-     public static string GenerateId(ObjectType objectType)
+    public static string GenerateId(ObjectType objectType)
     {
         // Generate a new ID based on the current count and increment the counter
         string newId = $"{objectType.ToString().ToLower()}{idCounters[objectType]}";

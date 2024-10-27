@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SCUD3D
 {
@@ -9,12 +11,17 @@ namespace SCUD3D
         public int gameState = 0; // 0 - objectSelection; 1 - objectCreation; 2 - objectSettings;
                                   // 3 - objectChangingPosition
         public LayerMask layermask;
-        public GameObject objectPrefab; // Префаб объекта
-        public ObjectType objectType; // Префаб объекта
+        public GameObject objectPrefab; // префаб объекта
+        public InteractiveObject currentObject; // текущий объект для настройки
+        public GameObject objectSettings; // меню настройки объекта
+        public ObjectSettingsManager ObjectSettingsManager; // скрипт для objectSettings
 
-        public GameObject objectSettings;
+        public CatalogItemData objectData; // данные объекта
+        // public ObjectType objectType; // тип объекта
+        // public List<ObjectType> connectableTypes; // типы объектов доступных для подключения
+
         public GameObject Ground;
-        private GameObject previewObject; // Объект для предварительного просмотра
+        private GameObject previewObject; // объект для предварительного просмотра
         public bool object_chosen = false;
 
         //public List<GameObject> CreatedObjects;
@@ -27,6 +34,7 @@ namespace SCUD3D
         void Start()
         {
             deltat = Time.deltaTime / 2f;
+            ObjectSettingsManager = GetComponent<ObjectSettingsManager>();
         }
 
         void UpdateMaterial(GameObject previewObject)
@@ -59,10 +67,10 @@ namespace SCUD3D
             if (gameObjects.Contains(hit.collider.gameObject))
             {
                 ColorAnimation(hit.collider.gameObject);
-                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E)) 
-                { 
-                    objectSettings.SetActive(true); 
-                    }
+                // if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
+                // {
+                //     objectSettings.SetActive(true);
+                // }
                 if (Input.GetKeyDown(KeyCode.T))
                 {
                     objectPrefab = hit.collider.gameObject;
@@ -86,7 +94,7 @@ namespace SCUD3D
         {
             {
                 previewPosition.y = Ground.transform.position.y;
-                previewObject = Instantiate(objectPrefab.gameObject, previewPosition, Quaternion.identity);
+                previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
                 previewObject.layer = 2;
                 // Устанавливаем материал с полупрозрачностью
                 UpdateMaterial(previewObject);
@@ -107,19 +115,38 @@ namespace SCUD3D
 
         void CreateObject(Vector3 position)
         {
-            objectPrefab = Instantiate(objectPrefab.gameObject, position, Quaternion.identity);
+            objectPrefab = Instantiate(objectPrefab, position, Quaternion.identity);
             //objectPrefab.transform.eulerAngles = previewObject.transform.eulerAngles;
             //CreatedObjects.Add(objectPrefab);
-            objectPrefab.name = ObjectManager.Instance.AddObject(objectType, objectPrefab);
+            ObjectManager.Instance.AddObject(objectData, objectPrefab); // creates an object 
             Destroy(previewObject); // Удаляем объект предварительного просмотра
             gameState = 0;
         }
 
         void Update()
         {
-            
+
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
+
+            // Detect object click
+            if (Input.GetMouseButtonDown(0))
+            {
+
+                if (Physics.Raycast(ray, out hit))
+                {
+                    GameObject clickedObject = hit.collider.gameObject;
+
+                    // Check if the clicked object is interactive
+                    InteractiveObject interactiveObject = ObjectManager.Instance.GetObject(clickedObject.name);
+                    if (interactiveObject != null)
+                    {
+                        // Show configuration menu
+                        currentObject = interactiveObject;
+                        ShowObjectMenu(currentObject);
+                    }
+                }
+            }
 
             if (gameState == 0)
             {
@@ -128,9 +155,15 @@ namespace SCUD3D
             }
             if (gameState == 1)
             {
-                if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null) CreatePreviewObject(ray, hit, hit.point);
-                else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null) MovePreviewObject(ray, hit);
-                if (Input.GetMouseButtonDown(0)) 
+                if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null)
+                {
+                    CreatePreviewObject(ray, hit, hit.point);
+                }
+                else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null)
+                {
+                    MovePreviewObject(ray, hit);
+                }
+                if (Input.GetMouseButtonDown(0))
                 {
                     CreateObject(previewObject.transform.position);
                 }
@@ -170,6 +203,34 @@ namespace SCUD3D
 
             }
 
+        }
+
+        public void ShowObjectMenu(InteractiveObject obj)
+        {
+            // Enable the configuration menu
+            objectSettings.SetActive(true);
+            UpdateMenuUI(obj);
+        }
+
+        private void UpdateMenuUI(InteractiveObject obj)
+        {
+            // Update UI elements like dropdown and title
+            // Text title = objectSettings.transform.Find("Title").GetComponent<Text>();
+            // title.text = $"Configure {obj.type} ({obj.id})";
+
+            // Dropdown connectionDropdown = objectSettings.transform.Find("ConnectionDropdown").GetComponent<Dropdown>();
+            // connectionDropdown.ClearOptions();
+
+            // Get available devices to connect
+            List<string> availableDevices = ObjectManager.Instance.GetAvailableDevicesIDs(obj.id);
+            ObjectSettingsManager.FillAvailableDevices(availableDevices);
+            // List<string> deviceOptions = new List<string>();
+            // foreach (string deviceId in availableDevices)
+            // {
+            //     deviceOptions.Add(deviceId);
+            // }
+
+            //connectionDropdown.AddOptions(deviceOptions);
         }
     }
 }

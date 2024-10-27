@@ -95,8 +95,7 @@ public class CatalogManager : MonoBehaviour
         ShowHidePreview();
         ObjectAdder adder = this.GetComponent<ObjectAdder>();
         adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab).GetComponent<BoxCollider>().gameObject;
-        Enum.TryParse(selectedItemData.type, true, out ObjectType type);
-        adder.objectType = type;
+        adder.objectData = selectedItemData;
         if (adder.objectPrefab != null) adder.gameState = 1;
         else Debug.Log("Префаб не найден");
     }
@@ -142,6 +141,8 @@ public class CatalogItemData
     public string itemName;
     public string description;
     public string type;
+    public int maxConnections;
+    public List<string> connectableTypes;
     public string icon;  // Название иконки
     public string prefab;
 }

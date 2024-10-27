@@ -26,8 +26,6 @@ public class ObjectManager : MonoBehaviour
 
     private Dictionary<string, InteractiveObject> gameObjects = new Dictionary<string, InteractiveObject>();
 
-    private Dictionary<ObjectType, int> idCounters = new Dictionary<ObjectType, int>();
-
     private void Awake()
     {
         // Ensure that there is only one instance of the manager
@@ -42,30 +40,25 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
-    // Constructor or initialization
-    private void Start()
-    {
-        // Initialize counters for each object type
-        foreach (ObjectType type in Enum.GetValues(typeof(ObjectType)))
-        {
-            idCounters[type] = 0;
-        }
-    }
-
-    public string GenerateId(ObjectType objectType)
-    {
-        // Generate a new ID based on the current count and increment the counter
-        string newId = $"{objectType.ToString().ToLower()}{idCounters[objectType]}";
-        idCounters[objectType]++;
-        return newId;
-    }
-
     // Example of how to create an object with generated ID
-    public string AddObject(ObjectType objectType, GameObject gameObject)
+    public void AddObject(CatalogItemData objectData, GameObject gameObject)
     {
         InteractiveObject newObject = null;
 
-        switch (objectType)
+        // parse device type
+        Enum.TryParse(objectData.type, true, out ObjectType type);
+
+        // parse connectable types
+        List<ObjectType> connectableTypes = new List<ObjectType>();
+        foreach (var typeString in objectData.connectableTypes)
+        {
+            if (Enum.TryParse(typeString.ToString(), out ObjectType parsedConnectableType))
+            {
+                connectableTypes.Add(parsedConnectableType);
+            }
+        }
+
+        switch (type)
         {
             case ObjectType.Camera:
                 newObject = new MyCamera();
@@ -80,14 +73,18 @@ public class ObjectManager : MonoBehaviour
 
         if (newObject != null)
         {
-            newObject.id = GenerateId(objectType);
+            newObject.id = IDManager.GenerateId(type);
             if (!gameObjects.ContainsKey(newObject.id))
             {
+                newObject.type = type;
+                newObject.maxConnections = objectData.maxConnections;
+                newObject.connectableTypes = connectableTypes;
                 newObject.gameObject = gameObject;
                 gameObjects[newObject.id] = newObject;
+
+                gameObject.name = newObject.id; // assigns name 
             }
         }
-        return newObject?.id; // return id to use it as name in prefab
     }
 
     public void RemoveObject(GameObject obj)
@@ -113,8 +110,32 @@ public class ObjectManager : MonoBehaviour
     {
         if (gameObjects.ContainsKey(id1) && gameObjects.ContainsKey(id2))
         {
-            gameObjects[id1].connections.Add(id2);
-            gameObjects[id2].connections.Add(id1); // Assuming bidirectional connection
+            InteractiveObject obj1 = gameObjects[id1];
+            InteractiveObject obj2 = gameObjects[id2];
+
+            // Check if obj1 is already connected to obj2 and vice versa
+            if (!obj1.connections.Contains(id2) && !obj2.connections.Contains(id1))
+            {
+                // Ensure both objects have available connection slots
+                if (obj1.connections.Count < obj1.maxConnections && obj2.connections.Count < obj2.maxConnections)
+                {
+                    // Add the connection to both objects (bidirectional connection)
+                    obj1.connections.Add(id2);
+                    obj2.connections.Add(id1);
+                }
+                else
+                {
+                    Debug.LogWarning("One or both objects have reached their connection limit.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Objects {id1} and {id2} are already connected.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
         }
     }
 
@@ -127,6 +148,45 @@ public class ObjectManager : MonoBehaviour
     public List<InteractiveObject> GetAllObjects()
     {
         return new List<InteractiveObject>(gameObjects.Values);
+    }
+
+    public List<string> GetAvailableDevicesIDs(string currentObjectId)
+    {
+        // Get the current object by its ID
+        InteractiveObject currentObject = GetObject(currentObjectId);
+        if (currentObject == null)
+        {
+            Debug.LogWarning($"Object with ID {currentObjectId} does not exist.");
+            return null;
+        }
+
+        // List to hold available devices to connect
+        List<string> availableDevices = new List<string>();
+
+        // Iterate over all the objects in the gameObjects dictionary
+        foreach (InteractiveObject obj in gameObjects.Values)
+        {
+            // Check if the object is not the current object itself
+            if (obj.id == currentObject.id)
+                continue;
+
+            // Check if the object's type is connectable to the current object
+            if (currentObject.connectableTypes.Contains(obj.type))
+            {
+                // Check if the object has available connection slots
+                if (0 < obj.maxConnections)
+                {
+                    // Check if the object is not already connected to the current object
+                    if (!currentObject.connections.Contains(obj.id))
+                    {
+                        // If all conditions are satisfied, add the object to the availableDevices list
+                        availableDevices.Add(obj.id);
+                    }
+                }
+            }
+        }
+
+        return availableDevices;
     }
 }
 
