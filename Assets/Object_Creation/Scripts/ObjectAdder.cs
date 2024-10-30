@@ -91,24 +91,100 @@ namespace SCUD3D
             }
         }
 
+        void ChangeSurfaceColor(Ray ray, RaycastHit hit, string tag)
+        {
+            if (previousSelection == null) previousSelection = hit.collider.gameObject;
+            else if (previousSelection != null && hit.collider.gameObject != previousSelection)
+            {
+                if (hit.collider.gameObject.CompareTag(tag))
+                {
+                    hit.collider.gameObject.GetComponentInChildren<Renderer>().material.color = Color.green;
+                }
+                if (!hit.collider.gameObject.CompareTag(tag))
+                {
+                    hit.collider.gameObject.GetComponentInChildren<Renderer>().material.color = Color.red;
+                }
+                previousSelection.GetComponentInChildren<Renderer>().material.color = Color.white;
+                previousSelection = hit.collider.gameObject;
+            }
+        }
+
         void CreatePreviewObject(Ray ray, RaycastHit hit, Vector3 previewPosition)
         {
+            switch (objectData.type)
             {
-                previewPosition.y = Ground.transform.position.y;
+                case "Turnstile":
+                    ChangeSurfaceColor(ray, hit, "Floor");
+                    if (previewObject == null) CreatePreviewOnFloor(previewPosition, hit);
+                    else if (previewObject != null) MovePreviewOnFloor(ray, hit);
+                    break;
+                case "Camera":
+                    ChangeSurfaceColor(ray, hit, "Wall");
+                    if (previewObject == null) CreatePreviewOnWall(previewPosition, hit);
+                    else if (previewObject != null) MovePreviewOnWall(ray, hit);
+                    break;
+                default:
+                    ChangeSurfaceColor(ray, hit, "Floor");
+                    if (previewObject == null) CreatePreviewOnFloor(previewPosition, hit);
+                    else if (previewObject != null) MovePreviewOnFloor(ray, hit);
+                    break;
+            }
+        }
+
+        void CreatePreviewOnFloor(Vector3 previewPosition, RaycastHit hit)
+        {
+            if (hit.collider.gameObject.CompareTag("Floor"))
+            {
+                //previewPosition.y = hit.point.y;
                 previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
-                previewObject.layer = 2;
+                ChangeLayerRecursively(previewObject.transform, 2);
                 // Устанавливаем материал с полупрозрачностью
                 UpdateMaterial(previewObject);
                 //Material ghostMaterial = Resources.Load<Material>("Materials/Ghost_Material");
             }
         }
 
-        void MovePreviewObject(Ray ray, RaycastHit hit)
+        void CreatePreviewOnWall(Vector3 previewPosition, RaycastHit hit)
         {
-            if (hit.collider.name != previewObject.name)
+            if (hit.collider.gameObject.CompareTag("Wall"))
+            {
+                //previewPosition.z = hit.point.z;
+                previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
+                ChangeLayerRecursively(previewObject.transform, 2);
+                // Устанавливаем материал с полупрозрачностью
+                UpdateMaterial(previewObject);
+                //Material ghostMaterial = Resources.Load<Material>("Materials/Ghost_Material");
+            }
+        }
+
+
+        void ChangeLayerRecursively(Transform parent, int layer)
+        {
+            // Устанавливаем слой для текущего объекта
+            parent.gameObject.layer = layer;
+
+            // Рекурсивно устанавливаем слой для всех дочерних объектов
+            foreach (Transform child in parent)
+            {
+                ChangeLayerRecursively(child, layer);
+            }
+        }
+
+        void MovePreviewOnFloor(Ray ray, RaycastHit hit)
+        {
+            if (hit.collider.gameObject.CompareTag("Floor"))
             {
                 Vector3 previewPosition = hit.point;
-                previewPosition.y = Ground.transform.position.y;
+                previewObject.transform.position = previewPosition;
+                //previewObject.transform.eulerAngles = new Vector3(-90f, previewObject.transform.eulerAngles.y, previewObject.transform.eulerAngles.z);
+            }
+        }
+
+        void MovePreviewOnWall(Ray ray, RaycastHit hit)
+        {
+            if (hit.collider.gameObject.CompareTag("Wall"))
+            {
+                Vector3 previewPosition = hit.point;
                 previewObject.transform.position = previewPosition;
                 //previewObject.transform.eulerAngles = new Vector3(-90f, previewObject.transform.eulerAngles.y, previewObject.transform.eulerAngles.z);
             }
@@ -156,22 +232,20 @@ namespace SCUD3D
             }
             if (gameState == 1)
             {
-                if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null)
+                if (Physics.Raycast(ray, out hit, 150f, layermask))
                 {
                     CreatePreviewObject(ray, hit, hit.point);
                 }
-                else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null)
-                {
-                    MovePreviewObject(ray, hit);
-                }
-                if (Input.GetMouseButtonDown(0))
+                if (previewObject != null && Input.GetMouseButtonDown(0))
                 {
                     CreateObject(previewObject.transform.position);
+                    previousSelection.GetComponent<Renderer>().material.color = Color.white;
                 }
                 else if (Input.GetMouseButtonDown(1))
                 {
-                    Destroy(previewObject);
+                    if (previewObject != null) Destroy(previewObject);
                     gameState = 0;
+                    previousSelection.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
             if (gameState == 2)
@@ -181,12 +255,11 @@ namespace SCUD3D
             if (gameState == 3)
             {
                 Vector3 previousPosition = objectPrefab.gameObject.transform.position;
-                if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject == null)
+                if (Physics.Raycast(ray, out hit, 150f, layermask))
                 {
                     CreatePreviewObject(ray, hit, previousPosition);
                     objectPrefab.gameObject.SetActive(false);
                 }
-                else if (Physics.Raycast(ray, out hit, 150f, layermask) && previewObject != null) MovePreviewObject(ray, hit);
                 if (Input.GetMouseButtonDown(0))
                 {
                     Destroy(previewObject);
