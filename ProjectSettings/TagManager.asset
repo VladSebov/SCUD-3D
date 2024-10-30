@@ -7,6 +7,8 @@ TagManager:
   - CinemachineTarget
   - Cam
   - PreviewPanel
+  - Wall
+  - Floor
   layers:
   - Default
   - TransparentFX
