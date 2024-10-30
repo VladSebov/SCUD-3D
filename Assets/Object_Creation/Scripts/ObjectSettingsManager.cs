@@ -1,33 +1,88 @@
 using System;
 using System.Collections.Generic;
+using StarterAssets;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ObjectSettingsManager : MonoBehaviour
 {
-    public GameObject itemTemplate; // Assign the ItemTemplate prefab here
-    public Transform content; // Assign the Content GameObject here
+    public GameObject objectSettings; // Reference to the objectSettings
+    public InteractiveObject interactiveObject; // Reference to the InteractiveObject
+    public TextMeshProUGUI connectionCountText; // Reference to the Text for connection count
+    public ScrollRect scrollView; // Reference to the Scroll View
+    public GameObject connectionItemPrefab; // Prefab for displaying connection items
+    public Button deleteButton; // Reference to the delete button
+    public Button addButton; // Reference to the add button
+    private string selectedConnectionId; // Store the selected connection ID
 
-    public void FillAvailableDevices(List<string> availableDevices)
+
+    public void ShowMenu(InteractiveObject obj)
     {
-        // Clear old items before adding new ones
-        foreach (Transform child in content)
+        interactiveObject = obj;
+        UpdateMenu();
+        objectSettings.SetActive(true);
+    }
+
+    void Update()
+    {
+        // Check if the menu is active and the Escape key is pressed
+        if (objectSettings.activeSelf && Input.GetKeyDown(KeyCode.Escape))
         {
-            Destroy(child.gameObject); // Destroy all previous child objects
+            CloseMenu();
         }
-        foreach (string deviceId in availableDevices) // Example: create 20 items
+    }
+
+    private void CloseMenu()
+    {
+        objectSettings.SetActive(false);
+    }
+
+    public void UpdateMenu()
+    {
+        // Update connection count text
+        connectionCountText.text = $"{interactiveObject.connections.Count} / {interactiveObject.maxConnections}";
+
+        FillConnections();
+
+        // Update button visibility
+        deleteButton.gameObject.SetActive(!string.IsNullOrEmpty(selectedConnectionId));
+        addButton.gameObject.SetActive(interactiveObject.connections.Count < interactiveObject.maxConnections);
+    }
+
+    public void SelectConnection(string connectionId)
+    {
+        selectedConnectionId = connectionId;
+        UpdateMenu();
+    }
+
+    public void DeleteConnection()
+    {
+        if (!string.IsNullOrEmpty(selectedConnectionId))
         {
-            GameObject newItem = Instantiate(itemTemplate, content);
-            newItem.SetActive(true); // Activate the item
+            interactiveObject.connections.Remove(selectedConnectionId);
+            selectedConnectionId = null;
+            UpdateMenu();
+        }
+    }
 
-            // Set the text for the item
-            TextMeshProUGUI itemText = newItem.GetComponentInChildren<TextMeshProUGUI>();
-            itemText.text = deviceId;
 
-            // Set up the button
-            Button itemButton = newItem.GetComponentInChildren<Button>();
-            itemButton.onClick.AddListener(() => OnButtonClick(deviceId)); // Pass the item number
+    public void FillConnections()
+    {
+        // Clear existing items in the scroll view
+        foreach (Transform child in scrollView.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var connectionId in interactiveObject.connections)
+        {
+            GameObject item = Instantiate(connectionItemPrefab, scrollView.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = connectionId;
+            Button button = item.GetComponentInChildren<Button>();
+            button.onClick.AddListener(() => SelectConnection(connectionId));
         }
     }
 

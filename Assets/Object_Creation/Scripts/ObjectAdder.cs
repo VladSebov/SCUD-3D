@@ -13,8 +13,8 @@ namespace SCUD3D
         public LayerMask layermask;
         public GameObject objectPrefab; // префаб объекта
         public InteractiveObject currentObject; // текущий объект для настройки
-        public GameObject objectSettings; // меню настройки объекта
         public ObjectSettingsManager ObjectSettingsManager; // скрипт для objectSettings
+        public MenuDevicesManager MenuDevicesManager; // скрипт для objectSettings
 
         public CatalogItemData objectData; // данные объекта
         // public ObjectType objectType; // тип объекта
@@ -35,6 +35,7 @@ namespace SCUD3D
         {
             deltat = Time.deltaTime / 2f;
             ObjectSettingsManager = GetComponent<ObjectSettingsManager>();
+            MenuDevicesManager = GetComponent<MenuDevicesManager>();
         }
 
         void UpdateMaterial(GameObject previewObject)
@@ -208,29 +209,15 @@ namespace SCUD3D
         public void ShowObjectMenu(InteractiveObject obj)
         {
             // Enable the configuration menu
-            objectSettings.SetActive(true);
-            UpdateMenuUI(obj);
+            ObjectSettingsManager.ShowMenu(obj);
         }
 
-        private void UpdateMenuUI(InteractiveObject obj)
+
+        public void ShowAvailableDevices() // You can modify this to get input from the user
         {
-            // Update UI elements like dropdown and title
-            // Text title = objectSettings.transform.Find("Title").GetComponent<Text>();
-            // title.text = $"Configure {obj.type} ({obj.id})";
-
-            // Dropdown connectionDropdown = objectSettings.transform.Find("ConnectionDropdown").GetComponent<Dropdown>();
-            // connectionDropdown.ClearOptions();
-
-            // Get available devices to connect
-            List<string> availableDevices = ObjectManager.Instance.GetAvailableDevicesIDs(obj.id);
-            ObjectSettingsManager.FillAvailableDevices(availableDevices);
-            // List<string> deviceOptions = new List<string>();
-            // foreach (string deviceId in availableDevices)
-            // {
-            //     deviceOptions.Add(deviceId);
-            // }
-
-            //connectionDropdown.AddOptions(deviceOptions);
+            MenuDevicesManager.ShowMenu(currentObject);
         }
     }
 }
+
+
