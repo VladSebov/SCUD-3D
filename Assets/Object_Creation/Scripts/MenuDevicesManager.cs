@@ -39,7 +39,7 @@ public class MenuDevicesManager : MonoBehaviour
     public void UpdateMenu()
     {
         FillDevices();
-        connectButton.gameObject.SetActive(selectedDeviceId!=null);
+        connectButton.interactable = selectedDeviceId!=null;
     }
 
     public void SelectDevice(string deviceId)
@@ -48,12 +48,12 @@ public class MenuDevicesManager : MonoBehaviour
         UpdateMenu();
     }
 
-    public void AddConnection(string newConnectionId) // You can modify this to get input from the user
+    public void ConnectDevices() // You can modify this to get input from the user
     {
         if (interactiveObject.connections.Count < interactiveObject.maxConnections)
         {
-            interactiveObject.connections.Add(newConnectionId);
-            UpdateMenu();
+            ObjectManager.Instance.ConnectObjects(interactiveObject.id, selectedDeviceId);
+            CloseMenu();
         }
     }
 
@@ -77,10 +77,5 @@ public class MenuDevicesManager : MonoBehaviour
             }
             button.onClick.AddListener(() => SelectDevice(deviceId));
         }
-    }
-
-    void OnButtonClick(string deviceId)
-    {
-        Debug.Log("Button clicked for Item " + deviceId);
     }
 }

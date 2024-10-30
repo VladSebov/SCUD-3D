@@ -138,6 +138,31 @@ public class ObjectManager : MonoBehaviour
             Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
         }
     }
+    public void DisconnectObjects(string id1, string id2)
+    {
+        if (gameObjects.ContainsKey(id1) && gameObjects.ContainsKey(id2))
+        {
+            InteractiveObject obj1 = gameObjects[id1];
+            InteractiveObject obj2 = gameObjects[id2];
+
+            // Check if obj1 is connected to obj2 and vice versa
+            if (obj1.connections.Contains(id2) && obj2.connections.Contains(id1))
+            {
+                // Remove the connection from both objects (bidirectional disconnection)
+                obj1.connections.Remove(id2);
+                obj2.connections.Remove(id1);
+            }
+            else
+            {
+                Debug.LogWarning($"Objects {id1} and {id2} are not connected.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
+        }
+    }
+
 
     public InteractiveObject GetObject(string id)
     {

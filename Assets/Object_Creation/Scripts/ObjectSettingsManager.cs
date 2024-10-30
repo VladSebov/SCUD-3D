@@ -23,6 +23,7 @@ public class ObjectSettingsManager : MonoBehaviour
         interactiveObject = obj;
         UpdateMenu();
         objectSettings.SetActive(true);
+        Cursor.visible = true;
     }
 
     void Update()
@@ -47,8 +48,8 @@ public class ObjectSettingsManager : MonoBehaviour
         FillConnections();
 
         // Update button visibility
-        deleteButton.gameObject.SetActive(!string.IsNullOrEmpty(selectedConnectionId));
-        addButton.gameObject.SetActive(interactiveObject.connections.Count < interactiveObject.maxConnections);
+        deleteButton.interactable = !string.IsNullOrEmpty(selectedConnectionId);
+        addButton.interactable = interactiveObject.connections.Count < interactiveObject.maxConnections;
     }
 
     public void SelectConnection(string connectionId)
@@ -61,12 +62,11 @@ public class ObjectSettingsManager : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(selectedConnectionId))
         {
-            interactiveObject.connections.Remove(selectedConnectionId);
+            ObjectManager.Instance.DisconnectObjects(interactiveObject.id, selectedConnectionId);
             selectedConnectionId = null;
             UpdateMenu();
         }
     }
-
 
     public void FillConnections()
     {
