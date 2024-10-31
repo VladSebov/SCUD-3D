@@ -3,17 +3,17 @@
         {
             "itemName": "Камера",
             "description": "Описание камеры",
-            "icon": "camera1",
-            "prefab": "Mashes/Computer chair Prefab",
+            "icon": "dummy_camera",
+            "prefab": "Mashes/Camera",
             "type": "Camera",
             "maxConnections": 1,
-            "connectableTypes": ["Switch","Turnstile"]
+            "connectableTypes": ["Switch"]
         },
         {
             "itemName": "Коммутатор",
             "description": "Описание коммутатора",
-            "icon": "turnstile2",
-            "prefab": "Mashes/Computer Prefab",
+            "icon": "switch1",
+            "prefab": "Mashes/Switch",
             "type": "Switch",
             "maxConnections": 52,
             "connectableTypes": ["Camera"]
