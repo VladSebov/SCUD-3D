@@ -21,6 +21,10 @@ public class ScudSettings : MonoBehaviour
     public GameObject ItemPrefab;
     public int SelectedMenu = 0;
     private string currentCamera;
+
+    private string selectedRole;
+    private string selectedAccessDeviceId;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,13 +34,13 @@ public class ScudSettings : MonoBehaviour
     void ShowCameraView(string CameraId, bool status)
     {
         currentCamera = CameraId;
+        //replace with getObject(id) method from ObjectManager
         var cameraGameObject = ObjectManager.Instance.GetAllObjects()
     .Where(io => io.id == CameraId) // Фильтруем объекты типа Camera
     .Select(io => io.gameObject)
     .ToList();
-    cameraGameObject[0].GetComponentInChildren<Camera>().enabled = status;
-    CameraViewer.SetActive(status);
-
+        cameraGameObject[0].GetComponentInChildren<Camera>().enabled = status;
+        CameraViewer.SetActive(status);
     }
 
     // Update is called once per frame
@@ -76,6 +80,53 @@ public class ScudSettings : MonoBehaviour
         }
     }
 
+    public void FillAccessDevices()
+    {
+        var accessDevices = ObjectManager.Instance.GetAllObjects()
+    .Where(io => io.type == ObjectType.Turnstile) // Фильтруем объекты типа Camera
+    .ToList();
+        // Clear existing items in the scroll view
+        foreach (Transform child in ScrollView.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var device in accessDevices)
+        {
+            GameObject item = Instantiate(ItemPrefab, ScrollView.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = device.id;
+            Button button = item.GetComponentInChildren<Button>();
+            button.onClick.AddListener(() => { });
+        }
+    }
+
+    public void FillRoles()
+    {
+        var roles = ScudManager.Instance.GetRoles();
+        // Clear existing items in the scroll view
+        foreach (Transform child in ScrollView.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var role in roles)
+        {
+            GameObject item = Instantiate(ItemPrefab, ScrollView.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = role;
+            // Button button = item.GetComponentInChildren<Button>();
+            // button.onClick.AddListener(() =>{ AddRole();});
+        }
+        AddButton.onClick.AddListener(()=>{AddRole();});
+    }
+
+    public void AddRole()
+    {
+        ScudManager.Instance.AddRoleLocal();
+        FillRoles();
+    }
+
     public void ViewMenu(int SelectedMenu)
     {
         switch (SelectedMenu)
@@ -84,11 +135,13 @@ public class ScudSettings : MonoBehaviour
                 MenuHeader.text = "Список устройств доступа";
                 AddButton.gameObject.SetActive(false);
                 DeleteButton.gameObject.SetActive(false);
+                FillAccessDevices();
                 break;
             case 1:
                 MenuHeader.text = "Список ролей";
                 AddButton.gameObject.SetActive(true);
                 DeleteButton.gameObject.SetActive(true);
+                FillRoles();
                 break;
             case 2:
                 MenuHeader.text = "Список камер";

@@ -138,6 +138,7 @@ public class ObjectManager : MonoBehaviour
             Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
         }
     }
+    
     public void DisconnectObjects(string id1, string id2)
     {
         if (gameObjects.ContainsKey(id1) && gameObjects.ContainsKey(id2))
@@ -162,7 +163,6 @@ public class ObjectManager : MonoBehaviour
             Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
         }
     }
-
 
     public InteractiveObject GetObject(string id)
     {
