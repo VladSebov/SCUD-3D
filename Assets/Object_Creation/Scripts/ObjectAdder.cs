@@ -14,7 +14,7 @@ namespace SCUD3D
         public GameObject objectPrefab; // префаб объекта
         public InteractiveObject currentObject; // текущий объект для настройки
         public ObjectSettingsManager ObjectSettingsManager; // скрипт для objectSettings
-        public MenuDevicesManager MenuDevicesManager; // скрипт для objectSettings
+        public MenuDevicesManager MenuDevicesManager; // скрипт для menuDevices
 
         public CatalogItemData objectData; // данные объекта
         // public ObjectType objectType; // тип объекта

@@ -24,30 +24,25 @@ public class ScudSettings : MonoBehaviour
 
     private string selectedRole;
     private string selectedAccessDeviceId;
+    public AvailableRolesMenuManager AvailableRolesMenuManager; // скрипт для available roles
 
-    // Start is called before the first frame update
+
     void Start()
     {
-
+        AvailableRolesMenuManager = GetComponent<AvailableRolesMenuManager>();
     }
 
     void ShowCameraView(string CameraId, bool status)
     {
         currentCamera = CameraId;
-        //replace with getObject(id) method from ObjectManager
-        var cameraGameObject = ObjectManager.Instance.GetAllObjects()
-    .Where(io => io.id == CameraId) // Фильтруем объекты типа Camera
-    .Select(io => io.gameObject)
-    .ToList();
-        cameraGameObject[0].GetComponentInChildren<Camera>().enabled = status;
+        var cameraGameObject = ObjectManager.Instance.GetObject(CameraId);
+        cameraGameObject.gameObject.GetComponentInChildren<Camera>().enabled = status;
         CameraViewer.SetActive(status);
     }
 
     public void UpdateRolesMenu()
     {
-
         FillRoles();
-
         // Update button visibility
         DeleteButton.interactable = !string.IsNullOrEmpty(selectedRole);
     }
@@ -108,8 +103,8 @@ public class ScudSettings : MonoBehaviour
     public void FillAccessDevices()
     {
         var accessDevices = ObjectManager.Instance.GetAllObjects()
-    .Where(io => io.type == ObjectType.Turnstile) // Фильтруем объекты типа Camera
-    .ToList();
+            .Where(io => io.type == ObjectType.Turnstile) // Фильтруем объекты типа Camera
+            .ToList();
         // Clear existing items in the scroll view
         foreach (Transform child in ScrollView.content)
         {
@@ -122,8 +117,13 @@ public class ScudSettings : MonoBehaviour
             GameObject item = Instantiate(ItemPrefab, ScrollView.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = device.id;
             Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => { });
+            button.onClick.AddListener(() => { ShowAvailableRoles(device);});
         }
+    }
+
+    public void ShowAvailableRoles(InteractiveObject accessDevice) // You can modify this to get input from the user
+    {
+        AvailableRolesMenuManager.ShowMenu(accessDevice);
     }
 
     public void FillRoles()
@@ -141,15 +141,13 @@ public class ScudSettings : MonoBehaviour
             GameObject item = Instantiate(ItemPrefab, ScrollView.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
             Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() =>{ SelectRole(role);});
+            button.onClick.AddListener(() => { SelectRole(role); });
         }
-        var NewRole = $"Новая роль #{roles.Count+1}";
-        AddButton.onClick.AddListener(()=>{AddRole(NewRole);});
     }
 
-    public void AddRole(string role)
+    public void OnAddRoleClick()
     {
-        ScudManager.Instance.AddRole(role);
+        ScudManager.Instance.AddRole();
         FillRoles();
     }
 

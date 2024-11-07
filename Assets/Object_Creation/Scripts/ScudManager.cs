@@ -23,6 +23,7 @@ public class ScudManager : MonoBehaviour
         }
     }
 
+    private int roleId = 0;
 
     private List<string> roles = new List<string>();
 
@@ -41,8 +42,10 @@ public class ScudManager : MonoBehaviour
     }
 
     // Метод для добавления роли
-    public void AddRole(string role)
+    public void AddRole()
     {
+        var role = $"Новая роль #{roleId++}";
+
         if (!roles.Contains(role))
         {
             roles.Add(role);
