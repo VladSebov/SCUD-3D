@@ -43,6 +43,31 @@ public class ScudSettings : MonoBehaviour
         CameraViewer.SetActive(status);
     }
 
+    public void UpdateRolesMenu()
+    {
+
+        FillRoles();
+
+        // Update button visibility
+        DeleteButton.interactable = !string.IsNullOrEmpty(selectedRole);
+    }
+
+    public void SelectRole(string Role)
+    {
+        selectedRole = Role;
+        UpdateRolesMenu();
+    }
+
+    public void DeleteRole()
+    {
+        if (!string.IsNullOrEmpty(selectedRole))
+        {
+            ScudManager.Instance.RemoveRole(selectedRole);
+            selectedRole = null;
+            UpdateRolesMenu();
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -115,15 +140,16 @@ public class ScudSettings : MonoBehaviour
         {
             GameObject item = Instantiate(ItemPrefab, ScrollView.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
-            // Button button = item.GetComponentInChildren<Button>();
-            // button.onClick.AddListener(() =>{ AddRole();});
+            Button button = item.GetComponentInChildren<Button>();
+            button.onClick.AddListener(() =>{ SelectRole(role);});
         }
-        AddButton.onClick.AddListener(()=>{AddRole();});
+        var NewRole = $"Новая роль #{roles.Count+1}";
+        AddButton.onClick.AddListener(()=>{AddRole(NewRole);});
     }
 
-    public void AddRole()
+    public void AddRole(string role)
     {
-        ScudManager.Instance.AddRoleLocal();
+        ScudManager.Instance.AddRole(role);
         FillRoles();
     }
 

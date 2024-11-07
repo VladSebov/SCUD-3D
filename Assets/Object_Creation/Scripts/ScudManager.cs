@@ -54,6 +54,20 @@ public class ScudManager : MonoBehaviour
         }
     }
 
+    public void RemoveRole(string role)
+    {
+
+        if (roles.Contains(role))
+        {
+            // Remove the object from the dictionary
+            roles.Remove(role);
+        }
+        else
+        {
+            Debug.LogWarning($"Role {role} does not exist in the manager.");
+        }
+    }
+
     // Метод для получения всех ролей
     public List<string> GetRoles()
     {
