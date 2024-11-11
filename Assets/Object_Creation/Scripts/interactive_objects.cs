@@ -35,3 +35,27 @@ public class Turnstile : InteractiveObject
 {
     public List<string> allowedRoles; // список допустимых ролей
 }
+
+[System.Serializable]
+public class Terminal : InteractiveObject
+{
+    public List<string> allowedRoles; // список допустимых ролей
+}
+
+[System.Serializable]
+public class Server : InteractiveObject
+{
+    public List<string> allowedRoles; // список допустимых ролей
+}
+
+[System.Serializable]
+public class Reciever : InteractiveObject
+{
+    public List<string> allowedRoles; // список допустимых ролей
+}
+
+[System.Serializable]
+public class ControlBox : InteractiveObject
+{
+    public List<string> allowedRoles; // список допустимых ролей
+}

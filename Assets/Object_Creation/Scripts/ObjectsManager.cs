@@ -69,6 +69,18 @@ public class ObjectManager : MonoBehaviour
             case ObjectType.Turnstile:
                 newObject = new Turnstile();
                 break;
+            case ObjectType.Server:
+                newObject = new Server();
+                break;
+            case ObjectType.ControlBox:
+                newObject = new ControlBox();
+                break;
+            case ObjectType.Terminal:
+                newObject = new Terminal();
+                break;
+            case ObjectType.Reciever:
+                newObject = new Reciever();
+                break;
         }
 
         if (newObject != null)

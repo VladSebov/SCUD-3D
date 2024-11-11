@@ -3,7 +3,13 @@ using System.Collections.Generic;
 
 public enum ObjectType
 {
-    Camera, Switch, Turnstile
+    Camera, 
+    Switch, 
+    Turnstile, 
+    Terminal, 
+    Server,
+    Reciever,
+    ControlBox
 }
 
 

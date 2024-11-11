@@ -26,6 +26,33 @@
             "type": "Turnstile",
             "maxConnections": 1,
             "connectableTypes": ["Switch"]
-        }   
+        },
+        {
+            "itemName": "Терминал 3",
+            "description": "Описание термнала",
+            "icon": "turnstile3",
+            "prefab":"Mashes/Terminal_3",
+            "type": "Terminal",
+            "maxConnections": 0,
+            "connectableTypes": ["Switch"]
+        }, 
+        {
+            "itemName": "Свитч 2",
+            "description": "Описание свича",
+            "icon": "turnstile3",
+            "prefab":"Mashes/Switch_2",
+            "type": "Switch",
+            "maxConnections": 1,
+            "connectableTypes": ["Switch"]
+        },
+        {
+            "itemName": "дор лок 1",
+            "description": "Описание свича",
+            "icon": "turnstile3",
+            "prefab":"Mashes/door_lock_1",
+            "type": "Terminal",
+            "maxConnections": 1,
+            "connectableTypes": ["Camera"]
+        }
     ]
 }
