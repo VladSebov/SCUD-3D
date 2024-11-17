@@ -8,29 +8,81 @@ using UnityEngine.UI;
 
 public class ScudSettings : MonoBehaviour
 {
+    public Button AccessSettingsButton;
+    public Button RolesSettingsButton;
+    public Button CamerasSettingsButton;
+    public Button RestrictionsSettingsButton;
+    public GameObject AccessSettingsContent;
+    public GameObject RolesSettingsContent;
+    public GameObject CamerasSettingsContent;
+    public GameObject RestrictionsSettingsContent;
     public GameObject scudSettings;
-    public TextMeshProUGUI MenuHeader;
-    public GameObject MenuAccessButton;
-    public GameObject MenuRolesButton;
-    public GameObject MenuCamerasButton;
-    public Button AddButton;
 
-    public Button DeleteButton;
-    public ScrollRect ScrollView;
+    //Access
+    public ScrollRect AccessDevicesScroll;
+    public GameObject AccessDeviceItem;
+    private string selectedAccessDeviceId;
+
+    //Roles
+    public ScrollRect RolesScroll;
+    public GameObject RoleItem;
+    public Button AddRoleButton;
+    public Button DeleteRoleButton;
+    public AvailableRolesMenuManager AvailableRolesMenuManager; // скрипт для available roles
+    private string selectedRole;
+
+    //Cameras
+    public ScrollRect CamerasScroll;
+    public GameObject CameraItem;
     public GameObject CameraViewer;
-    public GameObject ItemPrefab;
-    public int SelectedMenu = 0;
     private string currentCamera;
 
-    private string selectedRole;
-    private string selectedAccessDeviceId;
-    public AvailableRolesMenuManager AvailableRolesMenuManager; // скрипт для available roles
-
+    //Restrictions
+    public ScrollRect RestrictionsScroll;
+    public GameObject RestrictionItem;
 
     void Start()
     {
         AvailableRolesMenuManager = GetComponent<AvailableRolesMenuManager>();
+        AccessSettingsButton.onClick.AddListener(ShowAccessSettingsContent);
+        RolesSettingsButton.onClick.AddListener(ShowRolesSettingsContent);
+        CamerasSettingsButton.onClick.AddListener(ShowCamerasSettingsContent);
+        RestrictionsSettingsButton.onClick.AddListener(ShowRestrictionsSettingsContent);
+        ShowAccessSettingsContent(); //show access settings by default
     }
+
+    private void ShowAccessSettingsContent(){
+        HideAllContent();
+        AccessSettingsContent.SetActive(true);
+        FillAccessDevices();
+    }
+
+    private void ShowRolesSettingsContent(){
+        HideAllContent();
+        RolesSettingsContent.SetActive(true);
+        FillRoles();
+    }
+
+    private void ShowCamerasSettingsContent(){
+        HideAllContent();
+        CamerasSettingsContent.SetActive(true);
+        FillCameras();
+    }
+
+    private void ShowRestrictionsSettingsContent(){
+        HideAllContent();
+        RestrictionsSettingsContent.SetActive(true);
+
+    }
+
+    private void HideAllContent()
+    {
+        AccessSettingsContent.SetActive(false);
+        RolesSettingsContent.SetActive(false);
+        CamerasSettingsContent.SetActive(false);
+        RestrictionsSettingsContent.SetActive(false);
+    }
+
 
     void ShowCameraView(string CameraId, bool status)
     {
@@ -44,7 +96,7 @@ public class ScudSettings : MonoBehaviour
     {
         FillRoles();
         // Update button visibility
-        DeleteButton.interactable = !string.IsNullOrEmpty(selectedRole);
+        DeleteRoleButton.interactable = !string.IsNullOrEmpty(selectedRole);
     }
 
     public void SelectRole(string Role)
@@ -69,7 +121,6 @@ public class ScudSettings : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             CameraViewer.SetActive(false);
-            SelectedMenu = 0;
             scudSettings.SetActive(!scudSettings.activeSelf);
             Cursor.visible = true;
         }
@@ -82,10 +133,10 @@ public class ScudSettings : MonoBehaviour
     public void FillCameras()
     {
         var cameras = ObjectManager.Instance.GetAllObjects()
-    .Where(io => io.type == ObjectType.Camera) // Фильтруем объекты типа Camera
-    .ToList();
+        .Where(io => io.type == ObjectType.Camera) // Фильтруем объекты типа Camera
+        .ToList();
         // Clear existing items in the scroll view
-        foreach (Transform child in ScrollView.content)
+        foreach (Transform child in CamerasScroll.content)
         {
             Destroy(child.gameObject);
         }
@@ -93,7 +144,7 @@ public class ScudSettings : MonoBehaviour
         // Populate the scroll view with connected device IDs
         foreach (var camera in cameras)
         {
-            GameObject item = Instantiate(ItemPrefab, ScrollView.content);
+            GameObject item = Instantiate(CameraItem, CamerasScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = camera.id;
             Button button = item.GetComponentInChildren<Button>();
             button.onClick.AddListener(() => ShowCameraView(camera.id, true));
@@ -106,7 +157,7 @@ public class ScudSettings : MonoBehaviour
             .Where(io => io.type == ObjectType.Turnstile || io.type == ObjectType.Terminal) // Фильтруем объекты типа Camera
             .ToList();
         // Clear existing items in the scroll view
-        foreach (Transform child in ScrollView.content)
+        foreach (Transform child in AccessDevicesScroll.content)
         {
             Destroy(child.gameObject);
         }
@@ -114,10 +165,10 @@ public class ScudSettings : MonoBehaviour
         // Populate the scroll view with connected device IDs
         foreach (var device in accessDevices)
         {
-            GameObject item = Instantiate(ItemPrefab, ScrollView.content);
+            GameObject item = Instantiate(AccessDeviceItem, AccessDevicesScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = device.id;
             Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => { ShowAvailableRoles(device);});
+            button.onClick.AddListener(() => { ShowAvailableRoles(device); });
         }
     }
 
@@ -130,7 +181,7 @@ public class ScudSettings : MonoBehaviour
     {
         var roles = ScudManager.Instance.GetRoles();
         // Clear existing items in the scroll view
-        foreach (Transform child in ScrollView.content)
+        foreach (Transform child in RolesScroll.content)
         {
             Destroy(child.gameObject);
         }
@@ -138,7 +189,7 @@ public class ScudSettings : MonoBehaviour
         // Populate the scroll view with connected device IDs
         foreach (var role in roles)
         {
-            GameObject item = Instantiate(ItemPrefab, ScrollView.content);
+            GameObject item = Instantiate(RoleItem, RolesScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
             Button button = item.GetComponentInChildren<Button>();
             button.onClick.AddListener(() => { SelectRole(role); });
@@ -149,30 +200,5 @@ public class ScudSettings : MonoBehaviour
     {
         ScudManager.Instance.AddRole();
         FillRoles();
-    }
-
-    public void ViewMenu(int SelectedMenu)
-    {
-        switch (SelectedMenu)
-        {
-            case 0:
-                MenuHeader.text = "Список устройств доступа";
-                AddButton.gameObject.SetActive(false);
-                DeleteButton.gameObject.SetActive(false);
-                FillAccessDevices();
-                break;
-            case 1:
-                MenuHeader.text = "Список ролей";
-                AddButton.gameObject.SetActive(true);
-                DeleteButton.gameObject.SetActive(true);
-                FillRoles();
-                break;
-            case 2:
-                MenuHeader.text = "Список камер";
-                AddButton.gameObject.SetActive(false);
-                DeleteButton.gameObject.SetActive(false);
-                FillCameras();
-                break;
-        }
     }
 }
