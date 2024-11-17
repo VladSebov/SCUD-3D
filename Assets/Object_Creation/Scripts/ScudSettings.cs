@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TMPro;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine.UI;
 
 public class ScudSettings : MonoBehaviour
@@ -40,39 +39,55 @@ public class ScudSettings : MonoBehaviour
     //Restrictions
     public ScrollRect RestrictionsScroll;
     public GameObject RestrictionItem;
+    private List<Restriction> restrictionsCopy;
+    public Button SaveRestrictionsButton;
+    public Button CancelRestrictionsButton;
 
     void Start()
     {
         AvailableRolesMenuManager = GetComponent<AvailableRolesMenuManager>();
+
         AccessSettingsButton.onClick.AddListener(ShowAccessSettingsContent);
         RolesSettingsButton.onClick.AddListener(ShowRolesSettingsContent);
         CamerasSettingsButton.onClick.AddListener(ShowCamerasSettingsContent);
         RestrictionsSettingsButton.onClick.AddListener(ShowRestrictionsSettingsContent);
         ShowAccessSettingsContent(); //show access settings by default
+
+        CancelRestrictionsButton.onClick.AddListener(FillRestrictions);
+        SaveRestrictionsButton.onClick.AddListener(SaveRestrictions);
     }
 
-    private void ShowAccessSettingsContent(){
+    private void SaveRestrictions()
+    {
+        RestrictionsManager.Instance.SetRestrictions(restrictionsCopy);
+    }
+
+    private void ShowAccessSettingsContent()
+    {
         HideAllContent();
         AccessSettingsContent.SetActive(true);
         FillAccessDevices();
     }
 
-    private void ShowRolesSettingsContent(){
+    private void ShowRolesSettingsContent()
+    {
         HideAllContent();
         RolesSettingsContent.SetActive(true);
         FillRoles();
     }
 
-    private void ShowCamerasSettingsContent(){
+    private void ShowCamerasSettingsContent()
+    {
         HideAllContent();
         CamerasSettingsContent.SetActive(true);
         FillCameras();
     }
 
-    private void ShowRestrictionsSettingsContent(){
+    private void ShowRestrictionsSettingsContent()
+    {
         HideAllContent();
         RestrictionsSettingsContent.SetActive(true);
-
+        FillRestrictions();
     }
 
     private void HideAllContent()
@@ -130,26 +145,6 @@ public class ScudSettings : MonoBehaviour
         }
     }
 
-    public void FillCameras()
-    {
-        var cameras = ObjectManager.Instance.GetAllObjects()
-        .Where(io => io.type == ObjectType.Camera) // Фильтруем объекты типа Camera
-        .ToList();
-        // Clear existing items in the scroll view
-        foreach (Transform child in CamerasScroll.content)
-        {
-            Destroy(child.gameObject);
-        }
-
-        // Populate the scroll view with connected device IDs
-        foreach (var camera in cameras)
-        {
-            GameObject item = Instantiate(CameraItem, CamerasScroll.content);
-            item.GetComponentInChildren<TextMeshProUGUI>().text = camera.id;
-            Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => ShowCameraView(camera.id, true));
-        }
-    }
 
     public void FillAccessDevices()
     {
@@ -193,6 +188,72 @@ public class ScudSettings : MonoBehaviour
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
             Button button = item.GetComponentInChildren<Button>();
             button.onClick.AddListener(() => { SelectRole(role); });
+        }
+    }
+
+    public void FillCameras()
+    {
+        var cameras = ObjectManager.Instance.GetAllObjects()
+        .Where(io => io.type == ObjectType.Camera) // Фильтруем объекты типа Camera
+        .ToList();
+        // Clear existing items in the scroll view
+        foreach (Transform child in CamerasScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var camera in cameras)
+        {
+            GameObject item = Instantiate(CameraItem, CamerasScroll.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = camera.id;
+            Button button = item.GetComponentInChildren<Button>();
+            button.onClick.AddListener(() => ShowCameraView(camera.id, true));
+        }
+    }
+
+    public void FillRestrictions()
+    {
+        var restrictions = RestrictionsManager.Instance.GetRestrictions();
+        restrictionsCopy = new List<Restriction>();
+        foreach (var restriction in restrictions)
+        {
+            restrictionsCopy.Add(restriction.Clone()); 
+        }
+        
+        // Clear existing items in the scroll view
+        foreach (Transform child in RestrictionsScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        for (int i = 0; i < restrictions.Count; i++)
+        {
+            var restriction = restrictions[i];
+            GameObject item = Instantiate(RestrictionItem, RestrictionsScroll.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = restriction.name;
+
+            // Get the TMP_InputField and set its initial value
+            TMP_InputField inputField = item.GetComponentInChildren<TMP_InputField>();
+            inputField.text = restriction.value.ToString();
+
+            // Capture the current index in a local variable
+            int currentIndex = i; // Create a local copy of the index
+            inputField.onValueChanged.AddListener((value) => OnInputFieldValueChanged(currentIndex, value));
+        }
+    }
+
+    private void OnInputFieldValueChanged(int index, string newValue)
+    {
+        if (int.TryParse(newValue, out int intValue))
+        {
+            restrictionsCopy[index].value = intValue;
+        }
+        else
+        {
+            // Handle the case where the input is not a valid integer
+            Debug.LogWarning($"Invalid input for restriction at index {index}: {newValue}");
         }
     }
 

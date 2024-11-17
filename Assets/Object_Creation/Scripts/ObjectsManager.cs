@@ -225,5 +225,18 @@ public class ObjectManager : MonoBehaviour
 
         return availableDevices;
     }
+
+    public float GetTotalPrice()
+{
+    float totalPrice = 0f;
+
+    // Iterate through all objects in the gameObjects dictionary
+    foreach (var obj in gameObjects.Values)
+    {
+        //totalPrice += obj.price; // Sum the price of each object
+    }
+
+    return totalPrice; // Return the total price
+}
 }
 
