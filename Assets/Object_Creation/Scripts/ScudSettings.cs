@@ -59,8 +59,46 @@ public class ScudSettings : MonoBehaviour
 
     private void SaveRestrictions()
     {
+        if (!CheckRestrictionsCorrect()){
+            Debug.Log("Новые ограничения противоречат текущему состоянию системы");
+            return;
+        }
         RestrictionsManager.Instance.SetRestrictions(restrictionsCopy);
     }
+private bool CheckRestrictionsCorrect()
+{
+    // Assume all restrictions are correct initially
+    bool allRestrictionsMet = true;
+
+    foreach (Restriction restriction in restrictionsCopy)
+    {
+        switch (restriction.type)
+        {
+            case RestrictionType.MaxPrice:
+                if (ObjectManager.Instance.GetTotalPrice() > restriction.value)
+                {
+                    allRestrictionsMet = false; // Not met
+                }
+                break;
+
+            case RestrictionType.MaxRoles:
+                if (ScudManager.Instance.GetRoles().Count > restriction.value)
+                {
+                    allRestrictionsMet = false; // Not met
+                }
+                break;
+
+            case RestrictionType.MaxCameras:
+                if (ObjectManager.Instance.GetObjectsCountByType(ObjectType.Camera) > restriction.value)
+                {
+                    allRestrictionsMet = false; // Not met
+                }
+                break;
+        }
+    }
+
+    return allRestrictionsMet; // Return the final result
+}
 
     private void ShowAccessSettingsContent()
     {
@@ -218,9 +256,9 @@ public class ScudSettings : MonoBehaviour
         restrictionsCopy = new List<Restriction>();
         foreach (var restriction in restrictions)
         {
-            restrictionsCopy.Add(restriction.Clone()); 
+            restrictionsCopy.Add(restriction.Clone());
         }
-        
+
         // Clear existing items in the scroll view
         foreach (Transform child in RestrictionsScroll.content)
         {

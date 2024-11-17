@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using StarterAssets;
 using SCUD3D;
 using System;
+using System.Resources;
 
 public class CatalogManager : MonoBehaviour
 {
@@ -92,12 +93,40 @@ public class CatalogManager : MonoBehaviour
 
     public void AddItemToScene()
     {
+        // parse device type
+        Enum.TryParse(selectedItemData.type, true, out ObjectType type);
+        if (!CheckTypeRestriction(type))
+        {
+            Debug.Log($"Достигнуто максимальное количество объектов типа {type}");
+            return;
+        }
+        if (!CheckPriceRestriction(1000)) // TODO() replace with actual price
+        {
+            Debug.Log($"Не хватает средств на установку объекта");
+            return;
+        }
         ShowHidePreview();
         ObjectAdder adder = this.GetComponent<ObjectAdder>();
         adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab).GetComponent<BoxCollider>().gameObject;
         adder.objectData = selectedItemData;
         if (adder.objectPrefab != null) adder.gameState = 1;
         else Debug.Log("Префаб не найден");
+    }
+
+    private bool CheckPriceRestriction(int itemPrice)
+    {
+        return RestrictionsManager.Instance.CheckItemAffordable(itemPrice);
+    }
+
+    private bool CheckTypeRestriction(ObjectType type)
+    {
+        switch (type)
+        {
+            case ObjectType.Camera:
+                return RestrictionsManager.Instance.CheckCameraAvailable();
+            default:
+                return true;
+        }
     }
 
     void ShowHideItems()

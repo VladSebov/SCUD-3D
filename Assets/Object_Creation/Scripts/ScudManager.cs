@@ -44,6 +44,11 @@ public class ScudManager : MonoBehaviour
     // Метод для добавления роли
     public void AddRole()
     {
+        if (!RestrictionsManager.Instance.CheckRoleAvailable())
+        {
+            Debug.Log("Достигнуто максимальное количество ролей");
+            return;
+        }
         var role = $"Новая роль #{roleId++}";
 
         if (!roles.Contains(role))

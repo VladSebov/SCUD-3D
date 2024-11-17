@@ -58,10 +58,7 @@ public class RestrictionsManager : MonoBehaviour
     public bool CheckCameraAvailable()
     {
         int maxCameras = restrictions.Find(r => r.type == RestrictionType.MaxCameras).value;
-        int currentCamerasCount = ObjectManager.Instance.GetAllObjects()
-           .Where(io => io.type == ObjectType.Camera)
-           .ToList()
-           .Count;
+        int currentCamerasCount = ObjectManager.Instance.GetObjectsCountByType(ObjectType.Camera);
 
         return currentCamerasCount < maxCameras;
     }
@@ -74,12 +71,12 @@ public class RestrictionsManager : MonoBehaviour
         return currentRolesCount < maxRoles;
     }
 
-     public bool CheckThereIsEnoughMoney()
+     public bool CheckItemAffordable(int itemPrice)
     {
         int maxPrice = restrictions.Find(r => r.type == RestrictionType.MaxPrice).value;
         float currentOverallPrice = ObjectManager.Instance.GetTotalPrice();
 
-        return currentOverallPrice < maxPrice;
+        return (currentOverallPrice+itemPrice) <= maxPrice;
     }
 }
 

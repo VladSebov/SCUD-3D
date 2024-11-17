@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -99,6 +100,7 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
+
     public void RemoveObject(GameObject obj)
     {
         // Check if the GameObject has a name that corresponds to an ID in the dictionary
@@ -150,7 +152,7 @@ public class ObjectManager : MonoBehaviour
             Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
         }
     }
-    
+
     public void DisconnectObjects(string id1, string id2)
     {
         if (gameObjects.ContainsKey(id1) && gameObjects.ContainsKey(id2))
@@ -227,16 +229,24 @@ public class ObjectManager : MonoBehaviour
     }
 
     public float GetTotalPrice()
-{
-    float totalPrice = 0f;
-
-    // Iterate through all objects in the gameObjects dictionary
-    foreach (var obj in gameObjects.Values)
     {
-        //totalPrice += obj.price; // Sum the price of each object
+        float totalPrice = 0f;
+
+        // Iterate through all objects in the gameObjects dictionary
+        foreach (var obj in gameObjects.Values)
+        {
+            //totalPrice += obj.price; // Sum the price of each object
+        }
+
+        return totalPrice; // Return the total price
     }
 
-    return totalPrice; // Return the total price
-}
+    public int GetObjectsCountByType(ObjectType type)
+    {
+        return GetAllObjects()
+           .Where(io => io.type == type)
+           .ToList()
+           .Count;
+    }
 }
 
