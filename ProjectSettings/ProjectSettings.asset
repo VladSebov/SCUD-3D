@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 26
-  productGUID: d3d327ca28c7d5e4ca526864c893668c
+  productGUID: 407b69a43793218d7b35333e384f94e7
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: URP project
+  productName: SCUD_cleaned
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -806,7 +806,8 @@ PlayerSettings:
   webGLMemoryGeometricGrowthStep: 0.2
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Standalone: STARTER_ASSETS_PACKAGES_CHECKED
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
@@ -838,14 +839,14 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: URP project
+  metroPackageName: SCUD_cleaned
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: URP project
+  metroApplicationDescription: SCUD_cleaned
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -915,10 +916,10 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 6f3fd0c0-ec9c-4095-93d9-5aa1740de8f4
+  cloudProjectId: a0f317b7-0d11-48e2-9e4f-d9c6a9b36662
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: URP project
+  projectName: SCUD_cleaned
   organizationId: unity_6a32b7a1812dde7ab6e4
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
