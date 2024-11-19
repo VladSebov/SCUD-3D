@@ -11,10 +11,12 @@ public class ScudSettings : MonoBehaviour
     public Button RolesSettingsButton;
     public Button CamerasSettingsButton;
     public Button RestrictionsSettingsButton;
+    public Button UserSettingsButton;
     public GameObject AccessSettingsContent;
     public GameObject RolesSettingsContent;
     public GameObject CamerasSettingsContent;
     public GameObject RestrictionsSettingsContent;
+    public GameObject UserSettingsContent;
     public GameObject scudSettings;
 
     //Access
@@ -43,6 +45,13 @@ public class ScudSettings : MonoBehaviour
     public Button SaveRestrictionsButton;
     public Button CancelRestrictionsButton;
 
+    //User
+    public ScrollRect UserRolesScroll;
+    public GameObject UserRoleItem;
+    private string selectedUserRole;
+    public Button SaveUserSettingsButton;
+    public Button CancelUserSettingsButton;
+
     void Start()
     {
         AvailableRolesMenuManager = GetComponent<AvailableRolesMenuManager>();
@@ -51,6 +60,7 @@ public class ScudSettings : MonoBehaviour
         RolesSettingsButton.onClick.AddListener(ShowRolesSettingsContent);
         CamerasSettingsButton.onClick.AddListener(ShowCamerasSettingsContent);
         RestrictionsSettingsButton.onClick.AddListener(ShowRestrictionsSettingsContent);
+        UserSettingsButton.onClick.AddListener(ShowUserSettingsContent);
         ShowAccessSettingsContent(); //show access settings by default
 
         CancelRestrictionsButton.onClick.AddListener(FillRestrictions);
@@ -59,46 +69,47 @@ public class ScudSettings : MonoBehaviour
 
     private void SaveRestrictions()
     {
-        if (!CheckRestrictionsCorrect()){
+        if (!CheckRestrictionsCorrect())
+        {
             Debug.Log("Новые ограничения противоречат текущему состоянию системы");
             return;
         }
         RestrictionsManager.Instance.SetRestrictions(restrictionsCopy);
     }
-private bool CheckRestrictionsCorrect()
-{
-    // Assume all restrictions are correct initially
-    bool allRestrictionsMet = true;
-
-    foreach (Restriction restriction in restrictionsCopy)
+    private bool CheckRestrictionsCorrect()
     {
-        switch (restriction.type)
+        // Assume all restrictions are correct initially
+        bool allRestrictionsMet = true;
+
+        foreach (Restriction restriction in restrictionsCopy)
         {
-            case RestrictionType.MaxPrice:
-                if (ObjectManager.Instance.GetTotalPrice() > restriction.value)
-                {
-                    allRestrictionsMet = false; // Not met
-                }
-                break;
+            switch (restriction.type)
+            {
+                case RestrictionType.MaxPrice:
+                    if (ObjectManager.Instance.GetTotalPrice() > restriction.value)
+                    {
+                        allRestrictionsMet = false; // Not met
+                    }
+                    break;
 
-            case RestrictionType.MaxRoles:
-                if (ScudManager.Instance.GetRoles().Count > restriction.value)
-                {
-                    allRestrictionsMet = false; // Not met
-                }
-                break;
+                case RestrictionType.MaxRoles:
+                    if (ScudManager.Instance.GetRoles().Count > restriction.value)
+                    {
+                        allRestrictionsMet = false; // Not met
+                    }
+                    break;
 
-            case RestrictionType.MaxCameras:
-                if (ObjectManager.Instance.GetObjectsCountByType(ObjectType.Camera) > restriction.value)
-                {
-                    allRestrictionsMet = false; // Not met
-                }
-                break;
+                case RestrictionType.MaxCameras:
+                    if (ObjectManager.Instance.GetObjectsCountByType(ObjectType.Camera) > restriction.value)
+                    {
+                        allRestrictionsMet = false; // Not met
+                    }
+                    break;
+            }
         }
-    }
 
-    return allRestrictionsMet; // Return the final result
-}
+        return allRestrictionsMet; // Return the final result
+    }
 
     private void ShowAccessSettingsContent()
     {
@@ -128,12 +139,20 @@ private bool CheckRestrictionsCorrect()
         FillRestrictions();
     }
 
+    private void ShowUserSettingsContent()
+    {
+        HideAllContent();
+        UserSettingsContent.SetActive(true);
+        FillUser();
+    }
+
     private void HideAllContent()
     {
         AccessSettingsContent.SetActive(false);
         RolesSettingsContent.SetActive(false);
         CamerasSettingsContent.SetActive(false);
         RestrictionsSettingsContent.SetActive(false);
+        UserSettingsContent.SetActive(false);
     }
 
 
@@ -293,6 +312,52 @@ private bool CheckRestrictionsCorrect()
             // Handle the case where the input is not a valid integer
             Debug.LogWarning($"Invalid input for restriction at index {index}: {newValue}");
         }
+    }
+
+    public void FillUser()
+    {
+        var roles = ScudManager.Instance.GetRoles();
+        if (selectedUserRole == null)
+        {
+            selectedUserRole = PlayerManager.Instance.GetRole() ?? string.Empty;
+        }
+        // Clear existing items in the scroll view
+        foreach (Transform child in UserRolesScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var role in roles)
+        {
+            GameObject item = Instantiate(UserRoleItem, UserRolesScroll.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = role;
+            Button button = item.GetComponentInChildren<Button>();
+            button.onClick.AddListener(() => { SelectUserRole(role); });
+            if (role == selectedUserRole)
+            {
+                button.interactable = false;
+            }
+        }
+    }
+
+    public void SelectUserRole(string role)
+    {
+        selectedUserRole = role;
+        FillUser();
+    }
+
+    public void SaveUserRole()
+    {
+        PlayerManager.Instance.SetRole(selectedUserRole);
+        selectedUserRole = null;
+        FillUser();
+    }
+
+    public void CancelUserRole()
+    {
+        selectedUserRole = null;
+        FillUser();
     }
 
     public void OnAddRoleClick()
