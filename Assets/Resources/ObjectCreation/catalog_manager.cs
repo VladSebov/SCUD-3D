@@ -22,17 +22,11 @@ public class CatalogManager : MonoBehaviour
     public Transform contentPanel;    // Панель внутри Scroll View, куда будут добавляться элементы
     public TextAsset jsonFile;        // JSON файл, подключённый через инспектор
 
-    private bool isPreviewVisible = false;
-    private bool isItemsVisible = true;
-    private StarterAssetsInputs inputs;
+    public bool isPreviewVisible = false;
+    public bool isItemsVisible = true;
 
     private void Start()
     {
-        GameObject otherObject = GameObject.FindWithTag("Player");
-        if (otherObject != null)
-        {
-            inputs = otherObject.GetComponent<StarterAssetsInputs>();
-        }
         PanelPreview.SetActive(isPreviewVisible);
         PanelInfo.SetActive(isPreviewVisible);
         LoadCatalog();
@@ -132,24 +126,9 @@ public class CatalogManager : MonoBehaviour
     {
         isItemsVisible = !isItemsVisible;
         PanelItems.SetActive(isItemsVisible);
-        if (isItemsVisible)
-        {
-            if (inputs != null)
-            {
-                inputs.cursorLocked = false;
-                inputs.cursorInputForLook = false;
-                inputs.SetCursorState(inputs.cursorLocked);
-            }
-        }
         if (!isItemsVisible)
         {
             if (isPreviewVisible) ShowHidePreview();
-            if (inputs != null)
-            {
-                inputs.cursorLocked = true;
-                inputs.cursorInputForLook = true;
-                inputs.SetCursorState(inputs.cursorLocked);
-            }
         }
 
     }

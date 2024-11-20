@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using SCUD3D;
+using Unity.VisualScripting;
 
 public class ScudSettings : MonoBehaviour
 {
@@ -53,7 +55,6 @@ public class ScudSettings : MonoBehaviour
     {
         AvailableRolesMenuManager = GetComponent<AvailableRolesMenuManager>();
         CamerasSettingsManager = GetComponent<CamerasSettingsManager>();
-
         AccessSettingsButton.onClick.AddListener(ShowAccessSettingsContent);
         RolesSettingsButton.onClick.AddListener(ShowRolesSettingsContent);
         CamerasSettingsButton.onClick.AddListener(ShowCamerasSettingsContent);
@@ -109,8 +110,19 @@ public class ScudSettings : MonoBehaviour
         return allRestrictionsMet; // Return the final result
     }
 
+    private void ResetButtonColors()
+    {
+        AccessSettingsButton.interactable = true;
+        RolesSettingsButton.interactable = true;
+        CamerasSettingsButton.interactable = true;
+        RestrictionsSettingsButton.interactable = true;
+        UserSettingsButton.interactable = true;
+    }
+
     private void ShowAccessSettingsContent()
     {
+        ResetButtonColors();
+        AccessSettingsButton.interactable = false;
         HideAllContent();
         AccessSettingsContent.SetActive(true);
         FillAccessDevices();
@@ -118,6 +130,8 @@ public class ScudSettings : MonoBehaviour
 
     private void ShowRolesSettingsContent()
     {
+        ResetButtonColors();
+        RolesSettingsButton.interactable = false;
         HideAllContent();
         RolesSettingsContent.SetActive(true);
         FillRoles();
@@ -125,6 +139,8 @@ public class ScudSettings : MonoBehaviour
 
     private void ShowCamerasSettingsContent()
     {
+        ResetButtonColors();
+        CamerasSettingsButton.interactable = false;
         HideAllContent();
         CamerasSettingsContent.SetActive(true);
         CamerasSettingsManager.FillCameras();
@@ -132,6 +148,8 @@ public class ScudSettings : MonoBehaviour
 
     private void ShowRestrictionsSettingsContent()
     {
+        ResetButtonColors();
+        RestrictionsSettingsButton.interactable = false;
         HideAllContent();
         RestrictionsSettingsContent.SetActive(true);
         FillRestrictions();
@@ -139,6 +157,8 @@ public class ScudSettings : MonoBehaviour
 
     private void ShowUserSettingsContent()
     {
+        ResetButtonColors();
+        UserSettingsButton.interactable = false;
         HideAllContent();
         UserSettingsContent.SetActive(true);
         FillUser();
@@ -161,10 +181,10 @@ public class ScudSettings : MonoBehaviour
         DeleteRoleButton.interactable = !string.IsNullOrEmpty(selectedRole);
     }
 
-    public void SelectRole(string Role)
+    public void SelectRole(string Role, Button button)
     {
         selectedRole = Role;
-        UpdateRolesMenu();
+        DeleteRoleButton.interactable = !string.IsNullOrEmpty(selectedRole);
     }
 
     public void DeleteRole()
@@ -183,7 +203,6 @@ public class ScudSettings : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             scudSettings.SetActive(!scudSettings.activeSelf);
-            Cursor.visible = true;
         }
     }
 
@@ -229,7 +248,7 @@ public class ScudSettings : MonoBehaviour
             GameObject item = Instantiate(RoleItem, RolesScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
             Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => { SelectRole(role); });
+            button.onClick.AddListener(() => { SelectRole(role, button);});
         }
     }
 

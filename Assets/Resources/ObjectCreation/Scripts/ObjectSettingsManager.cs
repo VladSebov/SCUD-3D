@@ -4,6 +4,7 @@ using StarterAssets;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using SCUD3D;
 using UnityEngine.UI;
 
 public class ObjectSettingsManager : MonoBehaviour
@@ -17,13 +18,12 @@ public class ObjectSettingsManager : MonoBehaviour
     public Button addButton; // Reference to the add button
     private string selectedConnectionId; // Store the selected connection ID
 
-
     public void ShowMenu(InteractiveObject obj)
     {
+        
         interactiveObject = obj;
         UpdateMenu();
         objectSettings.SetActive(true);
-        Cursor.visible = true;
     }
 
     void Update()

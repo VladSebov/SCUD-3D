@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using StarterAssets;
 using UnityEngine.UI;
 
 namespace SCUD3D
 {
     public class ObjectAdder : MonoBehaviour
     {
-        public int gameState = 0; // 0 - objectSelection; 1 - objectCreation; 2 - objectSettings;
+        public int gameState = 2; // 0 - objectSelection; 1 - objectCreation; 2 - AnySettings;
                                   // 3 - objectChangingPosition
         public LayerMask layermask;
         public GameObject objectPrefab; // префаб объекта
         public InteractiveObject currentObject; // текущий объект для настройки
         public ObjectSettingsManager ObjectSettingsManager; // скрипт для objectSettings
+        public CatalogManager CatalogManager;
+
+        public ScudSettings ScudSettings;
         public MenuDevicesManager MenuDevicesManager; // скрипт для menuDevices
 
         public CatalogItemData objectData; // данные объекта
@@ -22,6 +26,9 @@ namespace SCUD3D
         // public List<ObjectType> connectableTypes; // типы объектов доступных для подключения
 
         public GameObject Ground;
+
+        private StarterAssetsInputs inputs;
+
         private GameObject previewObject; // объект для предварительного просмотра
         public bool object_chosen = false;
 
@@ -34,9 +41,16 @@ namespace SCUD3D
 
         void Start()
         {
+            GameObject otherObject = GameObject.FindWithTag("Player");
+            if (otherObject != null)
+            {
+                inputs = otherObject.GetComponent<StarterAssetsInputs>();
+            }
             deltat = Time.deltaTime / 2f;
+            ScudSettings = GetComponent<ScudSettings>();
             ObjectSettingsManager = GetComponent<ObjectSettingsManager>();
             MenuDevicesManager = GetComponent<MenuDevicesManager>();
+            CatalogManager = GetComponent<CatalogManager>();
         }
 
         void UpdateMaterial(GameObject previewObject)
@@ -203,33 +217,46 @@ namespace SCUD3D
 
         void Update()
         {
-
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            // Detect object click
-            if (Input.GetMouseButtonDown(0))
+            if (ObjectSettingsManager.objectSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible)
             {
-
-                if (Physics.Raycast(ray, out hit))
+                inputs.SetInputsState(false);
+                gameState = 2;
+            }
+            else
+            {
+                if (gameState == 2)
                 {
-                    GameObject clickedObject = hit.collider.gameObject;
-
-                    // Check if the clicked object is interactive
-                    InteractiveObject interactiveObject = ObjectManager.Instance.GetObject(clickedObject.name);
-                    if (interactiveObject != null)
-                    {
-                        // Show configuration menu
-                        currentObject = interactiveObject;
-                        ShowObjectMenu(currentObject);
-                    }
+                    gameState = 0;
+                    inputs.SetInputsState(true);
                 }
             }
+
+            // Detect object click
 
             if (gameState == 0)
             {
                 if (Physics.Raycast(ray, out hit, 150f, layermask))
                     SelectObject(ray, hit);
+                if (Input.GetMouseButtonDown(0))
+                {
+
+                    if (Physics.Raycast(ray, out hit))
+                    {
+                        GameObject clickedObject = hit.collider.gameObject;
+
+                        // Check if the clicked object is interactive
+                        InteractiveObject interactiveObject = ObjectManager.Instance.GetObject(clickedObject.name);
+                        if (interactiveObject != null)
+                        {
+                            // Show configuration menu
+                            currentObject = interactiveObject;
+                            ShowObjectMenu(currentObject);
+                        }
+                    }
+                }
             }
             if (gameState == 1)
             {
@@ -248,10 +275,6 @@ namespace SCUD3D
                     gameState = 0;
                     previousSelection.GetComponent<Renderer>().material.color = Color.white;
                 }
-            }
-            if (gameState == 2)
-            {
-
             }
             if (gameState == 3)
             {
