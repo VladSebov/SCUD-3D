@@ -27,7 +27,7 @@ namespace SCUD3D
 
         public GameObject Ground;
 
-        private StarterAssetsInputs inputs;
+        public StarterAssetsInputs inputs;
 
         private GameObject previewObject; // объект для предварительного просмотра
         public bool object_chosen = false;
@@ -205,9 +205,9 @@ namespace SCUD3D
             }
         }
 
-        void CreateObject(Vector3 position)
+        void CreateObject(Transform transform)
         {
-            objectPrefab = Instantiate(objectPrefab, position, Quaternion.identity);
+            objectPrefab = Instantiate(objectPrefab, transform.position, transform.rotation);
             //objectPrefab.transform.eulerAngles = previewObject.transform.eulerAngles;
             //CreatedObjects.Add(objectPrefab);
             ObjectManager.Instance.AddObject(objectData, objectPrefab); // creates an object 
@@ -217,6 +217,27 @@ namespace SCUD3D
 
         void Update()
         {
+            if (previewObject != null)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    // Get the current rotation in Euler angles
+                    Vector3 currentRotation = previewObject.transform.rotation.eulerAngles;
+                    // Add 90 degrees to the y-axis
+                    currentRotation.y += 90f;
+                    // Set the new rotation
+                    previewObject.transform.rotation = Quaternion.Euler(currentRotation);
+                }
+                if (Input.GetKeyDown(KeyCode.Q))
+                {
+                    // Get the current rotation in Euler angles
+                    Vector3 currentRotation = previewObject.transform.rotation.eulerAngles;
+                    // Subtract 90 degrees from the y-axis
+                    currentRotation.y -= 90f;
+                    // Set the new rotation
+                    previewObject.transform.rotation = Quaternion.Euler(currentRotation);
+                }
+            }
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
@@ -266,7 +287,7 @@ namespace SCUD3D
                 }
                 if (previewObject != null && Input.GetMouseButtonDown(0))
                 {
-                    CreateObject(previewObject.transform.position);
+                    CreateObject(previewObject.transform);
                     previousSelection.GetComponent<Renderer>().material.color = Color.white;
                 }
                 else if (Input.GetMouseButtonDown(1))

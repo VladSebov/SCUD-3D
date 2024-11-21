@@ -1,0 +1,58 @@
+{
+    "items": [
+        {
+            "itemName": "Камера",
+            "description": "Описание камеры",
+            "icon": "dummy_camera",
+            "prefab": "Mashes/Camera",
+            "type": "Camera",
+            "maxConnections": 1,
+            "connectableTypes": ["Switch"]
+        },
+        {
+            "itemName": "Коммутатор",
+            "description": "Описание коммутатора",
+            "icon": "switch1",
+            "prefab": "Mashes/Switch",
+            "type": "Switch",
+            "maxConnections": 52,
+            "connectableTypes": ["Camera"]
+        },
+        {
+            "itemName": "Турникет",
+            "description": "Описание турникета",
+            "icon": "turnstile3",
+            "prefab":"Mashes/Turnstile",
+            "type": "Turnstile",
+            "maxConnections": 1,
+            "connectableTypes": ["Switch"]
+        },
+        {
+            "itemName": "Терминал 3",
+            "description": "Описание термнала",
+            "icon": "turnstile3",
+            "prefab":"Mashes/Terminal_3",
+            "type": "Terminal",
+            "maxConnections": 0,
+            "connectableTypes": ["Switch"]
+        }, 
+        {
+            "itemName": "Свитч 2",
+            "description": "Описание свича",
+            "icon": "turnstile3",
+            "prefab":"Mashes/Switch_2",
+            "type": "Switch",
+            "maxConnections": 1,
+            "connectableTypes": ["Switch"]
+        },
+        {
+            "itemName": "дор лок 1",
+            "description": "Описание свича",
+            "icon": "turnstile3",
+            "prefab":"Mashes/door_lock_1",
+            "type": "Terminal",
+            "maxConnections": 1,
+            "connectableTypes": ["Camera"]
+        }
+    ]
+}

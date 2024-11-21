@@ -98,11 +98,15 @@ public class CatalogManager : MonoBehaviour
             Debug.Log($"Не хватает средств на установку объекта");
             return;
         }
-        ShowHidePreview();
+        ShowHideItems();
         ObjectAdder adder = this.GetComponent<ObjectAdder>();
         adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab).GetComponent<BoxCollider>().gameObject;
         adder.objectData = selectedItemData;
-        if (adder.objectPrefab != null) adder.gameState = 1;
+        if (adder.objectPrefab != null) {
+            adder.gameState = 1;
+            adder.inputs.SetInputsState(true);
+        }
+
         else Debug.Log("Префаб не найден");
     }
 
