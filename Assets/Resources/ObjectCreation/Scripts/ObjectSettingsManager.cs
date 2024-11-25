@@ -15,12 +15,32 @@ public class ObjectSettingsManager : MonoBehaviour
     public ScrollRect scrollView; // Reference to the Scroll View
     public GameObject connectionItemPrefab; // Prefab for displaying connection items
     public Button deleteButton; // Reference to the delete button
-    public Button addButton; // Reference to the add button
+    public Button addConnectionButton; // Reference to the add button
     private string selectedConnectionId; // Store the selected connection ID
+
+    private CablePlacer CablePlacer;
+
+    public void Start()
+    {
+        CablePlacer = GetComponent<CablePlacer>();
+        addConnectionButton.onClick.AddListener(OnAddConnectionButtonClick);
+    }
+
+    private void OnAddConnectionButtonClick()
+    {
+        if (interactiveObject != null && CablePlacer != null)
+        {
+            CablePlacer.StartCablePlacement(interactiveObject.gameObject.transform.position);
+        }
+        else
+        {
+            Debug.LogError("CablePlacer or InteractiveObject is not assigned!");
+        }
+    }
 
     public void ShowMenu(InteractiveObject obj)
     {
-        
+
         interactiveObject = obj;
         UpdateMenu();
         objectSettings.SetActive(true);
@@ -49,7 +69,7 @@ public class ObjectSettingsManager : MonoBehaviour
 
         // Update button visibility
         deleteButton.interactable = !string.IsNullOrEmpty(selectedConnectionId);
-        addButton.interactable = interactiveObject.connections.Count < interactiveObject.maxConnections;
+        addConnectionButton.interactable = interactiveObject.connections.Count < interactiveObject.maxConnections;
     }
 
     public void SelectConnection(string connectionId)

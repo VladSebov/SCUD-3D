@@ -134,7 +134,7 @@
             "itemName": "Гибридный видеорегистратор Ps-Link A2108HN на 8 каналов",
             "description": "1. Поддержка камер: 1Мп;2Мп\n2. Видеосигнал: AHD+IP\n3. Количество каналов: 8\n4. Питание: 12 Вольт\n5. Запись звука: Есть\n6. Детектор движений: Есть\n7. Формат записи: H.264",
             "icon": "Sprites/ItemSprites/receiver1",      
-            "prefab": "Mashes/reciever1_artem",
+            "prefab": "Mashes/receiver1_artem",
             "type": "Receiver",
             "maxConnections":1,
             "connectableTypes":["Switch"],

@@ -33,7 +33,7 @@
             "icon": "turnstile3",
             "prefab":"Mashes/Terminal_3",
             "type": "Terminal",
-            "maxConnections": 0,
+            "maxConnections": 1,
             "connectableTypes": ["Switch"]
         }, 
         {
