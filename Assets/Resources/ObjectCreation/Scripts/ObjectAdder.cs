@@ -10,6 +10,7 @@ namespace SCUD3D
 {
     public class ObjectAdder : MonoBehaviour
     {
+        public Camera playerCam;
         public int gameState = 2; // 0 - objectSelection; 1 - objectCreation; 2 - AnySettings;
                                   // 3 - objectChangingPosition
         public LayerMask layermask;
@@ -77,7 +78,7 @@ namespace SCUD3D
             if (t > 1 || t <= 0) deltat *= -1f; // Сброс значения для повторения
         }
 
-        void SelectObject(Ray ray, RaycastHit hit)
+        void SelectObject(RaycastHit hit)
         {
             var gameObjects = ObjectManager.Instance.GetAllObjects().Select(io => io.gameObject).ToList();
             if (gameObjects.Contains(hit.collider.gameObject))
@@ -106,7 +107,7 @@ namespace SCUD3D
             }
         }
 
-        void ChangeSurfaceColor(Ray ray, RaycastHit hit, string tag)
+        void ChangeSurfaceColor(RaycastHit hit, string tag)
         {
             if (previousSelection == null) previousSelection = hit.collider.gameObject;
             else if (previousSelection != null && hit.collider.gameObject != previousSelection)
@@ -124,24 +125,24 @@ namespace SCUD3D
             }
         }
 
-        void CreatePreviewObject(Ray ray, RaycastHit hit, Vector3 previewPosition)
+        void CreatePreviewObject(RaycastHit hit, Vector3 previewPosition)
         {
             switch (objectData.type)
             {
                 case "Turnstile":
-                    ChangeSurfaceColor(ray, hit, "Floor");
+                    ChangeSurfaceColor(hit, "Floor");
                     if (previewObject == null) CreatePreviewOnFloor(previewPosition, hit);
-                    else if (previewObject != null) MovePreviewOnFloor(ray, hit);
+                    else if (previewObject != null) MovePreviewOnFloor(hit);
                     break;
                 case "Camera":
-                    ChangeSurfaceColor(ray, hit, "Wall");
+                    ChangeSurfaceColor(hit, "Wall");
                     if (previewObject == null) CreatePreviewOnWall(previewPosition, hit);
-                    else if (previewObject != null) MovePreviewOnWall(ray, hit);
+                    else if (previewObject != null) MovePreviewOnWall(hit);
                     break;
                 default:
-                    ChangeSurfaceColor(ray, hit, "Floor");
+                    ChangeSurfaceColor(hit, "Floor");
                     if (previewObject == null) CreatePreviewOnFloor(previewPosition, hit);
-                    else if (previewObject != null) MovePreviewOnFloor(ray, hit);
+                    else if (previewObject != null) MovePreviewOnFloor(hit);
                     break;
             }
         }
@@ -185,7 +186,7 @@ namespace SCUD3D
             }
         }
 
-        void MovePreviewOnFloor(Ray ray, RaycastHit hit)
+        void MovePreviewOnFloor(RaycastHit hit)
         {
             if (hit.collider.gameObject.CompareTag("Floor"))
             {
@@ -195,7 +196,7 @@ namespace SCUD3D
             }
         }
 
-        void MovePreviewOnWall(Ray ray, RaycastHit hit)
+        void MovePreviewOnWall(RaycastHit hit)
         {
             if (hit.collider.gameObject.CompareTag("Wall"))
             {
@@ -238,7 +239,6 @@ namespace SCUD3D
                     previewObject.transform.rotation = Quaternion.Euler(currentRotation);
                 }
             }
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
             if (ObjectSettingsManager.objectSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible)
@@ -259,12 +259,12 @@ namespace SCUD3D
 
             if (gameState == 0)
             {
-                if (Physics.Raycast(ray, out hit, 150f, layermask))
-                    SelectObject(ray, hit);
+                if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, 150f, layermask))
+                    SelectObject(hit);
                 if (Input.GetMouseButtonDown(0))
                 {
 
-                    if (Physics.Raycast(ray, out hit))
+                    if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit))
                     {
                         GameObject clickedObject = hit.collider.gameObject;
 
@@ -281,9 +281,9 @@ namespace SCUD3D
             }
             if (gameState == 1)
             {
-                if (Physics.Raycast(ray, out hit, 150f, layermask))
+                if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, 150f, layermask))
                 {
-                    CreatePreviewObject(ray, hit, hit.point);
+                    CreatePreviewObject(hit, hit.point);
                 }
                 if (previewObject != null && Input.GetMouseButtonDown(0))
                 {
@@ -300,9 +300,9 @@ namespace SCUD3D
             if (gameState == 3)
             {
                 Vector3 previousPosition = objectPrefab.gameObject.transform.position;
-                if (Physics.Raycast(ray, out hit, 150f, layermask))
+                if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, 150f, layermask))
                 {
-                    CreatePreviewObject(ray, hit, previousPosition);
+                    CreatePreviewObject(hit, previousPosition);
                     objectPrefab.gameObject.SetActive(false);
                 }
                 if (Input.GetMouseButtonDown(0))
