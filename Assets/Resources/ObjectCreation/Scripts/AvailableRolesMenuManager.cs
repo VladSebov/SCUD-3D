@@ -50,7 +50,8 @@ public class AvailableRolesMenuManager : MonoBehaviour
 
     public void ConnectRoles() // You can modify this to get input from the user
     {
-        if (interactiveObject.connections.Count < interactiveObject.maxConnections)
+        // TODO() check wtf is even this, why would anyone connect object in ConnectRoles method
+        if (interactiveObject.HasAvailablePorts())
         {
             //ObjectManager.Instance.ConnectObjects(interactiveObject.id, selectedDeviceId);
             CloseMenu();

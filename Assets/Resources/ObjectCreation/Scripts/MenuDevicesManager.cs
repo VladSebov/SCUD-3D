@@ -39,7 +39,7 @@ public class MenuDevicesManager : MonoBehaviour
     public void UpdateMenu()
     {
         FillDevices();
-        connectButton.interactable = selectedDeviceId!=null;
+        connectButton.interactable = selectedDeviceId != null;
     }
 
     public void SelectDevice(string deviceId)
@@ -50,11 +50,12 @@ public class MenuDevicesManager : MonoBehaviour
 
     public void ConnectDevices() // You can modify this to get input from the user
     {
-        if (interactiveObject.connections.Count < interactiveObject.maxConnections)
-        {
-            ObjectManager.Instance.ConnectObjects(interactiveObject.id, selectedDeviceId);
-            CloseMenu();
-        }
+        // TODO() implement auto cable mounting logic
+        // if (interactiveObject.HasAvailablePorts())
+        // {
+        //     ObjectManager.Instance.ConnectObjects(interactiveObject.id, selectedDeviceId);
+        //     CloseMenu();
+        // }
     }
 
     public void FillDevices()

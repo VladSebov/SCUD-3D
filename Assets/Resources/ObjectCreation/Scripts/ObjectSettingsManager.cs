@@ -16,7 +16,7 @@ public class ObjectSettingsManager : MonoBehaviour
     public GameObject connectionItemPrefab; // Prefab for displaying connection items
     public Button deleteButton; // Reference to the delete button
     public Button addConnectionButton; // Reference to the add button
-    private string selectedConnectionId; // Store the selected connection ID
+    private Connection selectedConnection; // Store the selected connection ID
 
     private CablePlacer CablePlacer;
 
@@ -62,28 +62,29 @@ public class ObjectSettingsManager : MonoBehaviour
 
     public void UpdateMenu()
     {
+        int currentObjectConnectionsCount = ConnectionsManager.Instance.GetConnections(interactiveObject).Count;
         // Update connection count text
-        connectionCountText.text = $"{interactiveObject.connections.Count} / {interactiveObject.maxConnections}";
+        connectionCountText.text = $"{currentObjectConnectionsCount} / {interactiveObject.maxConnections}";
 
         FillConnections();
 
         // Update button visibility
-        deleteButton.interactable = !string.IsNullOrEmpty(selectedConnectionId);
-        addConnectionButton.interactable = interactiveObject.connections.Count < interactiveObject.maxConnections;
+        deleteButton.interactable = selectedConnection!=null;
+        addConnectionButton.interactable = currentObjectConnectionsCount < interactiveObject.maxConnections;
     }
 
-    public void SelectConnection(string connectionId)
+    public void SelectConnection(Connection connection)
     {
-        selectedConnectionId = connectionId;
+        selectedConnection = connection;
         UpdateMenu();
     }
 
     public void DeleteConnection()
     {
-        if (!string.IsNullOrEmpty(selectedConnectionId))
+        if (selectedConnection!=null)
         {
-            ObjectManager.Instance.DisconnectObjects(interactiveObject.id, selectedConnectionId);
-            selectedConnectionId = null;
+            ConnectionsManager.Instance.RemoveConnection(selectedConnection);
+            selectedConnection = null;
             UpdateMenu();
         }
     }
@@ -95,14 +96,15 @@ public class ObjectSettingsManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-
+        List<Connection> currentObjectconnections = ConnectionsManager.Instance.GetConnections(interactiveObject);
         // Populate the scroll view with connected device IDs
-        foreach (var connectionId in interactiveObject.connections)
+        foreach (var connection in currentObjectconnections)
         {
+            InteractiveObject otherObject = connection.ObjectA == interactiveObject ? connection.ObjectB : connection.ObjectA;
             GameObject item = Instantiate(connectionItemPrefab, scrollView.content);
-            item.GetComponentInChildren<TextMeshProUGUI>().text = connectionId;
+            item.GetComponentInChildren<TextMeshProUGUI>().text = otherObject.id;
             Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => SelectConnection(connectionId));
+            button.onClick.AddListener(() => SelectConnection(connection));
         }
     }
 

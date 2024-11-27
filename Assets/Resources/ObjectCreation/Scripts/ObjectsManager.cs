@@ -110,6 +110,11 @@ public class ObjectManager : MonoBehaviour
 
         if (gameObjects.ContainsKey(id))
         {
+            //Remove object connections
+            List<Connection> objectConnections = ConnectionsManager.Instance.GetConnections(gameObjects[id]);
+            foreach (Connection connection in objectConnections){
+                ConnectionsManager.Instance.RemoveConnection(connection);
+            }
             // Remove the object from the dictionary
             gameObjects.Remove(id);
 
@@ -119,64 +124,6 @@ public class ObjectManager : MonoBehaviour
         else
         {
             Debug.LogWarning($"Object with ID {id} does not exist in the manager.");
-        }
-    }
-
-    public void ConnectObjects(string id1, string id2)
-    {
-        if (gameObjects.ContainsKey(id1) && gameObjects.ContainsKey(id2))
-        {
-            InteractiveObject obj1 = gameObjects[id1];
-            InteractiveObject obj2 = gameObjects[id2];
-
-            // Check if obj1 is already connected to obj2 and vice versa
-            if (!obj1.connections.Contains(id2) && !obj2.connections.Contains(id1))
-            {
-                // Ensure both objects have available connection slots
-                if (obj1.connections.Count < obj1.maxConnections && obj2.connections.Count < obj2.maxConnections)
-                {
-                    // Add the connection to both objects (bidirectional connection)
-                    obj1.connections.Add(id2);
-                    obj2.connections.Add(id1);
-                }
-                else
-                {
-                    Debug.LogWarning("One or both objects have reached their connection limit.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"Objects {id1} and {id2} are already connected.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
-        }
-    }
-
-    public void DisconnectObjects(string id1, string id2)
-    {
-        if (gameObjects.ContainsKey(id1) && gameObjects.ContainsKey(id2))
-        {
-            InteractiveObject obj1 = gameObjects[id1];
-            InteractiveObject obj2 = gameObjects[id2];
-
-            // Check if obj1 is connected to obj2 and vice versa
-            if (obj1.connections.Contains(id2) && obj2.connections.Contains(id1))
-            {
-                // Remove the connection from both objects (bidirectional disconnection)
-                obj1.connections.Remove(id2);
-                obj2.connections.Remove(id1);
-            }
-            else
-            {
-                Debug.LogWarning($"Objects {id1} and {id2} are not connected.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"One or both objects with IDs {id1} and {id2} do not exist.");
         }
     }
 
@@ -218,7 +165,8 @@ public class ObjectManager : MonoBehaviour
                 if (0 < obj.maxConnections)
                 {
                     // Check if the object is not already connected to the current object
-                    if (!currentObject.connections.Contains(obj.id))
+                    bool objectsAlreadyConnected = ConnectionsManager.Instance.HasConnection(currentObject, obj);
+                    if (!objectsAlreadyConnected)
                     {
                         // If all conditions are satisfied, add the object to the availableDevices list
                         availableDevices.Add(obj.id);

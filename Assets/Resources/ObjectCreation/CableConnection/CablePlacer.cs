@@ -87,16 +87,20 @@ public class CablePlacer : MonoBehaviour
         {
             if (hit.collider.CompareTag("Connectable"))
             {
-                if (connectingObject != null && connectingObject.HasAvailablePorts())
+                if (connectingObject != null && connectingObject.HasAvailablePorts()) //TODO() check if object type is in connectableTypes
                 {
                     var hitObject = hit.collider.GetComponent<InteractiveObject>();
                     currentCable.GetComponent<Cable>().SetMounted();
-                    currentCable = null;
+
+                    GameObject combinedCable = CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
+                    Connection newConnection = new Connection(connectingObject, hitObject, combinedCable);
 
                     Debug.Log(CalculateTotalCableLength());
+                    // Create and save the connection
+                    ConnectionsManager.Instance.AddConnection(newConnection);
 
-                    // Connect objects and pass total cable length to ObjectManager
-                    ObjectManager.Instance.ConnectObjects(connectingObject.id, hitObject.id);
+                    currentCable = null;
+                    placedCables = new List<Cable>();
                 }
                 else
                 {
@@ -177,5 +181,27 @@ public class CablePlacer : MonoBehaviour
         }
 
         return totalLength;
+    }
+
+    public GameObject CombineCableSegments(List<Cable> cableSegments, string objectAName, string objectBName)
+    {
+        // Create a parent GameObject to hold all cable segments
+        string combinedName = $"Cable_{objectAName}_to_{objectBName}";
+        GameObject combinedCable = new GameObject(combinedName);
+
+        // Parent all segments under this new GameObject
+        foreach (var segment in cableSegments)
+        {
+            segment.transform.SetParent(combinedCable.transform);
+        }
+
+        // Optionally, remove the cable components or other data if not needed
+        foreach (var segment in cableSegments)
+        {
+            Destroy(segment);
+        }
+
+        // Return the combined GameObject
+        return combinedCable;
     }
 }
