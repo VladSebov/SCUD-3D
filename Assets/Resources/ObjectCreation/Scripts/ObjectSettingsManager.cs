@@ -30,7 +30,7 @@ public class ObjectSettingsManager : MonoBehaviour
     {
         if (interactiveObject != null && CablePlacer != null)
         {
-            CablePlacer.StartCablePlacement(interactiveObject.gameObject.transform.position);
+            CablePlacer.StartCablePlacement(interactiveObject);
         }
         else
         {

@@ -41,15 +41,14 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
-    // Example of how to create an object with generated ID
     public void AddObject(CatalogItemData objectData, GameObject gameObject)
     {
         InteractiveObject newObject = null;
 
-        // parse device type
+        // Parse the object type
         Enum.TryParse(objectData.type, true, out ObjectType type);
 
-        // parse connectable types
+        // Parse connectable types
         List<ObjectType> connectableTypes = new List<ObjectType>();
         foreach (var typeString in objectData.connectableTypes)
         {
@@ -59,43 +58,46 @@ public class ObjectManager : MonoBehaviour
             }
         }
 
+        // Attach the appropriate InteractiveObject subclass
         switch (type)
         {
             case ObjectType.Camera:
-                newObject = new MyCamera();
+                newObject = gameObject.AddComponent<MyCamera>();
                 break;
             case ObjectType.Switch:
-                newObject = new Switch();
+                newObject = gameObject.AddComponent<Switch>();
                 break;
             case ObjectType.Turnstile:
-                newObject = new Turnstile();
+                newObject = gameObject.AddComponent<Turnstile>();
                 break;
             case ObjectType.Server:
-                newObject = new Server();
+                newObject = gameObject.AddComponent<Server>();
                 break;
             case ObjectType.ControlBox:
-                newObject = new ControlBox();
+                newObject = gameObject.AddComponent<ControlBox>();
                 break;
             case ObjectType.Terminal:
-                newObject = new Terminal();
+                newObject = gameObject.AddComponent<Terminal>();
                 break;
             case ObjectType.Reciever:
-                newObject = new Reciever();
+                newObject = gameObject.AddComponent<Reciever>();
                 break;
         }
 
         if (newObject != null)
         {
+            // Set up the InteractiveObject
             newObject.id = IDManager.GenerateId(type);
+            newObject.type = type;
+            newObject.maxConnections = objectData.maxConnections;
+            newObject.connectableTypes = connectableTypes;
+            newObject.connectionPoint = newObject.gameObject.transform.Find("ConnectionPoint");
+
+            // Add to the dictionary
             if (!gameObjects.ContainsKey(newObject.id))
             {
-                newObject.type = type;
-                newObject.maxConnections = objectData.maxConnections;
-                newObject.connectableTypes = connectableTypes;
-                newObject.gameObject = gameObject;
                 gameObjects[newObject.id] = newObject;
-
-                gameObject.name = newObject.id; // assigns name 
+                gameObject.name = newObject.id; // Assign the ID as the name for easy debugging
             }
         }
     }

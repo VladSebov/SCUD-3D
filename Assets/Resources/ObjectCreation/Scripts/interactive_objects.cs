@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-abstract public class InteractiveObject
+abstract public class InteractiveObject : MonoBehaviour
 {
     public string id;
     public ObjectType type;
