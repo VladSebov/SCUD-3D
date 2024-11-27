@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class CablePlacer : MonoBehaviour
 {
@@ -11,21 +12,25 @@ public class CablePlacer : MonoBehaviour
     private bool isPlacingCable = false; // Flag to indicate active placement
     public Camera playerCam;
 
+    private InteractiveObject connectingObject; // object which is being connected
+    private List<Cable> placedCables = new List<Cable>(); // List of placed cables
+
     // Method to start cable placement
-    public void StartCablePlacement(Vector3 startPoint)
+    public void StartCablePlacement(InteractiveObject startObject)
     {
-        lastPoint = startPoint;
+        connectingObject = startObject;
+        Transform connectionPoint = startObject.connectionPoint;
+        lastPoint = connectionPoint != null ? connectionPoint.position : startObject.gameObject.transform.position;
         isPlacingCable = true;
 
         // Instantiate the first cable segment
-        CreateCableSegment(startPoint, startPoint, unmountedMaterial);
+        CreateCableSegment(lastPoint, lastPoint, unmountedMaterial);
     }
 
     private void Update()
     {
         if (isPlacingCable)
         {
-            // Update the cable to follow the mouse
             Vector3 mousePosition = GetMouseWorldPosition();
             Vector3 snappedPosition = SnapToGrid(mousePosition, lastPoint);
 
@@ -35,58 +40,94 @@ public class CablePlacer : MonoBehaviour
             }
 
             // Confirm placement on left click
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(1))
             {
                 MountCableSegment(snappedPosition);
             }
 
             // Cancel placement on right click
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetKeyDown(KeyCode.Z) && Input.GetKey(KeyCode.LeftControl))
             {
-                CancelCablePlacement();
+                UndoLastCableSegment();
             }
         }
     }
 
-    // Utility: Create a new cable segment
     private void CreateCableSegment(Vector3 startPoint, Vector3 endPoint, Material material)
     {
         currentCable = Instantiate(cablePrefab);
         Cable cableScript = currentCable.GetComponent<Cable>();
         cableScript.Initialize(material);
         cableScript.UpdateCable(startPoint, endPoint);
+
+        cableScript.cableStartPoint = startPoint;
+        // Add the new cable segment to the list
+        placedCables.Add(cableScript);
     }
 
-    // Utility: Update the current cable segment
     private void UpdateCableSegment(Vector3 startPoint, Vector3 endPoint)
     {
-        currentCable.GetComponent<Cable>().UpdateCable(startPoint, endPoint);
+        if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
+        {
+            if (hit.collider.CompareTag("Connectable"))
+            {
+                var hitObject = hit.collider.GetComponent<InteractiveObject>();
+                currentCable.GetComponent<Cable>().UpdateCable(startPoint, hitObject.connectionPoint.position);
+            }
+            else
+            {
+                currentCable.GetComponent<Cable>().UpdateCable(startPoint, endPoint);
+            }
+        }
     }
 
-    // Utility: Finalize and mount the current cable segment
-    private void MountCableSegment(Vector3 endPoint)
+    public void MountCableSegment(Vector3 endPoint)
     {
-        if (currentCable != null)
+        if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
         {
-            // Finalize the current segment
-            currentCable.GetComponent<Cable>().SetMounted();
-            currentCable = null;
-        }
+            if (hit.collider.CompareTag("Connectable"))
+            {
+                if (connectingObject != null && connectingObject.HasAvailablePorts())
+                {
+                    var hitObject = hit.collider.GetComponent<InteractiveObject>();
+                    currentCable.GetComponent<Cable>().SetMounted();
+                    currentCable = null;
 
-        // Create a new cable segment starting from the last point
-        lastPoint = endPoint;
-        CreateCableSegment(lastPoint, lastPoint, unmountedMaterial);
+                    Debug.Log(CalculateTotalCableLength());
+
+                    // Connect objects and pass total cable length to ObjectManager
+                    ObjectManager.Instance.ConnectObjects(connectingObject.id, hitObject.id);
+                }
+                else
+                {
+                    Debug.Log("No available ports!");
+                }
+            }
+            else
+            {
+                currentCable.GetComponent<Cable>().SetMounted();
+                currentCable = null;
+
+                lastPoint = endPoint;
+                CreateCableSegment(lastPoint, lastPoint, unmountedMaterial);
+            }
+        }
     }
 
-    // Utility: Cancel the cable placement
-    public void CancelCablePlacement()
+
+    // Utility: Undo the last cable segment
+    private void UndoLastCableSegment()
     {
-        if (currentCable != null)
+        if (placedCables.Count > 1)
         {
-            Destroy(currentCable);
+            // Get the last cable segment and its length
+            Cable lastMountedCable = placedCables[placedCables.Count - 2];
+            lastPoint = lastMountedCable.cableStartPoint;
+            // Destroy the last cable segment
+            Destroy(lastMountedCable.gameObject);
+            // Remove it from the list
+            placedCables.RemoveAt(placedCables.Count - 2);
         }
-        currentCable = null;
-        isPlacingCable = false;
     }
 
     // Utility: Snap to straight lines (90-degree angles)
@@ -123,5 +164,18 @@ public class CablePlacer : MonoBehaviour
         }
 
         return Vector3.zero;
+    }
+
+    private float CalculateTotalCableLength()
+    {
+        float totalLength = 0f;
+
+        foreach (var segment in placedCables)
+        {
+            Cable cableScript = segment.GetComponent<Cable>();
+            totalLength += cableScript.GetLength(); // You'll need to create this method in Cable
+        }
+
+        return totalLength;
     }
 }

@@ -7929,6 +7929,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   objectPrefab: {fileID: 530210877}
+  currentObject: {fileID: 0}
   ObjectSettingsManager: {fileID: 0}
   CatalogManager: {fileID: 0}
   ScudSettings: {fileID: 0}
@@ -7957,6 +7958,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectSettings: {fileID: 530210877}
+  interactiveObject: {fileID: 0}
   connectionCountText: {fileID: 1351531686}
   scrollView: {fileID: 1874366312}
   connectionItemPrefab: {fileID: 6495976628028012987, guid: 0fb7433f4c9d22a28806a1d095d29b34,
@@ -7976,6 +7978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuDevices: {fileID: 236325382}
+  interactiveObject: {fileID: 0}
   scrollContent: {fileID: 917559410}
   availableItemPrefab: {fileID: 6495976628028012987, guid: 0fb7433f4c9d22a28806a1d095d29b34,
     type: 3}
@@ -8036,6 +8039,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuAvailableRoles: {fileID: 3573601450626211548}
+  interactiveObject: {fileID: 0}
   scrollContent: {fileID: 9059600634953100013}
   availableRolePrefab: {fileID: 7744453651353832526, guid: 98457d2c14c637c40a421d018879df3a,
     type: 3}
@@ -12793,12 +12797,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 978017305}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &2026797294 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8997996947095583982, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
-    type: 3}
-  m_PrefabInstance: {fileID: 978017305}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2026797295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12811,10 +12809,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b56bfe91484cf049bfa798fd39f081a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 100
-  playerBody: {fileID: 2026797294}
-  xRotation: 0
-  input: {fileID: 0}
 --- !u!1 &2038954436 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1716674858060799565, guid: 7a6f862ca8c727d4c8a3ef7bc92f4b5d,

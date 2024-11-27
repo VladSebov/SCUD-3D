@@ -10,11 +10,17 @@ abstract public class InteractiveObject : MonoBehaviour
     public int maxConnections;
     public List<ObjectType> connectableTypes; // list of connectable types
     public List<string> connections; // list of connected devices id's
-    public GameObject gameObject; // gameObject of object
+    public Transform connectionPoint;
+
 
     public InteractiveObject()
     {
         connections = new List<string>(); // Initialize connections list
+    }
+
+    public bool HasAvailablePorts()
+    {
+        return connections.Count < maxConnections; // Check if current connections are less than the maximum allowed
     }
 }
 

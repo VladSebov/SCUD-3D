@@ -2,43 +2,42 @@ using UnityEngine;
 
 public class Cable : MonoBehaviour
 {
-    private Transform cableTransform; // This is the parent transform of the cable (the empty GameObject)
-    private Transform cylinderTransform; // This will be the actual cylinder (child object)
+    private Transform cableTransform; // Parent GameObject (empty)
+    private Transform cubeTransform; // The cube (child object representing the cable)
+    private Vector3 previousEndPoint; // The endpoint of the previous cable segment
+    private Vector3 previousDirection; // The direction of the previous cable segment
 
-    // Method to initialize the cable with a given material
+    public Vector3 cableStartPoint;
+
     public void Initialize(Material material)
     {
-        // Get the parent and the cylinder child
+        // Get the cube (child object) transform inside the cable prefab
         cableTransform = transform;
-        cylinderTransform = transform.GetChild(0); // Assuming the cylinder is the first child of the parent
+        cubeTransform = transform.GetChild(0); // Assuming the cube is the first child of the parent
 
-        if (cylinderTransform == null)
+        if (cubeTransform == null)
         {
-            Debug.LogError("Cylinder child object not found. Make sure the prefab structure is correct.");
+            Debug.LogError("Cube child object not found. Make sure the prefab structure is correct.");
             return;
         }
 
-        // Set the material for the cable segment
-        MeshRenderer renderer = cylinderTransform.GetComponent<MeshRenderer>();
+        // Set the material for the cube (cable segment)
+        MeshRenderer renderer = cubeTransform.GetComponent<MeshRenderer>();
         if (renderer != null)
         {
             renderer.material = material;
         }
         else
         {
-            Debug.LogError("Renderer component is missing on the cylinder object.");
+            Debug.LogError("Renderer component is missing on the cube object.");
         }
+
+        previousEndPoint = Vector3.zero;
+        previousDirection = Vector3.zero;
     }
 
-    // Method to update the cable segment between two points
     public void UpdateCable(Vector3 startPoint, Vector3 endPoint)
     {
-        if (cylinderTransform == null)
-        {
-            Debug.LogError("Cylinder transform is not assigned.");
-            return;
-        }
-
         // Set the position of the cable (midpoint between start and end)
         cableTransform.position = (startPoint + endPoint) / 2;
 
@@ -48,30 +47,31 @@ public class Cable : MonoBehaviour
         // Set the rotation of the cable segment to align with the direction
         cableTransform.rotation = Quaternion.LookRotation(direction);
 
-        // Adjust the scale of the cable segment to match its length
-        float length = direction.magnitude;
-        Vector3 scale = cylinderTransform.localScale;
-        cylinderTransform.localScale = new Vector3(scale.x, scale.y, length);
+        // Adjust the scale of the cube to match the length of the segment
+        float length = (endPoint - startPoint).magnitude;
+        Vector3 scale = cubeTransform.localScale;
+        cubeTransform.localScale = new Vector3(scale.x, scale.y, length);
     }
 
-    // Method to indicate the cable segment has been mounted (e.g., with a solid color)
     public void SetMounted()
     {
-        if (cylinderTransform == null)
+        if (cubeTransform == null)
         {
-            Debug.LogError("Cylinder transform is not assigned.");
+            Debug.LogError("Cube transform is not assigned.");
             return;
         }
 
-        // Change the color of the cable to indicate it's mounted
-        MeshRenderer renderer = cylinderTransform.GetComponent<MeshRenderer>();
+        // Mark the cable segment as mounted by changing its color
+        MeshRenderer renderer = cubeTransform.GetComponent<MeshRenderer>();
         if (renderer != null)
         {
-            renderer.material.color = Color.green; // You can replace this with any material to mark as mounted
+            renderer.material.color = Color.green; // Change this to the appropriate material or color
         }
-        else
-        {
-            Debug.LogError("Renderer component is missing on the cylinder object.");
-        }
+    }
+
+    public float GetLength()
+    {
+        // Return the largest scale value to account for different orientations of the cube
+        return Mathf.Max(cubeTransform.localScale.x, cubeTransform.localScale.y, cubeTransform.localScale.z);
     }
 }
