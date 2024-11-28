@@ -2142,7 +2142,7 @@ PrefabInstance:
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.106
+      value: 5.1059575
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74,
         type: 3}
@@ -4503,7 +4503,7 @@ PrefabInstance:
     - target: {fileID: 8762286023885395322, guid: 9c489a8547f4d9e4387da15a4ff82c81,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.106
+      value: 5.1059575
       objectReference: {fileID: 0}
     - target: {fileID: 8762286023885395322, guid: 9c489a8547f4d9e4387da15a4ff82c81,
         type: 3}
@@ -6465,7 +6465,7 @@ Transform:
   m_GameObject: {fileID: 859376297}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.39849138, y: 0, z: 8.116472}
+  m_LocalPosition: {x: 0.39849138, y: 0.2, z: 8.116472}
   m_LocalScale: {x: 0.9787, y: 1, z: 0.96399}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7799,6 +7799,7 @@ GameObject:
   - component: {fileID: 1083386958}
   - component: {fileID: 1083386957}
   - component: {fileID: 1083386956}
+  - component: {fileID: 1083386960}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Floor
@@ -7887,12 +7888,26 @@ Transform:
   m_GameObject: {fileID: 1083386955}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.39849138, y: 0, z: 8.116472}
+  m_LocalPosition: {x: 0.39849138, y: 0.2, z: 8.116472}
   m_LocalScale: {x: 0.9787, y: 1, z: 0.96399}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 673124198}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1083386960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083386955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5560c7542d1aec5e4a4864c1ac1836d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FloorNumber: 1
+  RoomNumber: 12
 --- !u!1 &1112806736 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8635047885250175799, guid: 29cd85dd9aaf6c4b4a9a8b8ba4d8f4cc,

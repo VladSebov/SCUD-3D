@@ -50,6 +50,50 @@ public class CablePlacer : MonoBehaviour
             {
                 UndoLastCableSegment();
             }
+
+            // Cancel placement on right click
+            if (Input.GetKeyDown(KeyCode.X) && Input.GetKey(KeyCode.LeftControl))
+            {
+                CancelCableCreation();
+            }
+        }
+    }
+
+    // Method to cancel cable creation and reset to the original state
+    public void CancelCableCreation()
+    {
+        // If a cable is being placed, we cancel it
+        if (isPlacingCable)
+        {
+            // Destroy the current cable segment if it exists
+            if (currentCable != null)
+            {
+                Destroy(currentCable);
+                currentCable = null;
+            }
+
+            // Destroy any mounted cables
+            foreach (var cable in placedCables)
+            {
+                if (cable != null)
+                {
+                    Destroy(cable.gameObject); // Destroy the cable object
+                }
+            }
+
+            // Clear the list of placed cables
+            placedCables.Clear();
+
+            // Reset the placement flag to stop placing cables
+            isPlacingCable = false;
+
+            // Optionally, reset the last point to the original start position
+            lastPoint = Vector3.zero;
+
+            // Optionally, you can also reset the connecting object (if needed)
+            connectingObject = null;
+
+            Debug.Log("Cable creation canceled and mounted cables destroyed.");
         }
     }
 
@@ -100,7 +144,7 @@ public class CablePlacer : MonoBehaviour
                     ConnectionsManager.Instance.AddConnection(newConnection);
 
                     currentCable = null;
-                    placedCables = new List<Cable>();
+                    placedCables.Clear();
                 }
                 else
                 {
@@ -126,6 +170,8 @@ public class CablePlacer : MonoBehaviour
         {
             // Get the last cable segment and its length
             Cable lastMountedCable = placedCables[placedCables.Count - 2];
+            Cable currentCable = placedCables[placedCables.Count - 1];
+            currentCable.cableStartPoint = lastMountedCable.cableStartPoint;
             lastPoint = lastMountedCable.cableStartPoint;
             // Destroy the last cable segment
             Destroy(lastMountedCable.gameObject);
@@ -203,5 +249,152 @@ public class CablePlacer : MonoBehaviour
 
         // Return the combined GameObject
         return combinedCable;
+    }
+
+
+
+
+    public void NewAutoMountCable(InteractiveObject objectA, InteractiveObject objectB)
+    {
+        if (objectA == null || objectB == null)
+        {
+            Debug.LogError("Both objects must be provided for auto-mounting.");
+            return;
+        }
+
+        Vector3 startPoint = objectA.connectionPoint.position;
+        Vector3 endPoint = objectB.connectionPoint.position;
+
+        // Step 1: Find the nearest wall to objectA and mount to its hit point
+        Vector3? wallBasePoint = FindNearestWallHitPoint(startPoint);
+        if (!wallBasePoint.HasValue)
+        {
+            Debug.LogError("No wall found near objectA.");
+            return;
+        }
+
+        CreateCableSegment(startPoint, wallBasePoint.Value, mountedMaterial);
+
+    }
+    private float wallHeight = 1.2f;
+    public void AutoMountCable(InteractiveObject objectA, InteractiveObject objectB)
+    {
+        if (objectA == null || objectB == null)
+        {
+            Debug.LogError("Both objects must be provided for auto-mounting.");
+            return;
+        }
+
+        Vector3 startPoint = objectA.connectionPoint.position;
+        Vector3 endPoint = objectB.connectionPoint.position;
+
+        // Step 1: Find the nearest wall to objectA and mount to it
+        Vector3? nearestWallHitPoint = FindNearestWallHitPoint(startPoint);
+        if (!nearestWallHitPoint.HasValue)
+        {
+            Debug.LogError("No wall found near objectA.");
+            return;
+        }
+
+        Vector3 wallBasePoint = nearestWallHitPoint.Value;
+        CreateCableSegment(startPoint, wallBasePoint, mountedMaterial);
+
+        // Step 2: Move vertically up the wall to the wall's top
+        Vector3 wallTopPoint = wallBasePoint + Vector3.up * wallHeight; // Replace `wallHeight` with your actual wall height value
+        CreateCableSegment(wallBasePoint, wallTopPoint, mountedMaterial);
+
+        // Step 3: Move towards objectB along the walls
+        Vector3 currentPoint = wallTopPoint;
+        while (Vector3.Distance(currentPoint, endPoint) > 1.0f) // Adjustable threshold
+        {
+            // Find the next wall in the direction of objectB
+            Vector3 directionToB = (endPoint - currentPoint).normalized;
+            Vector3? nextWallHitPoint = FindNearestWallHitPoint(currentPoint, directionToB);
+
+            if (!nextWallHitPoint.HasValue)
+            {
+                Debug.LogError("No further walls found towards objectB.");
+                break;
+            }
+
+            // Mount segment to the next wall
+            Vector3 nextWallBasePoint = nextWallHitPoint.Value;
+            Vector3 nextWallTopPoint = nextWallBasePoint + Vector3.up * wallHeight;
+
+            CreateCableSegment(currentPoint, nextWallTopPoint, mountedMaterial);
+            currentPoint = nextWallTopPoint; // Update current point
+        }
+
+        // Step 4: Mount cable from the last wall top point to objectB's height along walls
+        // Adjust horizontally along the X-axis towards objectB
+        if (Mathf.Abs(endPoint.x - currentPoint.x) > 0.1f) // Threshold to avoid unnecessary steps
+        {
+            Vector3 horizontalPointX = new Vector3(endPoint.x, currentPoint.y, currentPoint.z);
+            CreateCableSegment(currentPoint, horizontalPointX, mountedMaterial);
+            currentPoint = horizontalPointX;
+        }
+
+        // Adjust horizontally along the Z-axis towards objectB
+        if (Mathf.Abs(endPoint.z - currentPoint.z) > 0.1f) // Threshold to avoid unnecessary steps
+        {
+            Vector3 horizontalPointZ = new Vector3(currentPoint.x, currentPoint.y, endPoint.z);
+            CreateCableSegment(currentPoint, horizontalPointZ, mountedMaterial);
+            currentPoint = horizontalPointZ;
+        }
+
+        // Step 5: Adjust vertically to objectB's height
+        if (Mathf.Abs(endPoint.y - currentPoint.y) > 0.1f) // Threshold to avoid unnecessary steps
+        {
+            Vector3 verticalPoint = new Vector3(currentPoint.x, endPoint.y, currentPoint.z);
+            CreateCableSegment(currentPoint, verticalPoint, mountedMaterial);
+            currentPoint = verticalPoint;
+        }
+
+        // Final segment to objectB's connection point
+        CreateCableSegment(currentPoint, endPoint, mountedMaterial);
+    }
+
+    private Vector3? FindNearestWallHitPoint(Vector3 origin, Vector3? preferredDirection = null)
+    {
+        float minDistance = float.MaxValue;
+        Vector3? nearestHitPoint = null;
+        Vector3? wallTopPoint = null;
+
+        // Cast rays in cardinal directions
+        Vector3[] directions = preferredDirection.HasValue
+            ? new Vector3[] { preferredDirection.Value }
+            : new Vector3[] { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
+
+        foreach (Vector3 direction in directions)
+        {
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, Mathf.Infinity))
+            {
+                if (hit.collider.CompareTag("Wall"))
+                {
+                    float distance = Vector3.Distance(origin, hit.point);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nearestHitPoint = hit.point; // Store the exact hit point
+                        //wallTopPoint = ;
+                    }
+                }
+            }
+        }
+
+        return nearestHitPoint;
+    }
+}
+
+public class ConnectingPoint
+{
+    public Vector3 center; // The center point
+    public Vector3 top;    // The top point
+
+    // Constructor to initialize the fields
+    public ConnectingPoint(Vector3 center, Vector3 top)
+    {
+        this.center = center;
+        this.top = top;
     }
 }

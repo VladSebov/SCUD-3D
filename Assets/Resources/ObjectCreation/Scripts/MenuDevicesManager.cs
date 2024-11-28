@@ -14,6 +14,12 @@ public class MenuDevicesManager : MonoBehaviour
     public GameObject availableItemPrefab; // Prefab for displaying connection items
     public Button connectButton; // Reference to the add button
     private string selectedDeviceId; // Store the selected connection ID
+    private CablePlacer CablePlacer;
+
+    public void Start()
+    {
+        CablePlacer = GetComponent<CablePlacer>();
+    }
 
     public void ShowMenu(InteractiveObject obj)
     {
@@ -50,6 +56,8 @@ public class MenuDevicesManager : MonoBehaviour
 
     public void ConnectDevices() // You can modify this to get input from the user
     {
+        InteractiveObject selectedObject = ObjectManager.Instance.GetObject(selectedDeviceId);
+        CablePlacer.AutoMountCable(interactiveObject,selectedObject);
         // TODO() implement auto cable mounting logic
         // if (interactiveObject.HasAvailablePorts())
         // {
