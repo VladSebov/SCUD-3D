@@ -210,7 +210,7 @@ public class ScudSettings : MonoBehaviour
     public void FillAccessDevices()
     {
         var accessDevices = ObjectManager.Instance.GetAllObjects()
-            .Where(io => io.type == ObjectType.Turnstile || io.type == ObjectType.Terminal) // Фильтруем объекты типа Camera
+            .Where(io => io.type == ObjectType.Turnstile) // Фильтруем объекты типа Turnstile
             .ToList();
         // Clear existing items in the scroll view
         foreach (Transform child in AccessDevicesScroll.content)

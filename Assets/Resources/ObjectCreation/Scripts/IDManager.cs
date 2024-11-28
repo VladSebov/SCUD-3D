@@ -6,10 +6,7 @@ public enum ObjectType
     Camera, 
     Switch, 
     Turnstile, 
-    Terminal, 
-    Server,
-    Reciever,
-    ControlBox
+    AccessController
 }
 
 

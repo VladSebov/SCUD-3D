@@ -4,8 +4,8 @@ using UnityEngine;
 
 public enum MountTag
 {
-    Wall, 
-    Floor, 
+    Wall,
+    Floor,
     Ceiling
 }
 
@@ -42,10 +42,30 @@ public class Switch : InteractiveObject
 public class Turnstile : InteractiveObject
 {
     public List<string> allowedRoles; // список допустимых ролей
+
+    public bool CheckRoleIsAllowed(string role)
+    {
+        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        if (connections.Count > 0)
+        {
+            Connection currentConnection = connections[0];
+            InteractiveObject potentialAccessController = currentConnection.ObjectA.type == ObjectType.AccessController
+            ? currentConnection.ObjectA
+            : currentConnection.ObjectB;
+            AccessController accessController = potentialAccessController as AccessController;
+            return accessController.IsRoleAllowed(role);
+        }
+        return false; // если нет подключения то по идее и возможность пытаться пройти не надо давать, он же не подключен с фига ли пропускать должен
+    }
 }
 
 [System.Serializable]
 public class AccessController : InteractiveObject
 {
     public List<string> allowedRoles; // список допустимых ролей
+
+    public bool IsRoleAllowed(string role)
+    {
+        return allowedRoles.Contains(role);
+    }
 }
