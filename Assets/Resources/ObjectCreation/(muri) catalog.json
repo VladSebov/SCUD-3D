@@ -8,7 +8,7 @@
             "type": "Camera",
             "maxConnections": 1,
             "connectableTypes": ["Switch"],
-            "mountTags": ["Wall", "Floor"]
+            "mountTags": ["Wall", "Ceiling"]
         },
         {
             "itemName": "Коммутатор",
@@ -17,17 +17,17 @@
             "prefab": "Mashes/Switch",
             "type": "Switch",
             "maxConnections": 52,
-            "connectableTypes": ["Camera, Switch"],
+            "connectableTypes": ["Camera", "Switch"],
             "mountTags": ["Floor"]
         },
         {
             "itemName": "Турникет",
             "description": "Описание турникета",
             "icon": "turnstile3",
-            "prefab":"Mashes/Turnstile",
+            "prefab":"Mashes/turnstile2_artem",
             "type": "Turnstile",
             "maxConnections": 1,
-            "connectableTypes": ["Switch"],
+            "connectableTypes": ["AccessController"],
             "mountTags": ["Floor"]
         },
         {
@@ -38,16 +38,6 @@
             "type": "AccessController",
             "maxConnections": 2,
             "connectableTypes": ["Turnstile"],
-            "mountTags": ["Wall"]
-        },
-        {
-            "itemName": "дор лок 1",
-            "description": "Описание свича",
-            "icon": "turnstile3",
-            "prefab":"Mashes/door_lock_1",
-            "type": "Terminal",
-            "maxConnections": 1,
-            "connectableTypes": ["Camera"],
             "mountTags": ["Wall"]
         }
     ]
