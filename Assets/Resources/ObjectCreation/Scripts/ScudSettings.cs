@@ -25,9 +25,9 @@ public class ScudSettings : MonoBehaviour
 
 
     //Access
-    public ScrollRect AccessDevicesScroll;
-    public GameObject AccessDeviceItem;
-    private string selectedAccessDeviceId;
+    public ScrollRect AccessControllersScroll;
+    public GameObject AccessControllerItem;
+    private string selectedAccessControllerId;
 
     //Roles
     public ScrollRect RolesScroll;
@@ -125,7 +125,7 @@ public class ScudSettings : MonoBehaviour
         AccessSettingsButton.interactable = false;
         HideAllContent();
         AccessSettingsContent.SetActive(true);
-        FillAccessDevices();
+        FillAccessControllers();
     }
 
     private void ShowRolesSettingsContent()
@@ -207,30 +207,30 @@ public class ScudSettings : MonoBehaviour
     }
 
 
-    public void FillAccessDevices()
+    public void FillAccessControllers()
     {
-        var accessDevices = ObjectManager.Instance.GetAllObjects()
-            .Where(io => io.type == ObjectType.Turnstile) // Фильтруем объекты типа Turnstile
+        var accessControllers = ObjectManager.Instance.GetAllObjects()
+            .Where(io => io.type == ObjectType.AccessController) // Фильтруем объекты типа AccessController
             .ToList();
         // Clear existing items in the scroll view
-        foreach (Transform child in AccessDevicesScroll.content)
+        foreach (Transform child in AccessControllersScroll.content)
         {
             Destroy(child.gameObject);
         }
 
         // Populate the scroll view with connected device IDs
-        foreach (var device in accessDevices)
+        foreach (var device in accessControllers)
         {
-            GameObject item = Instantiate(AccessDeviceItem, AccessDevicesScroll.content);
+            GameObject item = Instantiate(AccessControllerItem, AccessControllersScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = device.id;
             Button button = item.GetComponentInChildren<Button>();
             button.onClick.AddListener(() => { ShowAvailableRoles(device); });
         }
     }
 
-    public void ShowAvailableRoles(InteractiveObject accessDevice) // You can modify this to get input from the user
+    public void ShowAvailableRoles(InteractiveObject accessController) // You can modify this to get input from the user
     {
-        AvailableRolesMenuManager.ShowMenu(accessDevice);
+        AvailableRolesMenuManager.ShowMenu(accessController);
     }
 
     public void FillRoles()

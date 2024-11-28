@@ -73,9 +73,9 @@ public class AvailableRolesMenuManager : MonoBehaviour
             GameObject item = Instantiate(availableRolePrefab, scrollContent);
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
             roleItems.Add(item);
-            if (interactiveObject is Turnstile turnstile)
+            if (interactiveObject is AccessController accessController)
             {
-                if (turnstile.allowedRoles != null && turnstile.allowedRoles.Contains(role))
+                if (accessController.allowedRoles != null && accessController.allowedRoles.Contains(role))
                 {
                     // Assuming item is defined and is a GameObject
                     var toggle = item.GetComponentInChildren<Toggle>();
@@ -109,12 +109,12 @@ public class AvailableRolesMenuManager : MonoBehaviour
         .Where(roleItem => roleItem.GetComponentInChildren<Toggle>().isOn == true)
         .Select(roleItem => roleItem.GetComponentInChildren<TextMeshProUGUI>().text)
         .ToList();
-        ScudManager.Instance.UpdateTurnstileRoles(interactiveObject.id, selectedRoles);
+        ScudManager.Instance.UpdateAccessControllerRoles(interactiveObject.id, selectedRoles);
         // Assuming interactiveObject is of type InteractiveObject
-        if (interactiveObject is Turnstile turnstile)
+        if (interactiveObject is AccessController accessController)
         {
-            // Log the allowedRoles of the Turnstile
-            Debug.Log(string.Join(", ", turnstile.allowedRoles));
+            // Log the allowedRoles of the AccessController
+            Debug.Log(string.Join(", ", accessController.allowedRoles));
         }
         else
         {

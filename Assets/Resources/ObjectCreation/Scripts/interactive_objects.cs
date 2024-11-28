@@ -41,8 +41,6 @@ public class Switch : InteractiveObject
 [System.Serializable]
 public class Turnstile : InteractiveObject
 {
-    public List<string> allowedRoles; // список допустимых ролей
-
     public bool CheckRoleIsAllowed(string role)
     {
         List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);

@@ -82,13 +82,13 @@ public class ScudManager : MonoBehaviour
         return new List<string>(roles); // Возвращаем копию списка ролей
     }
 
-    // Метод для обновления допустимых ролей для Turnstile
-    public void UpdateTurnstileRoles(string interactiveObjectId, List<string> roles)
+    // Метод для обновления допустимых ролей для AccessController
+    public void UpdateAccessControllerRoles(string interactiveObjectId, List<string> roles)
     {
         InteractiveObject obj = ObjectManager.Instance.GetObject(interactiveObjectId);
-        if (obj is Turnstile turnstile)
+        if (obj is AccessController accessController)
             {
-                turnstile.allowedRoles = roles;
+                accessController.allowedRoles = roles;
                 Debug.Log($"Updated allowed roles for Turnstile with ID {interactiveObjectId}.");
             }
     }
