@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 6860158153473872378}
   - component: {fileID: 805058847993380651}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: CablePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
