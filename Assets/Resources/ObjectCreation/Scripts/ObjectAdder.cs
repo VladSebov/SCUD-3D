@@ -206,12 +206,21 @@ namespace SCUD3D
             }
         }
 
-        void CreateObject(Transform transform)
+        void CreateObject(Transform transform, Collider collider)
         {
+            RoomMetadata roomMetadata = collider.GetComponent<RoomMetadata>();
+            if (roomMetadata == null)
+            {
+                Debug.LogError($"no roomMetadata found for {collider.name}");
+                //TODO() remove later, cause RoomMetadata should be added to all enviroment
+                roomMetadata = new RoomMetadata();
+                roomMetadata.FloorNumber = 1;
+                roomMetadata.RoomNumber = 1;//Default values
+            }
             objectPrefab = Instantiate(objectPrefab, transform.position, transform.rotation);
             //objectPrefab.transform.eulerAngles = previewObject.transform.eulerAngles;
             //CreatedObjects.Add(objectPrefab);
-            ObjectManager.Instance.AddObject(objectData, objectPrefab); // creates an object 
+            ObjectManager.Instance.AddObject(objectData, objectPrefab, roomMetadata); // creates an object 
             Destroy(previewObject); // Удаляем объект предварительного просмотра
             gameState = 0;
         }
@@ -287,7 +296,7 @@ namespace SCUD3D
                 }
                 if (previewObject != null && Input.GetMouseButtonDown(0))
                 {
-                    CreateObject(previewObject.transform);
+                    CreateObject(previewObject.transform, hit.collider);
                     previousSelection.GetComponent<Renderer>().material.color = Color.white;
                 }
                 else if (Input.GetMouseButtonDown(1))

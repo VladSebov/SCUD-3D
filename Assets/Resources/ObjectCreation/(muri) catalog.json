@@ -16,7 +16,7 @@
             "prefab": "Mashes/Switch",
             "type": "Switch",
             "maxConnections": 52,
-            "connectableTypes": ["Camera"]
+            "connectableTypes": ["Camera, Switch"]
         },
         {
             "itemName": "Турникет",

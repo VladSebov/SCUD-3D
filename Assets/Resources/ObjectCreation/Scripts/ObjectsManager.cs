@@ -41,7 +41,7 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
-    public void AddObject(CatalogItemData objectData, GameObject gameObject)
+    public void AddObject(CatalogItemData objectData, GameObject gameObject, RoomMetadata roomMetadata)
     {
         InteractiveObject newObject = null;
 
@@ -92,6 +92,8 @@ public class ObjectManager : MonoBehaviour
             newObject.maxConnections = objectData.maxConnections;
             newObject.connectableTypes = connectableTypes;
             newObject.connectionPoint = newObject.gameObject.transform.Find("ConnectionPoint");
+            newObject.roomMetadata = roomMetadata;
+            Debug.Log($"floor: {roomMetadata.FloorNumber}, room: {roomMetadata.RoomNumber}");
 
             // Add to the dictionary
             if (!gameObjects.ContainsKey(newObject.id))

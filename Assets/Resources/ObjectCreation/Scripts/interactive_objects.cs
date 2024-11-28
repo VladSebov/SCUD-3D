@@ -10,6 +10,7 @@ abstract public class InteractiveObject : MonoBehaviour
     public int maxConnections;
     public List<ObjectType> connectableTypes; // list of connectable types
     public Transform connectionPoint;
+    public RoomMetadata roomMetadata;
 
     public bool HasAvailablePorts()
     {
