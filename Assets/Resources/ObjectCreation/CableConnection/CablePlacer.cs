@@ -131,9 +131,12 @@ public class CablePlacer : MonoBehaviour
         {
             if (hit.collider.CompareTag("Connectable"))
             {
-                if (connectingObject != null && connectingObject.HasAvailablePorts()) //TODO() check if object type is in connectableTypes
+                var hitObject = hit.collider.GetComponent<InteractiveObject>();
+                if (hitObject.HasAvailablePorts() && connectingObject.connectableTypes.Contains(hitObject.type))
                 {
-                    var hitObject = hit.collider.GetComponent<InteractiveObject>();
+                    //Check if trying to connect camera to switch which is already connected to NVR
+                    if (IsConnectionBlockedByNVR(connectingObject, hitObject)) return;
+
                     currentCable.GetComponent<Cable>().SetMounted();
 
                     GameObject combinedCable = CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
@@ -148,7 +151,7 @@ public class CablePlacer : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("No available ports!");
+                    Debug.Log("No available ports or incopatible types");
                 }
             }
             else
@@ -162,6 +165,24 @@ public class CablePlacer : MonoBehaviour
         }
     }
 
+    public bool IsConnectionBlockedByNVR(InteractiveObject objA, InteractiveObject objB)
+    {
+        // Check if one object is a Switch and the other is a Camera
+        if ((objA.type == ObjectType.Switch && objB.type == ObjectType.Camera) ||
+            (objA.type == ObjectType.Camera && objB.type == ObjectType.Switch))
+        {
+            // Identify the Switch object
+            InteractiveObject switchObject = objA.type == ObjectType.Switch ? objA : objB;
+
+            // Check if the Switch is already connected to an NVR
+            if (ConnectionsManager.Instance.CountConnectionsByType(switchObject, ObjectType.NVR) > 0)
+            {
+                Debug.Log("Disconnect from NVR to add new connections");
+                return true; // Connection is blocked
+            }
+        }
+        return false; // Connection is allowed
+    }
 
     // Utility: Undo the last cable segment
     private void UndoLastCableSegment()

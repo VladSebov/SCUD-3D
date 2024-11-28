@@ -36,8 +36,22 @@ public class MyCamera : InteractiveObject
 public class Switch : InteractiveObject
 {
     public string serverRackId; // id серверной стойки, на которую он установлен
-}
 
+    public int GetConnectedCamerasCount()
+    {
+        int camerasCount = 0;
+        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        foreach (var connection in connections)
+        {
+            InteractiveObject connectedObject = connection.ObjectA == this ? connection.ObjectB : connection.ObjectA;
+            if (connectedObject.type == ObjectType.Camera)
+            {
+                camerasCount++;
+            }
+        }
+        return camerasCount;
+    }
+}
 [System.Serializable]
 public class Turnstile : InteractiveObject
 {
@@ -72,4 +86,17 @@ public class AccessController : InteractiveObject
 public class NVR : InteractiveObject
 {
     public int maxChannels; // список допустимых ролей
+
+    public int GetFreeChannelsCount()
+    {
+        int busyChannels = 0;
+        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        foreach (var connection in connections)
+        {
+            // since the only connectable to NVR type is switch
+            InteractiveObject connectedSwitch = connection.ObjectA == this ? connection.ObjectB : connection.ObjectA;
+            busyChannels += ((Switch)connectedSwitch).GetConnectedCamerasCount();
+        }
+        return maxChannels - busyChannels;
+    }
 }

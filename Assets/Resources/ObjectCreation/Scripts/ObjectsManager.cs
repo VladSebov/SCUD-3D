@@ -107,14 +107,6 @@ public class ObjectManager : MonoBehaviour
                 gameObjects[newObject.id] = newObject;
                 gameObject.name = newObject.id; // Assign the ID as the name for easy debugging
             }
-
-            switch (newObject)
-            {
-                case MyCamera camera:
-                    camera.viewAngle = "20";
-                    break;
-
-            }
         }
     }
 

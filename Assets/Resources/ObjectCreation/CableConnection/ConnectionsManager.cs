@@ -77,4 +77,24 @@ public class ConnectionsManager : MonoBehaviour
         // Remove the connection from the list
         connections.Remove(connection);
     }
+
+    // Count connections of a certain ObjectType for a specific InteractiveObject
+    public int CountConnectionsByType(InteractiveObject obj, ObjectType targetType)
+    {
+        // Get all connections for the object
+        List<Connection> objConnections = GetConnections(obj);
+
+        // Count how many connections involve the specified type
+        int count = 0;
+        foreach (var connection in objConnections)
+        {
+            InteractiveObject otherObject = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
+            if (otherObject.type == targetType)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }
