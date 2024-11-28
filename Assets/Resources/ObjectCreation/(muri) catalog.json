@@ -7,7 +7,8 @@
             "prefab": "Mashes/Camera",
             "type": "Camera",
             "maxConnections": 1,
-            "connectableTypes": ["Switch"]
+            "connectableTypes": ["Switch"],
+            "mountTags": ["Wall", "Floor"]
         },
         {
             "itemName": "Коммутатор",
@@ -16,7 +17,8 @@
             "prefab": "Mashes/Switch",
             "type": "Switch",
             "maxConnections": 52,
-            "connectableTypes": ["Camera, Switch"]
+            "connectableTypes": ["Camera, Switch"],
+            "mountTags": ["Floor"]
         },
         {
             "itemName": "Турникет",
@@ -25,25 +27,18 @@
             "prefab":"Mashes/Turnstile",
             "type": "Turnstile",
             "maxConnections": 1,
-            "connectableTypes": ["Switch"]
+            "connectableTypes": ["Switch"],
+            "mountTags": ["Floor"]
         },
         {
-            "itemName": "Терминал 3",
-            "description": "Описание термнала",
+            "itemName": "СКУД контроллер",
+            "description": "Описание контроллера",
             "icon": "turnstile3",
-            "prefab":"Mashes/Terminal_3",
-            "type": "Terminal",
-            "maxConnections": 1,
-            "connectableTypes": ["Switch"]
-        }, 
-        {
-            "itemName": "Свитч 2",
-            "description": "Описание свича",
-            "icon": "turnstile3",
-            "prefab":"Mashes/Switch_2",
-            "type": "Switch",
-            "maxConnections": 1,
-            "connectableTypes": ["Switch"]
+            "prefab":"Mashes/AccessController",
+            "type": "AccessController",
+            "maxConnections": 2,
+            "connectableTypes": ["Turnstile"],
+            "mountTags": ["Wall"]
         },
         {
             "itemName": "дор лок 1",
@@ -52,7 +47,8 @@
             "prefab":"Mashes/door_lock_1",
             "type": "Terminal",
             "maxConnections": 1,
-            "connectableTypes": ["Camera"]
+            "connectableTypes": ["Camera"],
+            "mountTags": ["Wall"]
         }
     ]
 }

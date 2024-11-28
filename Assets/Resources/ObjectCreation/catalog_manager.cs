@@ -154,6 +154,7 @@ public class CatalogItemData
     public string type;
     public int maxConnections;
     public List<string> connectableTypes;
+    public List<string> mountTags;
     public string icon;  // Название иконки
     public string prefab;
 }

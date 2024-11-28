@@ -54,21 +54,6 @@ namespace SCUD3D
             CatalogManager = GetComponent<CatalogManager>();
         }
 
-        void UpdateMaterial(GameObject previewObject)
-        {
-            Material material = previewObject.GetComponentInChildren<Renderer>().material;
-            material.renderQueue = 3000;
-            // Устанавливаем режим прозрачности
-            material.SetFloat("_Surface", 1); // 0 = Opaque, 1 = Transparent
-            material.SetFloat("_Blend", 1); // 0 = Alpha, 1 = Premultiply
-
-            // Устанавливаем цвет с альфа-каналом
-            Color color = material.GetColor("_BaseColor");
-            color.a = 0.7f; // Устанавливаем альфа-канал на 0.5
-            material.SetColor("_BaseColor", color);
-
-        }
-
         void ColorAnimation(GameObject chosenObject)
         {
             Material material = chosenObject.GetComponentInChildren<Renderer>().material;
@@ -107,72 +92,74 @@ namespace SCUD3D
             }
         }
 
-        void ChangeSurfaceColor(RaycastHit hit, string tag)
+        void CreatePreviewObject(RaycastHit hit, Vector3 previewPosition)
+        {
+            // Check if the hit collider matches any of the mountTags of the object
+            MountTag mountTag = GetMountTagFromCollider(hit.collider);
+            ChangeSurfaceColor(hit, mountTag);
+            if (objectData.mountTags.Contains(mountTag.ToString()))
+            {
+                if (previewObject == null)
+                    CreatePreview(previewPosition, hit, mountTag);
+                else
+                    MovePreview(hit, mountTag);
+            }
+        }
+
+        MountTag GetMountTagFromCollider(Collider collider)
+        {
+            if (collider.CompareTag("Wall")) return MountTag.Wall;
+            if (collider.CompareTag("Floor")) return MountTag.Floor;
+            if (collider.CompareTag("Ceiling")) return MountTag.Ceiling;
+            return MountTag.Floor; // Default fallback
+        }
+
+        void ChangeSurfaceColor(RaycastHit hit, MountTag tag)
         {
             if (previousSelection == null) previousSelection = hit.collider.gameObject;
             else if (previousSelection != null && hit.collider.gameObject != previousSelection)
             {
-                if (hit.collider.gameObject.CompareTag(tag))
+                Renderer renderer = hit.collider.gameObject.GetComponentInChildren<Renderer>();
+                //Set the color based on tag validity
+                if (objectData.mountTags.Contains(tag.ToString()))
                 {
-                    hit.collider.gameObject.GetComponentInChildren<Renderer>().material.color = Color.green;
+                    renderer.material.color = Color.green;
                 }
-                if (!hit.collider.gameObject.CompareTag(tag))
+                else
                 {
-                    hit.collider.gameObject.GetComponentInChildren<Renderer>().material.color = Color.red;
+                    renderer.material.color = Color.red;
                 }
                 previousSelection.GetComponentInChildren<Renderer>().material.color = Color.white;
                 previousSelection = hit.collider.gameObject;
             }
         }
 
-        void CreatePreviewObject(RaycastHit hit, Vector3 previewPosition)
+        void CreatePreview(Vector3 previewPosition, RaycastHit hit, MountTag tag)
         {
-            switch (objectData.type)
-            {
-                case "Turnstile":
-                    ChangeSurfaceColor(hit, "Floor");
-                    if (previewObject == null) CreatePreviewOnFloor(previewPosition, hit);
-                    else if (previewObject != null) MovePreviewOnFloor(hit);
-                    break;
-                case "Camera":
-                    ChangeSurfaceColor(hit, "Wall");
-                    if (previewObject == null) CreatePreviewOnWall(previewPosition, hit);
-                    else if (previewObject != null) MovePreviewOnWall(hit);
-                    break;
-                default:
-                    ChangeSurfaceColor(hit, "Floor");
-                    if (previewObject == null) CreatePreviewOnFloor(previewPosition, hit);
-                    else if (previewObject != null) MovePreviewOnFloor(hit);
-                    break;
-            }
+            previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
+            ChangeLayerRecursively(previewObject.transform, 2);
+            UpdateMaterial(previewObject);
         }
 
-        void CreatePreviewOnFloor(Vector3 previewPosition, RaycastHit hit)
+        void MovePreview(RaycastHit hit, MountTag tag)
         {
-            if (hit.collider.gameObject.CompareTag("Floor"))
-            {
-                //previewPosition.y = hit.point.y;
-                previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
-                ChangeLayerRecursively(previewObject.transform, 2);
-                // Устанавливаем материал с полупрозрачностью
-                UpdateMaterial(previewObject);
-                //Material ghostMaterial = Resources.Load<Material>("Materials/Ghost_Material");
-            }
+            Vector3 previewPosition = hit.point;
+            previewObject.transform.position = previewPosition;
         }
 
-        void CreatePreviewOnWall(Vector3 previewPosition, RaycastHit hit)
+        void UpdateMaterial(GameObject previewObject)
         {
-            if (hit.collider.gameObject.CompareTag("Wall"))
-            {
-                //previewPosition.z = hit.point.z;
-                previewObject = Instantiate(objectPrefab, previewPosition, Quaternion.identity);
-                ChangeLayerRecursively(previewObject.transform, 2);
-                // Устанавливаем материал с полупрозрачностью
-                UpdateMaterial(previewObject);
-                //Material ghostMaterial = Resources.Load<Material>("Materials/Ghost_Material");
-            }
-        }
+            Material material = previewObject.GetComponentInChildren<Renderer>().material;
+            material.renderQueue = 3000;
+            // Устанавливаем режим прозрачности
+            material.SetFloat("_Surface", 1); // 0 = Opaque, 1 = Transparent
+            material.SetFloat("_Blend", 1); // 0 = Alpha, 1 = Premultiply
 
+            // Устанавливаем цвет с альфа-каналом
+            Color color = material.GetColor("_BaseColor");
+            color.a = 0.7f; // Устанавливаем альфа-канал на 0.5
+            material.SetColor("_BaseColor", color);
+        }
 
         void ChangeLayerRecursively(Transform parent, int layer)
         {
@@ -183,26 +170,6 @@ namespace SCUD3D
             foreach (Transform child in parent)
             {
                 ChangeLayerRecursively(child, layer);
-            }
-        }
-
-        void MovePreviewOnFloor(RaycastHit hit)
-        {
-            if (hit.collider.gameObject.CompareTag("Floor"))
-            {
-                Vector3 previewPosition = hit.point;
-                previewObject.transform.position = previewPosition;
-                //previewObject.transform.eulerAngles = new Vector3(-90f, previewObject.transform.eulerAngles.y, previewObject.transform.eulerAngles.z);
-            }
-        }
-
-        void MovePreviewOnWall(RaycastHit hit)
-        {
-            if (hit.collider.gameObject.CompareTag("Wall"))
-            {
-                Vector3 previewPosition = hit.point;
-                previewObject.transform.position = previewPosition;
-                //previewObject.transform.eulerAngles = new Vector3(-90f, previewObject.transform.eulerAngles.y, previewObject.transform.eulerAngles.z);
             }
         }
 

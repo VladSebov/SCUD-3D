@@ -8,6 +8,7 @@ TagManager:
   - Wall
   - CinemachineTarget
   - Connectable
+  - Ceiling
   layers:
   - Default
   - TransparentFX

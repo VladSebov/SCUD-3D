@@ -2,6 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum MountTag
+{
+    Wall, 
+    Floor, 
+    Ceiling
+}
+
 [System.Serializable]
 abstract public class InteractiveObject : MonoBehaviour
 {
@@ -9,6 +16,7 @@ abstract public class InteractiveObject : MonoBehaviour
     public ObjectType type;
     public int maxConnections;
     public List<ObjectType> connectableTypes; // list of connectable types
+    public List<MountTag> mountTags; // list of tags on which object can be mounted
     public Transform connectionPoint;
     public RoomMetadata roomMetadata;
 
@@ -37,25 +45,7 @@ public class Turnstile : InteractiveObject
 }
 
 [System.Serializable]
-public class Terminal : InteractiveObject
-{
-    public List<string> allowedRoles; // список допустимых ролей
-}
-
-[System.Serializable]
-public class Server : InteractiveObject
-{
-    public List<string> allowedRoles; // список допустимых ролей
-}
-
-[System.Serializable]
-public class Reciever : InteractiveObject
-{
-    public List<string> allowedRoles; // список допустимых ролей
-}
-
-[System.Serializable]
-public class ControlBox : InteractiveObject
+public class AccessController : InteractiveObject
 {
     public List<string> allowedRoles; // список допустимых ролей
 }

@@ -58,6 +58,16 @@ public class ObjectManager : MonoBehaviour
             }
         }
 
+        // Parse mount tags
+        List<MountTag> mountTags = new List<MountTag>();
+        foreach (var mountTagString in objectData.mountTags)
+        {
+            if (Enum.TryParse(mountTagString.ToString(), out MountTag parsedMountTag))
+            {
+                mountTags.Add(parsedMountTag);
+            }
+        }
+
         // Attach the appropriate InteractiveObject subclass
         switch (type)
         {
@@ -70,17 +80,8 @@ public class ObjectManager : MonoBehaviour
             case ObjectType.Turnstile:
                 newObject = gameObject.AddComponent<Turnstile>();
                 break;
-            case ObjectType.Server:
-                newObject = gameObject.AddComponent<Server>();
-                break;
-            case ObjectType.ControlBox:
-                newObject = gameObject.AddComponent<ControlBox>();
-                break;
-            case ObjectType.Terminal:
-                newObject = gameObject.AddComponent<Terminal>();
-                break;
-            case ObjectType.Reciever:
-                newObject = gameObject.AddComponent<Reciever>();
+            case ObjectType.AccessController:
+                newObject = gameObject.AddComponent<AccessController>();
                 break;
         }
 
@@ -91,6 +92,7 @@ public class ObjectManager : MonoBehaviour
             newObject.type = type;
             newObject.maxConnections = objectData.maxConnections;
             newObject.connectableTypes = connectableTypes;
+            newObject.mountTags = mountTags;
             newObject.connectionPoint = newObject.gameObject.transform.Find("ConnectionPoint");
             newObject.roomMetadata = roomMetadata;
             Debug.Log($"floor: {roomMetadata.FloorNumber}, room: {roomMetadata.RoomNumber}");
