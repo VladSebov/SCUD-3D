@@ -153,6 +153,7 @@ public class CatalogItemData
     public string description;
     public string type;
     public int maxConnections;
+    public int NVR_maxChannels;
     public List<string> connectableTypes;
     public List<string> mountTags;
     public string icon;  // Название иконки

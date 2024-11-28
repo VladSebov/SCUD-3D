@@ -67,3 +67,9 @@ public class AccessController : InteractiveObject
         return allowedRoles.Contains(role);
     }
 }
+
+[System.Serializable]
+public class NVR : InteractiveObject
+{
+    public int maxChannels; // список допустимых ролей
+}

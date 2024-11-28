@@ -69,7 +69,7 @@ public class ObjectSettingsManager : MonoBehaviour
         FillConnections();
 
         // Update button visibility
-        deleteButton.interactable = selectedConnection!=null;
+        deleteButton.interactable = selectedConnection != null;
         addConnectionButton.interactable = currentObjectConnectionsCount < interactiveObject.maxConnections;
     }
 
@@ -81,7 +81,7 @@ public class ObjectSettingsManager : MonoBehaviour
 
     public void DeleteConnection()
     {
-        if (selectedConnection!=null)
+        if (selectedConnection != null)
         {
             ConnectionsManager.Instance.RemoveConnection(selectedConnection);
             selectedConnection = null;

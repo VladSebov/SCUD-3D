@@ -83,6 +83,10 @@ public class ObjectManager : MonoBehaviour
             case ObjectType.AccessController:
                 newObject = gameObject.AddComponent<AccessController>();
                 break;
+            case ObjectType.NVR:
+                newObject = gameObject.AddComponent<NVR>();
+                ((NVR)newObject).maxChannels = objectData.NVR_maxChannels;
+                break;
         }
 
         if (newObject != null)
@@ -103,6 +107,14 @@ public class ObjectManager : MonoBehaviour
                 gameObjects[newObject.id] = newObject;
                 gameObject.name = newObject.id; // Assign the ID as the name for easy debugging
             }
+
+            switch (newObject)
+            {
+                case MyCamera camera:
+                    camera.viewAngle = "20";
+                    break;
+
+            }
         }
     }
 
@@ -116,7 +128,8 @@ public class ObjectManager : MonoBehaviour
         {
             //Remove object connections
             List<Connection> objectConnections = ConnectionsManager.Instance.GetConnections(gameObjects[id]);
-            foreach (Connection connection in objectConnections){
+            foreach (Connection connection in objectConnections)
+            {
                 ConnectionsManager.Instance.RemoveConnection(connection);
             }
             // Remove the object from the dictionary

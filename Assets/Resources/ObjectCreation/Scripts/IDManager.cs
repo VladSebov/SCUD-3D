@@ -6,7 +6,8 @@ public enum ObjectType
     Camera, 
     Switch, 
     Turnstile, 
-    AccessController
+    AccessController,
+    NVR
 }
 
 

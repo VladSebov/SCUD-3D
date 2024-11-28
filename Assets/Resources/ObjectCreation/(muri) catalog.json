@@ -8,7 +8,8 @@
             "type": "Camera",
             "maxConnections": 1,
             "connectableTypes": ["Switch"],
-            "mountTags": ["Wall", "Ceiling"]
+            "mountTags": ["Wall", "Ceiling"],
+            "NVR_maxChannels": 0
         },
         {
             "itemName": "Коммутатор",
@@ -18,7 +19,8 @@
             "type": "Switch",
             "maxConnections": 52,
             "connectableTypes": ["Camera", "Switch"],
-            "mountTags": ["Floor"]
+            "mountTags": ["Floor"],
+            "NVR_maxChannels": 0
         },
         {
             "itemName": "Турникет",
@@ -28,7 +30,8 @@
             "type": "Turnstile",
             "maxConnections": 1,
             "connectableTypes": ["AccessController"],
-            "mountTags": ["Floor"]
+            "mountTags": ["Floor"],
+            "NVR_maxChannels": 0
         },
         {
             "itemName": "СКУД контроллер",
@@ -38,7 +41,19 @@
             "type": "AccessController",
             "maxConnections": 2,
             "connectableTypes": ["Turnstile"],
-            "mountTags": ["Wall"]
+            "mountTags": ["Wall"],
+            "NVR_maxChannels": 0
+        },
+        {
+            "itemName": "NVR видеорегистратор",
+            "description": "Описание видеорегистратора",
+            "icon": "turnstile3",
+            "prefab":"Mashes/NVR",
+            "type": "NVR",
+            "maxConnections": 2,
+            "connectableTypes": ["Switch"],
+            "mountTags": ["Floor"],
+            "NVR_maxChannels": 4
         }
     ]
 }
