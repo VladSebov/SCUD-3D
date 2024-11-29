@@ -41,8 +41,18 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
-    public void AddObject(CatalogItemData objectData, GameObject gameObject, RoomMetadata roomMetadata)
+    public void AddObject(CatalogItemData objectData, GameObject gameObject, Collider collider)
     {
+        RoomMetadata roomMetadata = collider.GetComponent<RoomMetadata>();
+        if (roomMetadata == null)
+        {
+            Debug.LogError($"no roomMetadata found for {collider.name}");
+            //TODO() remove later, cause RoomMetadata should be added to all enviroment
+            roomMetadata = new RoomMetadata();
+            roomMetadata.FloorNumber = 1;
+            roomMetadata.RoomNumber = 1;//Default values
+        }
+
         InteractiveObject newObject = null;
 
         // Parse the object type
@@ -85,28 +95,42 @@ public class ObjectManager : MonoBehaviour
                 break;
             case ObjectType.NVR:
                 newObject = gameObject.AddComponent<NVR>();
-                ((NVR)newObject).maxChannels = objectData.NVR_maxChannels;
+                ((NVR)newObject).maxChannels = objectData.maxChannels;
+                break;
+            case ObjectType.UPS:
+                newObject = gameObject.AddComponent<UPS>();
+                ((UPS)newObject).maxBatteries = objectData.maxBatteries;
+                ((UPS)newObject).connectedBatteries = new List<string>();
+                break;
+            case ObjectType.Battery:
+                newObject = gameObject.AddComponent<Battery>();
+                ((Battery)newObject).powerWatts = objectData.powerWatts;
                 break;
         }
 
-        if (newObject != null)
-        {
-            // Set up the InteractiveObject
-            newObject.id = IDManager.GenerateId(type);
-            newObject.type = type;
-            newObject.maxConnections = objectData.maxConnections;
-            newObject.connectableTypes = connectableTypes;
-            newObject.mountTags = mountTags;
-            newObject.connectionPoint = newObject.gameObject.transform.Find("ConnectionPoint");
-            newObject.roomMetadata = roomMetadata;
-            Debug.Log($"floor: {roomMetadata.FloorNumber}, room: {roomMetadata.RoomNumber}");
+        // Set up the InteractiveObject
+        newObject.id = IDManager.GenerateId(type);
+        newObject.type = type;
+        newObject.maxConnections = objectData.maxConnections;
+        newObject.connectableTypes = connectableTypes;
+        newObject.mountTags = mountTags;
+        newObject.powerConsumption = objectData.powerConsumption;
+        newObject.connectionPoint = newObject.gameObject.transform.Find("ConnectionPoint");
+        newObject.roomMetadata = roomMetadata;
 
-            // Add to the dictionary
-            if (!gameObjects.ContainsKey(newObject.id))
-            {
-                gameObjects[newObject.id] = newObject;
-                gameObject.name = newObject.id; // Assign the ID as the name for easy debugging
-            }
+        // if connecting battery to UPS 
+        if (type == ObjectType.Battery)
+        {
+            UPS parentUPS = collider.GetComponent<UPS>();
+            parentUPS.connectedBatteries.Add(newObject.id);
+            newObject.gameObject.SetActive(false); // hide to show that battery installed in UPS
+        }
+
+        // Add to the dictionary
+        if (!gameObjects.ContainsKey(newObject.id))
+        {
+            gameObjects[newObject.id] = newObject;
+            gameObject.name = newObject.id; // Assign the ID as the name for easy debugging
         }
     }
 
