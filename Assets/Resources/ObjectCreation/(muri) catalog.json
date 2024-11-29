@@ -9,7 +9,7 @@
             "maxConnections": 1,
             "connectableTypes": ["Switch"],
             "mountTags": ["Wall", "Ceiling"],
-            "NVR_maxChannels": 0
+            "powerConsumption": 5
         },
         {
             "itemName": "Коммутатор",
@@ -20,7 +20,7 @@
             "maxConnections": 52,
             "connectableTypes": ["Camera", "Switch", "NVR"],
             "mountTags": ["Floor"],
-            "NVR_maxChannels": 0
+            "powerConsumption": 550
         },
         {
             "itemName": "Турникет",
@@ -31,7 +31,7 @@
             "maxConnections": 1,
             "connectableTypes": ["AccessController"],
             "mountTags": ["Floor"],
-            "NVR_maxChannels": 0
+            "powerConsumption": 50
         },
         {
             "itemName": "СКУД контроллер",
@@ -42,7 +42,7 @@
             "maxConnections": 2,
             "connectableTypes": ["Turnstile"],
             "mountTags": ["Wall"],
-            "NVR_maxChannels": 0
+            "powerConsumption": 110
         },
         {
             "itemName": "NVR видеорегистратор",
@@ -53,7 +53,28 @@
             "maxConnections": 2,
             "connectableTypes": ["Switch"],
             "mountTags": ["Floor"],
-            "NVR_maxChannels": 4
+            "maxChannels": 4,
+            "powerConsumption": 900
+        },
+        {
+            "itemName": "ИБП",
+            "description": "Описание ИБП",
+            "icon": "turnstile3",
+            "prefab":"Mashes/UPS",
+            "type": "UPS",
+            "maxConnections": 2,
+            "connectableTypes": ["UPS","Switch"],
+            "mountTags": ["Floor"],
+            "maxBatteries": 2
+        },
+        {
+            "itemName": "АКБ",
+            "description": "Описание АКБ",
+            "icon": "turnstile3",
+            "prefab":"Mashes/Battery",
+            "type": "Battery",
+            "mountTags": ["UPS"],
+            "powerWatts": 2400
         }
     ]
 }

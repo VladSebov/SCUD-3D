@@ -6,15 +6,28 @@ public enum MountTag
 {
     Wall,
     Floor,
-    Ceiling
+    Ceiling,
+    UPS
 }
 
-[System.Serializable]
+public enum ObjectType
+{
+    Camera,
+    Switch,
+    Turnstile,
+    AccessController,
+    NVR,
+    UPS,
+    Battery
+}
+
+[Serializable]
 abstract public class InteractiveObject : MonoBehaviour
 {
     public string id;
     public ObjectType type;
     public int maxConnections;
+    public int powerConsumption;
     public List<ObjectType> connectableTypes; // list of connectable types
     public List<MountTag> mountTags; // list of tags on which object can be mounted
     public Transform connectionPoint;
@@ -26,13 +39,13 @@ abstract public class InteractiveObject : MonoBehaviour
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class MyCamera : InteractiveObject
 {
     public string viewAngle; // угол обзора (для примера)
 }
 
-[System.Serializable]
+[Serializable]
 public class Switch : InteractiveObject
 {
     public string serverRackId; // id серверной стойки, на которую он установлен
@@ -52,7 +65,7 @@ public class Switch : InteractiveObject
         return camerasCount;
     }
 }
-[System.Serializable]
+[Serializable]
 public class Turnstile : InteractiveObject
 {
     public bool CheckRoleIsAllowed(string role)
@@ -71,7 +84,7 @@ public class Turnstile : InteractiveObject
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class AccessController : InteractiveObject
 {
     public List<string> allowedRoles; // список допустимых ролей
@@ -82,7 +95,7 @@ public class AccessController : InteractiveObject
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class NVR : InteractiveObject
 {
     public int maxChannels; // список допустимых ролей
@@ -99,4 +112,21 @@ public class NVR : InteractiveObject
         }
         return maxChannels - busyChannels;
     }
+}
+
+[Serializable]
+public class UPS : InteractiveObject
+{
+    public List<string> connectedBatteries; // подключенные АКБ
+    public int maxBatteries;
+    public bool HasAvailablePlace()
+    {
+        return connectedBatteries.Count < maxBatteries;
+    }
+}
+
+[Serializable]
+public class Battery : InteractiveObject
+{
+    public int powerWatts;
 }

@@ -102,7 +102,8 @@ public class CatalogManager : MonoBehaviour
         ObjectAdder adder = this.GetComponent<ObjectAdder>();
         adder.objectPrefab = Resources.Load<GameObject>(selectedItemData.prefab).GetComponent<BoxCollider>().gameObject;
         adder.objectData = selectedItemData;
-        if (adder.objectPrefab != null) {
+        if (adder.objectPrefab != null)
+        {
             adder.gameState = 1;
             adder.inputs.SetInputsState(true);
         }
@@ -153,11 +154,19 @@ public class CatalogItemData
     public string description;
     public string type;
     public int maxConnections;
-    public int NVR_maxChannels;
+    public int powerConsumption;
     public List<string> connectableTypes;
     public List<string> mountTags;
     public string icon;  // Название иконки
     public string prefab;
+
+    //NVR specific fields
+    public int maxChannels;
+    //UPS specific fields
+    public int maxBatteries;
+    //Battery specific fields
+    public int powerWatts;
+
 }
 
 [System.Serializable]

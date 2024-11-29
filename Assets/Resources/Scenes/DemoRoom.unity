@@ -7954,11 +7954,14 @@ MonoBehaviour:
     description: 
     type: 
     maxConnections: 0
-    NVR_maxChannels: 0
+    powerConsumption: 0
     connectableTypes: []
     mountTags: []
     icon: 
     prefab: 
+    maxChannels: 0
+    maxBatteries: 0
+    powerWatts: 0
   Ground: {fileID: 1083386955}
   inputs: {fileID: 0}
   object_chosen: 0
