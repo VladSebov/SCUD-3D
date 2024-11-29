@@ -275,28 +275,13 @@ public class CablePlacer : MonoBehaviour
 
 
 
-    public void NewAutoMountCable(InteractiveObject objectA, InteractiveObject objectB)
-    {
-        if (objectA == null || objectB == null)
-        {
-            Debug.LogError("Both objects must be provided for auto-mounting.");
-            return;
-        }
 
-        Vector3 startPoint = objectA.connectionPoint.position;
-        Vector3 endPoint = objectB.connectionPoint.position;
 
-        // Step 1: Find the nearest wall to objectA and mount to its hit point
-        Vector3? wallBasePoint = FindNearestWallHitPoint(startPoint);
-        if (!wallBasePoint.HasValue)
-        {
-            Debug.LogError("No wall found near objectA.");
-            return;
-        }
 
-        CreateCableSegment(startPoint, wallBasePoint.Value, mountedMaterial);
 
-    }
+
+
+
     private float wallHeight = 1.2f;
     public void AutoMountCable(InteractiveObject objectA, InteractiveObject objectB)
     {
@@ -373,6 +358,15 @@ public class CablePlacer : MonoBehaviour
 
         // Final segment to objectB's connection point
         CreateCableSegment(currentPoint, endPoint, mountedMaterial);
+        GameObject combinedCable = CombineCableSegments(placedCables, objectA.name, objectB.name);
+        Connection newConnection = new Connection(objectA, objectB, combinedCable);
+
+        Debug.Log("cable length" + CalculateTotalCableLength());
+        // Create and save the connection
+        ConnectionsManager.Instance.AddConnection(newConnection);
+
+        currentCable = null;
+        placedCables.Clear();
     }
 
     private Vector3? FindNearestWallHitPoint(Vector3 origin, Vector3? preferredDirection = null)

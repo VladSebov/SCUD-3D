@@ -135,13 +135,11 @@ public class ObjectManager : MonoBehaviour
     }
 
 
-    public void RemoveObject(GameObject obj)
+    public void RemoveObject(string id)
     {
-        // Check if the GameObject has a name that corresponds to an ID in the dictionary
-        string id = obj.name; // Assuming the GameObject's name is the same as its ID
-
         if (gameObjects.ContainsKey(id))
         {
+            GameObject gameObject = GetObject(id).gameObject;
             //Remove object connections
             List<Connection> objectConnections = ConnectionsManager.Instance.GetConnections(gameObjects[id]);
             foreach (Connection connection in objectConnections)
@@ -152,7 +150,7 @@ public class ObjectManager : MonoBehaviour
             gameObjects.Remove(id);
 
             // Destroy the GameObject in the scene
-            Destroy(obj);
+            Destroy(gameObject);
         }
         else
         {

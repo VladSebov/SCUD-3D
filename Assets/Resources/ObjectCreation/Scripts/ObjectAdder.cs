@@ -17,6 +17,7 @@ namespace SCUD3D
         public GameObject objectPrefab; // префаб объекта
         public InteractiveObject currentObject; // текущий объект для настройки
         public ObjectSettingsManager ObjectSettingsManager; // скрипт для objectSettings
+        public UPSSettingsManager UPSSettingsManager; // скрипт для objectSettings
         public CatalogManager CatalogManager;
 
         public ScudSettings ScudSettings;
@@ -50,6 +51,7 @@ namespace SCUD3D
             deltat = Time.deltaTime / 2f;
             ScudSettings = GetComponent<ScudSettings>();
             ObjectSettingsManager = GetComponent<ObjectSettingsManager>();
+            UPSSettingsManager = GetComponent<UPSSettingsManager>();
             MenuDevicesManager = GetComponent<MenuDevicesManager>();
             CatalogManager = GetComponent<CatalogManager>();
         }
@@ -80,7 +82,7 @@ namespace SCUD3D
                 }
                 if (Input.GetKeyDown(KeyCode.X))
                 {
-                    ObjectManager.Instance.RemoveObject(hit.collider.gameObject);
+                    ObjectManager.Instance.RemoveObject(hit.collider.gameObject.name);
                     //Destroy(hit.collider.gameObject);
                 }
             }
@@ -181,7 +183,8 @@ namespace SCUD3D
             if (objectData.type == ObjectType.Battery.ToString())
             {
                 UPS parentUPS = collider.GetComponent<UPS>();
-                if (!parentUPS.HasAvailablePlace()){
+                if (!parentUPS.HasAvailablePlace())
+                {
                     Debug.Log("У ИБП нет свободных мест под АКБ");
                     return;
                 }
@@ -217,7 +220,7 @@ namespace SCUD3D
             }
             RaycastHit hit;
 
-            if (ObjectSettingsManager.objectSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible)
+            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible)
             {
                 inputs.SetInputsState(false);
                 gameState = 2;
@@ -303,7 +306,10 @@ namespace SCUD3D
         public void ShowObjectMenu(InteractiveObject obj)
         {
             // Enable the configuration menu
-            ObjectSettingsManager.ShowMenu(obj);
+            if (obj.type == ObjectType.UPS)
+                UPSSettingsManager.ShowMenu((UPS)obj);
+            else
+                ObjectSettingsManager.ShowMenu(obj);
         }
 
 

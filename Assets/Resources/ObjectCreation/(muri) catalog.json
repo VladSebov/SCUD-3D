@@ -18,7 +18,7 @@
             "prefab": "Mashes/Switch",
             "type": "Switch",
             "maxConnections": 52,
-            "connectableTypes": ["Camera", "Switch", "NVR"],
+            "connectableTypes": ["Camera", "Switch", "NVR", "UPS"],
             "mountTags": ["Floor"],
             "powerConsumption": 550
         },
