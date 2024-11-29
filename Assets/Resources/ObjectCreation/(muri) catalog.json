@@ -29,7 +29,7 @@
             "prefab":"Mashes/turnstile2_artem",
             "type": "Turnstile",
             "maxConnections": 1,
-            "connectableTypes": ["AccessController"],
+            "connectableTypes": ["AccessController", "UPS"],
             "mountTags": ["Floor"],
             "powerConsumption": 50
         },
@@ -40,7 +40,7 @@
             "prefab":"Mashes/AccessController",
             "type": "AccessController",
             "maxConnections": 2,
-            "connectableTypes": ["Turnstile"],
+            "connectableTypes": ["Turnstile", "UPS"],
             "mountTags": ["Wall"],
             "powerConsumption": 110
         },
@@ -51,7 +51,7 @@
             "prefab":"Mashes/NVR",
             "type": "NVR",
             "maxConnections": 2,
-            "connectableTypes": ["Switch"],
+            "connectableTypes": ["Switch", "UPS"],
             "mountTags": ["Floor"],
             "maxChannels": 4,
             "powerConsumption": 900

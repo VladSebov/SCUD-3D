@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class CablePlacer : MonoBehaviour
 {
     public GameObject cablePrefab; // Prefab for the cable
+    //TODO() лучше сделать два материала для разных кабелей (ethernet и обычный), а при установке просто прозрачность менять
     public Material unmountedMaterial; // Material for unmounted (semi-transparent) cable
     public Material mountedMaterial; // Material for mounted (solid) cable
 
@@ -290,6 +291,7 @@ public class CablePlacer : MonoBehaviour
             Debug.LogError("Both objects must be provided for auto-mounting.");
             return;
         }
+        if (IsConnectionBlockedByNVR(objectA, objectB)) return;
 
         Vector3 startPoint = objectA.connectionPoint.position;
         Vector3 endPoint = objectB.connectionPoint.position;
