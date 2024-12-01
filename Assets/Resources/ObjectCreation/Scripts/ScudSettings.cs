@@ -99,7 +99,7 @@ public class ScudSettings : MonoBehaviour
                     break;
 
                 case RestrictionType.MaxCameras:
-                    if (ObjectManager.Instance.GetObjectsCountByType(ObjectType.Camera) > restriction.value)
+                    if (ObjectManager.Instance.GetObjectsByType(ObjectType.Camera).Count > restriction.value)
                     {
                         allRestrictionsMet = false; // Not met
                     }

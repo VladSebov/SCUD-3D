@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using StarterAssets;
 using TMPro;
 using Unity.VisualScripting;
@@ -14,6 +15,7 @@ public class MenuDevicesManager : MonoBehaviour
     public GameObject availableItemPrefab; // Prefab for displaying connection items
     public Button connectButton; // Reference to the add button
     private string selectedDeviceId; // Store the selected connection ID
+    private int currentCableType; // Store the selected connection ID
     private CablePlacer CablePlacer;
 
     public void Start()
@@ -21,9 +23,10 @@ public class MenuDevicesManager : MonoBehaviour
         CablePlacer = GetComponent<CablePlacer>();
     }
 
-    public void ShowMenu(InteractiveObject obj)
+    public void ShowMenu(InteractiveObject obj, int cableType)
     {
         interactiveObject = obj;
+        currentCableType = cableType;
         menuDevices.SetActive(true);
         UpdateMenu();
     }
@@ -56,25 +59,38 @@ public class MenuDevicesManager : MonoBehaviour
 
     public void ConnectDevices() // You can modify this to get input from the user
     {
+        CloseMenu();
         InteractiveObject selectedObject = ObjectManager.Instance.GetObject(selectedDeviceId);
-        CablePlacer.AutoMountCable(interactiveObject,selectedObject);
-        // TODO() implement auto cable mounting logic
-        // if (interactiveObject.HasAvailablePorts())
-        // {
-        //     ObjectManager.Instance.ConnectObjects(interactiveObject.id, selectedDeviceId);
-        //     CloseMenu();
-        // }
+        CablePlacer.AutoMountCable(interactiveObject, selectedObject, currentCableType);
     }
 
     public void FillDevices()
     {
-        // Clear existing items in the scroll view
         foreach (Transform child in scrollContent)
         {
             Destroy(child.gameObject);
         }
-        List<string> availableDevices = ObjectManager.Instance.GetAvailableDevicesIDs(interactiveObject.id);
-        // Populate the scroll view with connected device IDs
+        List<string> availableDevices = new List<string>();
+
+        if (currentCableType == CableType.Ethernet)
+        {
+            availableDevices = ObjectManager.Instance.GetAvailableDevicesIDs(interactiveObject.id);
+        }
+        else if (currentCableType == CableType.UPS)
+        {
+            if (interactiveObject.type == ObjectType.UPS)
+            {
+                //Show devices that aren't connected to current UPS
+                availableDevices = ObjectManager.Instance.GetAvailableDevicesIDs(interactiveObject.id)
+                    .Where(deviceId => !((UPS)interactiveObject).connectedDevices.Contains(deviceId))
+                    .ToList();
+            }
+            else
+            {
+                //Show all UPS 
+                availableDevices = ObjectManager.Instance.GetObjectsByType(ObjectType.UPS);
+            }
+        }
         foreach (var deviceId in availableDevices)
         {
             GameObject item = Instantiate(availableItemPrefab, scrollContent);

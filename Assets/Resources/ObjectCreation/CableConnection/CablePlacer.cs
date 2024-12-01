@@ -5,10 +5,12 @@ public class CablePlacer : MonoBehaviour
 {
     public GameObject cablePrefab; // Prefab for the cable
     //TODO() лучше сделать два материала для разных кабелей (ethernet и обычный), а при установке просто прозрачность менять
-    public Material unmountedMaterial; // Material for unmounted (semi-transparent) cable
-    public Material mountedMaterial; // Material for mounted (solid) cable
+    public Material ethernetCableMaterial; // Material for unmounted (semi-transparent) cable
+    public Material UPSCableMaterial; // Material for mounted (solid) cable
 
     private GameObject currentCable; // Active cable being placed
+    private int currentCableType;
+    private Material currentCableMaterial;
     private Vector3 lastPoint; // Last mounted point
     private bool isPlacingCable = false; // Flag to indicate active placement
     public Camera playerCam;
@@ -16,24 +18,12 @@ public class CablePlacer : MonoBehaviour
     private InteractiveObject connectingObject; // object which is being connected
     private List<Cable> placedCables = new List<Cable>(); // List of placed cables
 
-    // Method to start cable placement
-    public void StartCablePlacement(InteractiveObject startObject)
-    {
-        connectingObject = startObject;
-        Transform connectionPoint = startObject.connectionPoint;
-        lastPoint = connectionPoint != null ? connectionPoint.position : startObject.gameObject.transform.position;
-        isPlacingCable = true;
-
-        // Instantiate the first cable segment
-        CreateCableSegment(lastPoint, lastPoint, unmountedMaterial);
-    }
-
     private void Update()
     {
         if (isPlacingCable)
         {
-            Vector3 mousePosition = GetMouseWorldPosition();
-            Vector3 snappedPosition = SnapToGrid(mousePosition, lastPoint);
+            Vector3 mousePosition = CableUtility.GetMouseWorldPosition(playerCam);
+            Vector3 snappedPosition = CableUtility.SnapToGrid(mousePosition, lastPoint);
 
             if (currentCable != null)
             {
@@ -60,42 +50,18 @@ public class CablePlacer : MonoBehaviour
         }
     }
 
-    // Method to cancel cable creation and reset to the original state
-    public void CancelCableCreation()
+    // Method to start cable placement
+    public void StartCablePlacement(InteractiveObject startObject, int cableType)
     {
-        // If a cable is being placed, we cancel it
-        if (isPlacingCable)
-        {
-            // Destroy the current cable segment if it exists
-            if (currentCable != null)
-            {
-                Destroy(currentCable);
-                currentCable = null;
-            }
+        currentCableType = cableType;
+        currentCableMaterial = cableType == CableType.Ethernet ? ethernetCableMaterial : UPSCableMaterial;
+        connectingObject = startObject;
+        Transform connectionPoint = startObject.connectionPoint;
+        lastPoint = connectionPoint.position;
+        isPlacingCable = true;
 
-            // Destroy any mounted cables
-            foreach (var cable in placedCables)
-            {
-                if (cable != null)
-                {
-                    Destroy(cable.gameObject); // Destroy the cable object
-                }
-            }
-
-            // Clear the list of placed cables
-            placedCables.Clear();
-
-            // Reset the placement flag to stop placing cables
-            isPlacingCable = false;
-
-            // Optionally, reset the last point to the original start position
-            lastPoint = Vector3.zero;
-
-            // Optionally, you can also reset the connecting object (if needed)
-            connectingObject = null;
-
-            Debug.Log("Cable creation canceled and mounted cables destroyed.");
-        }
+        // Instantiate the first cable segment
+        CreateCableSegment(lastPoint, lastPoint, currentCableMaterial);
     }
 
     private void CreateCableSegment(Vector3 startPoint, Vector3 endPoint, Material material)
@@ -114,7 +80,8 @@ public class CablePlacer : MonoBehaviour
     {
         if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
         {
-            if (hit.collider.CompareTag("Connectable"))
+            string targetTag = currentCableType == CableType.Ethernet ? "Connectable" : "UPS";
+            if (hit.collider.CompareTag(targetTag))
             {
                 var hitObject = hit.collider.GetComponent<InteractiveObject>();
                 currentCable.GetComponent<Cable>().UpdateCable(startPoint, hitObject.connectionPoint.position);
@@ -130,147 +97,85 @@ public class CablePlacer : MonoBehaviour
     {
         if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
         {
-            if (hit.collider.CompareTag("Connectable"))
+            string targetTag = currentCableType == CableType.Ethernet ? "Connectable" : "UPS";
+            if (hit.collider.CompareTag(targetTag))
             {
                 var hitObject = hit.collider.GetComponent<InteractiveObject>();
-                if (hitObject.HasAvailablePorts() && connectingObject.connectableTypes.Contains(hitObject.type))
+
+                //TODO() add transparrency to mounting cable maybe
+                //currentCable.GetComponent<Cable>().SetMounted();
+                if (currentCableType == CableType.Ethernet)
                 {
-                    //Check if trying to connect camera to switch which is already connected to NVR
-                    if (IsConnectionBlockedByNVR(connectingObject, hitObject)) return;
+                    if (hitObject.HasAvailablePorts() && connectingObject.connectableTypes.Contains(hitObject.type))
+                    {
+                        //Check if trying to connect camera to switch which is already connected to NVR
+                        if (CableUtility.IsConnectionBlockedByNVR(connectingObject, hitObject))
+                            return;
+                        GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
+                        Connection newConnection = new Connection(connectingObject, hitObject, combinedCable);
 
-                    currentCable.GetComponent<Cable>().SetMounted();
-
-                    GameObject combinedCable = CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
-                    Connection newConnection = new Connection(connectingObject, hitObject, combinedCable);
-
-                    Debug.Log(CalculateTotalCableLength());
-                    // Create and save the connection
-                    ConnectionsManager.Instance.AddConnection(newConnection);
-
-                    currentCable = null;
-                    placedCables.Clear();
+                        Debug.Log(CableUtility.CalculateTotalCableLength(placedCables));
+                        // Create and save the connection
+                        ConnectionsManager.Instance.AddConnection(newConnection);
+                    }
                 }
-                else
+                else if (currentCableType == CableType.UPS)
                 {
-                    Debug.Log("No available ports or incopatible types");
+                    ((ConnectableToUPS)connectingObject).connectedUPSId = ((UPS)hitObject).id;
+                    ((UPS)hitObject).connectedDevices.Add(connectingObject.id);
                 }
+
+                currentCable = null;
+                placedCables.Clear();
             }
             else
             {
-                currentCable.GetComponent<Cable>().SetMounted();
-                currentCable = null;
-
-                lastPoint = endPoint;
-                CreateCableSegment(lastPoint, lastPoint, unmountedMaterial);
+                Debug.Log("No available ports or incopatible types");
             }
         }
-    }
-
-    public bool IsConnectionBlockedByNVR(InteractiveObject objA, InteractiveObject objB)
-    {
-        // Check if one object is a Switch and the other is a Camera
-        if ((objA.type == ObjectType.Switch && objB.type == ObjectType.Camera) ||
-            (objA.type == ObjectType.Camera && objB.type == ObjectType.Switch))
+        else
         {
-            // Identify the Switch object
-            InteractiveObject switchObject = objA.type == ObjectType.Switch ? objA : objB;
+            //TODO() add transparrency to mounting cable maybe
+            //currentCable.GetComponent<Cable>().SetMounted();
+            currentCable = null;
 
-            // Check if the Switch is already connected to an NVR
-            if (ConnectionsManager.Instance.CountConnectionsByType(switchObject, ObjectType.NVR) > 0)
-            {
-                Debug.Log("Disconnect from NVR to add new connections");
-                return true; // Connection is blocked
-            }
+            lastPoint = endPoint;
+            CreateCableSegment(lastPoint, lastPoint, currentCableMaterial);
         }
-        return false; // Connection is allowed
     }
 
-    // Utility: Undo the last cable segment
+
+    // Method to cancel cable creation and reset to the original state
+    public void CancelCableCreation()
+    {
+        if (isPlacingCable)
+        {
+            foreach (var cable in placedCables)
+            {
+                if (cable != null)
+                {
+                    Destroy(cable.gameObject); // Destroy the cable object
+                }
+            }
+            placedCables.Clear();
+            isPlacingCable = false;
+            lastPoint = Vector3.zero;
+            connectingObject = null;
+            Debug.Log("Cable creation canceled and mounted cables destroyed.");
+        }
+    }
+
     private void UndoLastCableSegment()
     {
         if (placedCables.Count > 1)
         {
-            // Get the last cable segment and its length
             Cable lastMountedCable = placedCables[placedCables.Count - 2];
             Cable currentCable = placedCables[placedCables.Count - 1];
             currentCable.cableStartPoint = lastMountedCable.cableStartPoint;
             lastPoint = lastMountedCable.cableStartPoint;
-            // Destroy the last cable segment
             Destroy(lastMountedCable.gameObject);
-            // Remove it from the list
             placedCables.RemoveAt(placedCables.Count - 2);
         }
-    }
-
-    // Utility: Snap to straight lines (90-degree angles)
-    private Vector3 SnapToGrid(Vector3 mousePosition, Vector3 startPosition)
-    {
-        Vector3 direction = mousePosition - startPosition;
-
-        // Snap to the axis with the greatest distance
-        if (Mathf.Abs(direction.x) >= Mathf.Abs(direction.y) && Mathf.Abs(direction.x) >= Mathf.Abs(direction.z))
-        {
-            direction.y = 0;
-            direction.z = 0;
-        }
-        else if (Mathf.Abs(direction.y) >= Mathf.Abs(direction.x) && Mathf.Abs(direction.y) >= Mathf.Abs(direction.z))
-        {
-            direction.x = 0;
-            direction.z = 0;
-        }
-        else
-        {
-            direction.x = 0;
-            direction.y = 0;
-        }
-
-        return startPosition + direction;
-    }
-
-    // Utility: Get mouse position in world space
-    private Vector3 GetMouseWorldPosition()
-    {
-        if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
-        {
-            return hit.point;
-        }
-
-        return Vector3.zero;
-    }
-
-    private float CalculateTotalCableLength()
-    {
-        float totalLength = 0f;
-
-        foreach (var segment in placedCables)
-        {
-            Cable cableScript = segment.GetComponent<Cable>();
-            totalLength += cableScript.GetLength(); // You'll need to create this method in Cable
-        }
-
-        return totalLength;
-    }
-
-    public GameObject CombineCableSegments(List<Cable> cableSegments, string objectAName, string objectBName)
-    {
-        // Create a parent GameObject to hold all cable segments
-        string combinedName = $"Cable_{objectAName}_to_{objectBName}";
-        GameObject combinedCable = new GameObject(combinedName);
-
-        // Parent all segments under this new GameObject
-        foreach (var segment in cableSegments)
-        {
-            segment.transform.SetParent(combinedCable.transform);
-        }
-
-        // Optionally, remove the cable components or other data if not needed
-        foreach (var segment in cableSegments)
-        {
-            Destroy(segment);
-        }
-
-        // Return the combined GameObject
-        return combinedCable;
     }
 
 
@@ -284,14 +189,14 @@ public class CablePlacer : MonoBehaviour
 
 
     private float wallHeight = 1.2f;
-    public void AutoMountCable(InteractiveObject objectA, InteractiveObject objectB)
+    public void AutoMountCable(InteractiveObject objectA, InteractiveObject objectB, int cableType)
     {
         if (objectA == null || objectB == null)
         {
             Debug.LogError("Both objects must be provided for auto-mounting.");
             return;
         }
-        if (IsConnectionBlockedByNVR(objectA, objectB)) return;
+        if (CableUtility.IsConnectionBlockedByNVR(objectA, objectB)) return;
 
         Vector3 startPoint = objectA.connectionPoint.position;
         Vector3 endPoint = objectB.connectionPoint.position;
@@ -304,12 +209,14 @@ public class CablePlacer : MonoBehaviour
             return;
         }
 
+        currentCableMaterial = cableType == CableType.Ethernet ? ethernetCableMaterial : UPSCableMaterial;
+
         Vector3 wallBasePoint = nearestWallHitPoint.Value;
-        CreateCableSegment(startPoint, wallBasePoint, mountedMaterial);
+        CreateCableSegment(startPoint, wallBasePoint, currentCableMaterial);
 
         // Step 2: Move vertically up the wall to the wall's top
         Vector3 wallTopPoint = wallBasePoint + Vector3.up * wallHeight; // Replace `wallHeight` with your actual wall height value
-        CreateCableSegment(wallBasePoint, wallTopPoint, mountedMaterial);
+        CreateCableSegment(wallBasePoint, wallTopPoint, currentCableMaterial);
 
         // Step 3: Move towards objectB along the walls
         Vector3 currentPoint = wallTopPoint;
@@ -329,7 +236,7 @@ public class CablePlacer : MonoBehaviour
             Vector3 nextWallBasePoint = nextWallHitPoint.Value;
             Vector3 nextWallTopPoint = nextWallBasePoint + Vector3.up * wallHeight;
 
-            CreateCableSegment(currentPoint, nextWallTopPoint, mountedMaterial);
+            CreateCableSegment(currentPoint, nextWallTopPoint, currentCableMaterial);
             currentPoint = nextWallTopPoint; // Update current point
         }
 
@@ -338,7 +245,7 @@ public class CablePlacer : MonoBehaviour
         if (Mathf.Abs(endPoint.x - currentPoint.x) > 0.1f) // Threshold to avoid unnecessary steps
         {
             Vector3 horizontalPointX = new Vector3(endPoint.x, currentPoint.y, currentPoint.z);
-            CreateCableSegment(currentPoint, horizontalPointX, mountedMaterial);
+            CreateCableSegment(currentPoint, horizontalPointX, currentCableMaterial);
             currentPoint = horizontalPointX;
         }
 
@@ -346,7 +253,7 @@ public class CablePlacer : MonoBehaviour
         if (Mathf.Abs(endPoint.z - currentPoint.z) > 0.1f) // Threshold to avoid unnecessary steps
         {
             Vector3 horizontalPointZ = new Vector3(currentPoint.x, currentPoint.y, endPoint.z);
-            CreateCableSegment(currentPoint, horizontalPointZ, mountedMaterial);
+            CreateCableSegment(currentPoint, horizontalPointZ, currentCableMaterial);
             currentPoint = horizontalPointZ;
         }
 
@@ -354,18 +261,27 @@ public class CablePlacer : MonoBehaviour
         if (Mathf.Abs(endPoint.y - currentPoint.y) > 0.1f) // Threshold to avoid unnecessary steps
         {
             Vector3 verticalPoint = new Vector3(currentPoint.x, endPoint.y, currentPoint.z);
-            CreateCableSegment(currentPoint, verticalPoint, mountedMaterial);
+            CreateCableSegment(currentPoint, verticalPoint, currentCableMaterial);
             currentPoint = verticalPoint;
         }
 
         // Final segment to objectB's connection point
-        CreateCableSegment(currentPoint, endPoint, mountedMaterial);
-        GameObject combinedCable = CombineCableSegments(placedCables, objectA.name, objectB.name);
-        Connection newConnection = new Connection(objectA, objectB, combinedCable);
+        CreateCableSegment(currentPoint, endPoint, currentCableMaterial);
 
-        Debug.Log("cable length" + CalculateTotalCableLength());
-        // Create and save the connection
-        ConnectionsManager.Instance.AddConnection(newConnection);
+        if (currentCableType == CableType.Ethernet)
+        {
+            GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, objectA.name, objectB.name);
+            Connection newConnection = new Connection(objectA, objectB, combinedCable);
+
+            Debug.Log(CableUtility.CalculateTotalCableLength(placedCables));
+            // Create and save the connection
+            ConnectionsManager.Instance.AddConnection(newConnection);
+        }
+        else if (currentCableType == CableType.UPS)
+        {
+            ((ConnectableToUPS)objectA).connectedUPSId = ((UPS)objectB).id;
+            ((UPS)objectB).connectedDevices.Add(objectA.id);
+        }
 
         currentCable = null;
         placedCables.Clear();
@@ -393,25 +309,12 @@ public class CablePlacer : MonoBehaviour
                     {
                         minDistance = distance;
                         nearestHitPoint = hit.point; // Store the exact hit point
-                        //wallTopPoint = ;
+                                                     //wallTopPoint = ;
                     }
                 }
             }
         }
 
         return nearestHitPoint;
-    }
-}
-
-public class ConnectingPoint
-{
-    public Vector3 center; // The center point
-    public Vector3 top;    // The top point
-
-    // Constructor to initialize the fields
-    public ConnectingPoint(Vector3 center, Vector3 top)
-    {
-        this.center = center;
-        this.top = top;
     }
 }

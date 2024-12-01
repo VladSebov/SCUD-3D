@@ -101,6 +101,7 @@ public class ObjectManager : MonoBehaviour
                 newObject = gameObject.AddComponent<UPS>();
                 ((UPS)newObject).maxBatteries = objectData.maxBatteries;
                 ((UPS)newObject).connectedBatteries = new List<string>();
+                ((UPS)newObject).connectedDevices = new List<string>();
                 break;
             case ObjectType.Battery:
                 newObject = gameObject.AddComponent<Battery>();
@@ -222,12 +223,12 @@ public class ObjectManager : MonoBehaviour
         return totalPrice; // Return the total price
     }
 
-    public int GetObjectsCountByType(ObjectType type)
+    public List<string> GetObjectsByType(ObjectType type)
     {
         return GetAllObjects()
            .Where(io => io.type == type)
-           .ToList()
-           .Count;
+           .Select(io => io.id)
+           .ToList();
     }
 }
 

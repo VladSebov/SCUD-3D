@@ -10,6 +10,8 @@ using UnityEngine.UI;
 public class ObjectSettingsManager : MonoBehaviour
 {
     public GameObject objectSettings; // Reference to the objectSettings
+    public GameObject selectConnectionForm;
+    public int currentCableType;
     public InteractiveObject interactiveObject; // Reference to the InteractiveObject
     public TextMeshProUGUI connectionCountText; // Reference to the Text for connection count
     public ScrollRect scrollView; // Reference to the Scroll View
@@ -18,32 +20,51 @@ public class ObjectSettingsManager : MonoBehaviour
     public Button addConnectionButton; // Reference to the add button
     private Connection selectedConnection; // Store the selected connection ID
 
+    //UPS settings
+    public TextMeshProUGUI UPSInfoText;
+    public Button UPSActionButton;
+
     private CablePlacer CablePlacer;
+    public MenuDevicesManager MenuDevicesManager; // скрипт для menuDevices
+    public UPSSettingsManager UPSSettingsManager; // скрипт для menuDevices
 
     public void Start()
     {
         CablePlacer = GetComponent<CablePlacer>();
-        addConnectionButton.onClick.AddListener(OnAddConnectionButtonClick);
+        MenuDevicesManager = GetComponent<MenuDevicesManager>();
+        UPSSettingsManager = GetComponent<UPSSettingsManager>();
     }
 
-    private void OnAddConnectionButtonClick()
+    public void ShowSelectConnectionForm(int cableType)
     {
-        if (interactiveObject != null && CablePlacer != null)
-        {
-            CablePlacer.StartCablePlacement(interactiveObject);
-        }
-        else
-        {
-            Debug.LogError("CablePlacer or InteractiveObject is not assigned!");
-        }
+        currentCableType = cableType;
+        selectConnectionForm.SetActive(true);
+    }
+
+    public void AddConnectionManually()
+    {
+        CloseMenu();
+        CablePlacer.StartCablePlacement(interactiveObject, currentCableType);
     }
 
     public void ShowMenu(InteractiveObject obj)
     {
-
         interactiveObject = obj;
-        UpdateMenu();
-        objectSettings.SetActive(true);
+        if (interactiveObject.type == ObjectType.UPS)
+        {
+            UPSSettingsManager.ShowMenu((UPS)interactiveObject);
+        }
+        else
+        {
+            UpdateMenu();
+            objectSettings.SetActive(true);
+        }
+    }
+
+    public void ShowAvailableDevices()
+    {
+        selectConnectionForm.SetActive(false);
+        MenuDevicesManager.ShowMenu(interactiveObject, currentCableType);
     }
 
     void Update()
@@ -55,9 +76,11 @@ public class ObjectSettingsManager : MonoBehaviour
         }
     }
 
-    private void CloseMenu()
+    public void CloseMenu()
     {
+        selectConnectionForm.SetActive(false);
         objectSettings.SetActive(false);
+        UPSSettingsManager.CloseMenu();
     }
 
     public void UpdateMenu()
@@ -67,6 +90,8 @@ public class ObjectSettingsManager : MonoBehaviour
         connectionCountText.text = $"{currentObjectConnectionsCount} / {interactiveObject.maxConnections}";
 
         FillConnections();
+
+        FillUPSConnection();
 
         // Update button visibility
         deleteButton.interactable = selectedConnection != null;
@@ -107,9 +132,41 @@ public class ObjectSettingsManager : MonoBehaviour
             button.onClick.AddListener(() => SelectConnection(connection));
         }
     }
-
-    void OnButtonClick(string deviceId)
+    public void FillUPSConnection()
     {
-        Debug.Log("Button clicked for Item " + deviceId);
+        // Check if the interactive object implements ConnectableToUPS
+        if (interactiveObject is ConnectableToUPS connectableToUPS)
+        {
+            // Check if connectedUPSId is not null
+            if (!string.IsNullOrEmpty(connectableToUPS.connectedUPSId))
+            {
+                UPSInfoText.text = $"Connected to UPS: {connectableToUPS.connectedUPSId}";
+                UPSActionButton.gameObject.SetActive(true);
+                UPSActionButton.onClick.RemoveAllListeners(); // Clear previous listeners
+                UPSActionButton.onClick.AddListener(() =>
+                {
+                    connectableToUPS.connectedUPSId = null;
+                    UpdateMenu(); // Refresh the menu
+                });
+                UPSActionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Отключить";
+            }
+            else
+            {
+                UPSInfoText.text = "Not connected to any UPS";
+                UPSActionButton.gameObject.SetActive(true);
+                UPSActionButton.onClick.RemoveAllListeners(); // Clear previous listeners
+                UPSActionButton.onClick.AddListener(() =>
+                {
+                    ShowSelectConnectionForm(CableType.UPS);
+                });
+                UPSActionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Подключить";
+            }
+        }
+        else
+        {
+            UPSInfoText.text = "This device doesn't support UPS";
+            UPSActionButton.gameObject.SetActive(false);
+        }
     }
+
 }

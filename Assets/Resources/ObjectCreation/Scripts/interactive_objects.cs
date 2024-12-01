@@ -21,6 +21,11 @@ public enum ObjectType
     Battery
 }
 
+public interface ConnectableToUPS
+{
+    string connectedUPSId { get; set; }
+}
+
 [Serializable]
 abstract public class InteractiveObject : MonoBehaviour
 {
@@ -46,9 +51,11 @@ public class MyCamera : InteractiveObject
 }
 
 [Serializable]
-public class Switch : InteractiveObject
+public class Switch : InteractiveObject, ConnectableToUPS
 {
     public string serverRackId; // id серверной стойки, на которую он установлен
+
+    public string connectedUPSId { get; set; }
 
     public int GetConnectedCamerasCount()
     {
@@ -66,8 +73,9 @@ public class Switch : InteractiveObject
     }
 }
 [Serializable]
-public class Turnstile : InteractiveObject
+public class Turnstile : InteractiveObject, ConnectableToUPS
 {
+    public string connectedUPSId { get; set; }
     public bool CheckRoleIsAllowed(string role)
     {
         List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
@@ -85,8 +93,9 @@ public class Turnstile : InteractiveObject
 }
 
 [Serializable]
-public class AccessController : InteractiveObject
+public class AccessController : InteractiveObject, ConnectableToUPS
 {
+    public string connectedUPSId { get; set; }
     public List<string> allowedRoles; // список допустимых ролей
 
     public bool IsRoleAllowed(string role)
@@ -96,8 +105,9 @@ public class AccessController : InteractiveObject
 }
 
 [Serializable]
-public class NVR : InteractiveObject
+public class NVR : InteractiveObject, ConnectableToUPS
 {
+    public string connectedUPSId { get; set; }
     public int maxChannels; // список допустимых ролей
 
     public int GetFreeChannelsCount()
@@ -118,8 +128,9 @@ public class NVR : InteractiveObject
 public class UPS : InteractiveObject
 {
     public List<string> connectedBatteries; // подключенные АКБ
+    public List<string> connectedDevices; // подключенные АКБ
     public int maxBatteries;
-    public bool HasAvailablePlace()
+    public bool HasAvailablePlaceForBattery()
     {
         return connectedBatteries.Count < maxBatteries;
     }

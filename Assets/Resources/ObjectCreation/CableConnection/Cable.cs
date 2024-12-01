@@ -65,7 +65,7 @@ public class Cable : MonoBehaviour
         MeshRenderer renderer = cubeTransform.GetComponent<MeshRenderer>();
         if (renderer != null)
         {
-            renderer.material.color = Color.green; // Change this to the appropriate material or color
+            renderer.material.color = Color.gray; // Change this to the appropriate material or color
         }
     }
 

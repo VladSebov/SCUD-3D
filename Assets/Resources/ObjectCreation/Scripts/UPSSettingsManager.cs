@@ -51,7 +51,7 @@ public class UPSSettingsManager : MonoBehaviour
         }
     }
 
-    private void CloseMenu()
+    public void CloseMenu()
     {
         UPSSettings.SetActive(false);
     }

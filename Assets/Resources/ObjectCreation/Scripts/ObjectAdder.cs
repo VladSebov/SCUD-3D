@@ -21,7 +21,6 @@ namespace SCUD3D
         public CatalogManager CatalogManager;
 
         public ScudSettings ScudSettings;
-        public MenuDevicesManager MenuDevicesManager; // скрипт для menuDevices
 
         public CatalogItemData objectData; // данные объекта
         // public ObjectType objectType; // тип объекта
@@ -52,7 +51,6 @@ namespace SCUD3D
             ScudSettings = GetComponent<ScudSettings>();
             ObjectSettingsManager = GetComponent<ObjectSettingsManager>();
             UPSSettingsManager = GetComponent<UPSSettingsManager>();
-            MenuDevicesManager = GetComponent<MenuDevicesManager>();
             CatalogManager = GetComponent<CatalogManager>();
         }
 
@@ -183,7 +181,7 @@ namespace SCUD3D
             if (objectData.type == ObjectType.Battery.ToString())
             {
                 UPS parentUPS = collider.GetComponent<UPS>();
-                if (!parentUPS.HasAvailablePlace())
+                if (!parentUPS.HasAvailablePlaceForBattery())
                 {
                     Debug.Log("У ИБП нет свободных мест под АКБ");
                     return;
@@ -305,17 +303,7 @@ namespace SCUD3D
 
         public void ShowObjectMenu(InteractiveObject obj)
         {
-            // Enable the configuration menu
-            if (obj.type == ObjectType.UPS)
-                UPSSettingsManager.ShowMenu((UPS)obj);
-            else
-                ObjectSettingsManager.ShowMenu(obj);
-        }
-
-
-        public void ShowAvailableDevices() // You can modify this to get input from the user
-        {
-            MenuDevicesManager.ShowMenu(currentObject);
+            ObjectSettingsManager.ShowMenu(obj);
         }
     }
 }
