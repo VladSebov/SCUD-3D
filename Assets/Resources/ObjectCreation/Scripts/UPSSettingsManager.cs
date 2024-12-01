@@ -58,7 +58,7 @@ public class UPSSettingsManager : MonoBehaviour
 
     public void UpdateMenu()
     {
-        int currentObjectConnectionsCount = ConnectionsManager.Instance.GetConnections(UPSObject).Count;
+        int currentObjectConnectionsCount = ConnectionsManager.Instance.GetEthernetConnections(UPSObject).Count;
         // Update connection count text
         connectionsCountText.text = $"{currentObjectConnectionsCount} / {UPSObject.maxConnections}";
 
@@ -97,7 +97,7 @@ public class UPSSettingsManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        List<Connection> currentObjectconnections = ConnectionsManager.Instance.GetConnections(UPSObject);
+        List<Connection> currentObjectconnections = ConnectionsManager.Instance.GetAllConnections(UPSObject);
         // Populate the scroll view with connected device IDs
         foreach (var connection in currentObjectconnections)
         {

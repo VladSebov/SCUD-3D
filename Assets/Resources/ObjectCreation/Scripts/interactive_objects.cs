@@ -21,10 +21,7 @@ public enum ObjectType
     Battery
 }
 
-public interface ConnectableToUPS
-{
-    string connectedUPSId { get; set; }
-}
+public interface ConnectableToUPS{}
 
 [Serializable]
 abstract public class InteractiveObject : MonoBehaviour
@@ -40,7 +37,7 @@ abstract public class InteractiveObject : MonoBehaviour
 
     public bool HasAvailablePorts()
     {
-        return ConnectionsManager.Instance.GetConnections(this).Count < maxConnections; // Check if current connections are less than the maximum allowed
+        return ConnectionsManager.Instance.GetEthernetConnections(this).Count < maxConnections; // Check if current connections are less than the maximum allowed
     }
 }
 
@@ -55,12 +52,10 @@ public class Switch : InteractiveObject, ConnectableToUPS
 {
     public string serverRackId; // id серверной стойки, на которую он установлен
 
-    public string connectedUPSId { get; set; }
-
     public int GetConnectedCamerasCount()
     {
         int camerasCount = 0;
-        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         foreach (var connection in connections)
         {
             InteractiveObject connectedObject = connection.ObjectA == this ? connection.ObjectB : connection.ObjectA;
@@ -74,11 +69,9 @@ public class Switch : InteractiveObject, ConnectableToUPS
 }
 [Serializable]
 public class Turnstile : InteractiveObject, ConnectableToUPS
-{
-    public string connectedUPSId { get; set; }
-    public bool CheckRoleIsAllowed(string role)
+{    public bool CheckRoleIsAllowed(string role)
     {
-        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         if (connections.Count > 0)
         {
             Connection currentConnection = connections[0];
@@ -94,9 +87,7 @@ public class Turnstile : InteractiveObject, ConnectableToUPS
 
 [Serializable]
 public class AccessController : InteractiveObject, ConnectableToUPS
-{
-    public string connectedUPSId { get; set; }
-    public List<string> allowedRoles; // список допустимых ролей
+{    public List<string> allowedRoles; // список допустимых ролей
 
     public bool IsRoleAllowed(string role)
     {
@@ -106,14 +97,12 @@ public class AccessController : InteractiveObject, ConnectableToUPS
 
 [Serializable]
 public class NVR : InteractiveObject, ConnectableToUPS
-{
-    public string connectedUPSId { get; set; }
-    public int maxChannels; // список допустимых ролей
+{    public int maxChannels; // список допустимых ролей
 
     public int GetFreeChannelsCount()
     {
         int busyChannels = 0;
-        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         foreach (var connection in connections)
         {
             // since the only connectable to NVR type is switch

@@ -142,7 +142,7 @@ public class ObjectManager : MonoBehaviour
         {
             GameObject gameObject = GetObject(id).gameObject;
             //Remove object connections
-            List<Connection> objectConnections = ConnectionsManager.Instance.GetConnections(gameObjects[id]);
+            List<Connection> objectConnections = ConnectionsManager.Instance.GetEthernetConnections(gameObjects[id]);
             foreach (Connection connection in objectConnections)
             {
                 ConnectionsManager.Instance.RemoveConnection(connection);

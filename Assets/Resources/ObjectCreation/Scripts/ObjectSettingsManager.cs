@@ -85,7 +85,7 @@ public class ObjectSettingsManager : MonoBehaviour
 
     public void UpdateMenu()
     {
-        int currentObjectConnectionsCount = ConnectionsManager.Instance.GetConnections(interactiveObject).Count;
+        int currentObjectConnectionsCount = ConnectionsManager.Instance.GetEthernetConnections(interactiveObject).Count;
         // Update connection count text
         connectionCountText.text = $"{currentObjectConnectionsCount} / {interactiveObject.maxConnections}";
 
@@ -121,7 +121,7 @@ public class ObjectSettingsManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        List<Connection> currentObjectconnections = ConnectionsManager.Instance.GetConnections(interactiveObject);
+        List<Connection> currentObjectconnections = ConnectionsManager.Instance.GetEthernetConnections(interactiveObject);
         // Populate the scroll view with connected device IDs
         foreach (var connection in currentObjectconnections)
         {
@@ -137,15 +137,18 @@ public class ObjectSettingsManager : MonoBehaviour
         // Check if the interactive object implements ConnectableToUPS
         if (interactiveObject is ConnectableToUPS connectableToUPS)
         {
+            List<Connection> UPSConnections = ConnectionsManager.Instance.GetConnectionsByType(interactiveObject, ObjectType.UPS);
             // Check if connectedUPSId is not null
-            if (!string.IsNullOrEmpty(connectableToUPS.connectedUPSId))
+            if (UPSConnections.Count > 0)
             {
-                UPSInfoText.text = $"Connected to UPS: {connectableToUPS.connectedUPSId}";
+                InteractiveObject connectedUPS = UPSConnections[0].ObjectA.type == ObjectType.UPS ? UPSConnections[0].ObjectA : UPSConnections[0].ObjectB;
+
+                UPSInfoText.text = $"Connected to UPS: {connectedUPS.name}";
                 UPSActionButton.gameObject.SetActive(true);
                 UPSActionButton.onClick.RemoveAllListeners(); // Clear previous listeners
                 UPSActionButton.onClick.AddListener(() =>
                 {
-                    connectableToUPS.connectedUPSId = null;
+                    ConnectionsManager.Instance.RemoveConnection(UPSConnections[0]);
                     UpdateMenu(); // Refresh the menu
                 });
                 UPSActionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Отключить";

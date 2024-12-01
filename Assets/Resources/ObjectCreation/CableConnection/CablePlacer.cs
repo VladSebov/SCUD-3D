@@ -112,7 +112,7 @@ public class CablePlacer : MonoBehaviour
                         if (CableUtility.IsConnectionBlockedByNVR(connectingObject, hitObject))
                             return;
                         GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
-                        Connection newConnection = new Connection(connectingObject, hitObject, combinedCable);
+                        Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType);
 
                         Debug.Log(CableUtility.CalculateTotalCableLength(placedCables));
                         // Create and save the connection
@@ -121,8 +121,11 @@ public class CablePlacer : MonoBehaviour
                 }
                 else if (currentCableType == CableType.UPS)
                 {
-                    ((ConnectableToUPS)connectingObject).connectedUPSId = ((UPS)hitObject).id;
-                    ((UPS)hitObject).connectedDevices.Add(connectingObject.id);
+                    GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
+                    Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType);
+
+                    Debug.Log(CableUtility.CalculateTotalCableLength(placedCables));
+                    ConnectionsManager.Instance.AddConnection(newConnection);
                 }
 
                 currentCable = null;
@@ -268,20 +271,12 @@ public class CablePlacer : MonoBehaviour
         // Final segment to objectB's connection point
         CreateCableSegment(currentPoint, endPoint, currentCableMaterial);
 
-        if (currentCableType == CableType.Ethernet)
-        {
-            GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, objectA.name, objectB.name);
-            Connection newConnection = new Connection(objectA, objectB, combinedCable);
+        GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, objectA.name, objectB.name);
+        Connection newConnection = new Connection(objectA, objectB, combinedCable, currentCableType);
 
-            Debug.Log(CableUtility.CalculateTotalCableLength(placedCables));
-            // Create and save the connection
-            ConnectionsManager.Instance.AddConnection(newConnection);
-        }
-        else if (currentCableType == CableType.UPS)
-        {
-            ((ConnectableToUPS)objectA).connectedUPSId = ((UPS)objectB).id;
-            ((UPS)objectB).connectedDevices.Add(objectA.id);
-        }
+        Debug.Log(CableUtility.CalculateTotalCableLength(placedCables));
+        // Create and save the connection
+        ConnectionsManager.Instance.AddConnection(newConnection);
 
         currentCable = null;
         placedCables.Clear();

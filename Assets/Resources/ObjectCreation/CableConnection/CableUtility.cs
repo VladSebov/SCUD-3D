@@ -68,7 +68,7 @@ public static class CableUtility
             (objA.type == ObjectType.Camera && objB.type == ObjectType.Switch))
         {
             InteractiveObject switchObject = objA.type == ObjectType.Switch ? objA : objB;
-            if (ConnectionsManager.Instance.CountConnectionsByType(switchObject, ObjectType.NVR) > 0)
+            if (ConnectionsManager.Instance.GetConnectionsByType(switchObject, ObjectType.NVR).Count > 0)
             {
                 Debug.Log("Disconnect from NVR to add new connections");
                 return true; // Connection is blocked
