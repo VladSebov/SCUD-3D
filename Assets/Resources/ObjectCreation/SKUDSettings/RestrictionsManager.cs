@@ -58,7 +58,7 @@ public class RestrictionsManager : MonoBehaviour
     public bool CheckCameraAvailable()
     {
         int maxCameras = restrictions.Find(r => r.type == RestrictionType.MaxCameras).value;
-        int currentCamerasCount = ObjectManager.Instance.GetObjectsCountByType(ObjectType.Camera);
+        int currentCamerasCount = ObjectManager.Instance.GetObjectsByType(ObjectType.Camera).Count;
 
         return currentCamerasCount < maxCameras;
     }

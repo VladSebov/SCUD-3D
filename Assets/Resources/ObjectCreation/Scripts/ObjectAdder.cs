@@ -17,10 +17,10 @@ namespace SCUD3D
         public GameObject objectPrefab; // префаб объекта
         public InteractiveObject currentObject; // текущий объект для настройки
         public ObjectSettingsManager ObjectSettingsManager; // скрипт для objectSettings
+        public UPSSettingsManager UPSSettingsManager; // скрипт для objectSettings
         public CatalogManager CatalogManager;
 
         public ScudSettings ScudSettings;
-        public MenuDevicesManager MenuDevicesManager; // скрипт для menuDevices
 
         public CatalogItemData objectData; // данные объекта
         // public ObjectType objectType; // тип объекта
@@ -50,7 +50,7 @@ namespace SCUD3D
             deltat = Time.deltaTime / 2f;
             ScudSettings = GetComponent<ScudSettings>();
             ObjectSettingsManager = GetComponent<ObjectSettingsManager>();
-            MenuDevicesManager = GetComponent<MenuDevicesManager>();
+            UPSSettingsManager = GetComponent<UPSSettingsManager>();
             CatalogManager = GetComponent<CatalogManager>();
         }
 
@@ -80,7 +80,7 @@ namespace SCUD3D
                 }
                 if (Input.GetKeyDown(KeyCode.X))
                 {
-                    ObjectManager.Instance.RemoveObject(hit.collider.gameObject);
+                    ObjectManager.Instance.RemoveObject(hit.collider.gameObject.name);
                     //Destroy(hit.collider.gameObject);
                 }
             }
@@ -99,6 +99,7 @@ namespace SCUD3D
             ChangeSurfaceColor(hit, mountTag);
             if (objectData.mountTags.Contains(mountTag.ToString()))
             {
+                //if (objectData.type==ObjectType.Battery.ToString()) objectPrefab.SetActive(false);
                 if (previewObject == null)
                     CreatePreview(previewPosition, hit, mountTag);
                 else
@@ -111,6 +112,7 @@ namespace SCUD3D
             if (collider.CompareTag("Wall")) return MountTag.Wall;
             if (collider.CompareTag("Floor")) return MountTag.Floor;
             if (collider.CompareTag("Ceiling")) return MountTag.Ceiling;
+            if (collider.CompareTag("UPS")) return MountTag.UPS;
             return MountTag.Floor; // Default fallback
         }
 
@@ -175,19 +177,18 @@ namespace SCUD3D
 
         void CreateObject(Transform transform, Collider collider)
         {
-            RoomMetadata roomMetadata = collider.GetComponent<RoomMetadata>();
-            if (roomMetadata == null)
+            // check if UPS has space when adding battery
+            if (objectData.type == ObjectType.Battery.ToString())
             {
-                Debug.LogError($"no roomMetadata found for {collider.name}");
-                //TODO() remove later, cause RoomMetadata should be added to all enviroment
-                roomMetadata = new RoomMetadata();
-                roomMetadata.FloorNumber = 1;
-                roomMetadata.RoomNumber = 1;//Default values
+                UPS parentUPS = collider.GetComponent<UPS>();
+                if (!parentUPS.HasAvailablePlaceForBattery())
+                {
+                    Debug.Log("У ИБП нет свободных мест под АКБ");
+                    return;
+                }
             }
             objectPrefab = Instantiate(objectPrefab, transform.position, transform.rotation);
-            //objectPrefab.transform.eulerAngles = previewObject.transform.eulerAngles;
-            //CreatedObjects.Add(objectPrefab);
-            ObjectManager.Instance.AddObject(objectData, objectPrefab, roomMetadata); // creates an object 
+            ObjectManager.Instance.AddObject(objectData, objectPrefab, collider); // creates an object 
             Destroy(previewObject); // Удаляем объект предварительного просмотра
             gameState = 0;
         }
@@ -217,7 +218,7 @@ namespace SCUD3D
             }
             RaycastHit hit;
 
-            if (ObjectSettingsManager.objectSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible)
+            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible)
             {
                 inputs.SetInputsState(false);
                 gameState = 2;
@@ -302,14 +303,7 @@ namespace SCUD3D
 
         public void ShowObjectMenu(InteractiveObject obj)
         {
-            // Enable the configuration menu
             ObjectSettingsManager.ShowMenu(obj);
-        }
-
-
-        public void ShowAvailableDevices() // You can modify this to get input from the user
-        {
-            MenuDevicesManager.ShowMenu(currentObject);
         }
     }
 }

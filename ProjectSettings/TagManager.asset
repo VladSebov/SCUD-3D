@@ -9,6 +9,7 @@ TagManager:
   - CinemachineTarget
   - Connectable
   - Ceiling
+  - UPS
   layers:
   - Default
   - TransparentFX

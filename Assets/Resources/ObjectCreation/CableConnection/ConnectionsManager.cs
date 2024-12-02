@@ -45,16 +45,25 @@ public class ConnectionsManager : MonoBehaviour
         connections.Add(connection);
     }
 
-    // Get all connections for a specific object
-    public List<Connection> GetConnections(InteractiveObject obj)
+    // Get all connections for a specific object, excluding connections containing a UPS object
+    public List<Connection> GetEthernetConnections(InteractiveObject obj)
     {
-        return connections.FindAll(connection => connection.InvolvesObject(obj));
+        return connections.FindAll(connection =>
+            connection.InvolvesObject(obj) &&
+            connection.ObjectA.type != ObjectType.UPS &&
+            connection.ObjectB.type != ObjectType.UPS);
+    }
+
+    public List<Connection> GetAllConnections(InteractiveObject obj)
+    {
+        return connections.FindAll(connection =>
+            connection.InvolvesObject(obj));
     }
 
     // Check if the specified object has a connection with another object
     public bool HasConnection(InteractiveObject obj, InteractiveObject target)
     {
-        List<Connection> objConnections = GetConnections(obj);
+        List<Connection> objConnections = GetAllConnections(obj);
         foreach (var connection in objConnections)
         {
             if (connection.InvolvesObject(target))
@@ -79,22 +88,22 @@ public class ConnectionsManager : MonoBehaviour
     }
 
     // Count connections of a certain ObjectType for a specific InteractiveObject
-    public int CountConnectionsByType(InteractiveObject obj, ObjectType targetType)
+    public List<Connection> GetConnectionsByType(InteractiveObject obj, ObjectType targetType)
     {
         // Get all connections for the object
-        List<Connection> objConnections = GetConnections(obj);
+        List<Connection> objConnections = GetAllConnections(obj);
 
         // Count how many connections involve the specified type
-        int count = 0;
+        List<Connection> connectionsByType = new List<Connection>();
         foreach (var connection in objConnections)
         {
             InteractiveObject otherObject = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
             if (otherObject.type == targetType)
             {
-                count++;
+                connectionsByType.Add(connection);
             }
         }
 
-        return count;
+        return connectionsByType;
     }
 }

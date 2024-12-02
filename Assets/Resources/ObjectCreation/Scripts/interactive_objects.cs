@@ -6,15 +6,30 @@ public enum MountTag
 {
     Wall,
     Floor,
-    Ceiling
+    Ceiling,
+    UPS
 }
 
-[System.Serializable]
+public enum ObjectType
+{
+    Camera,
+    Switch,
+    Turnstile,
+    AccessController,
+    NVR,
+    UPS,
+    Battery
+}
+
+public interface ConnectableToUPS{}
+
+[Serializable]
 abstract public class InteractiveObject : MonoBehaviour
 {
     public string id;
     public ObjectType type;
     public int maxConnections;
+    public int powerConsumption;
     public List<ObjectType> connectableTypes; // list of connectable types
     public List<MountTag> mountTags; // list of tags on which object can be mounted
     public Transform connectionPoint;
@@ -22,25 +37,25 @@ abstract public class InteractiveObject : MonoBehaviour
 
     public bool HasAvailablePorts()
     {
-        return ConnectionsManager.Instance.GetConnections(this).Count < maxConnections; // Check if current connections are less than the maximum allowed
+        return ConnectionsManager.Instance.GetEthernetConnections(this).Count < maxConnections; // Check if current connections are less than the maximum allowed
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class MyCamera : InteractiveObject
 {
     public string viewAngle; // угол обзора (для примера)
 }
 
-[System.Serializable]
-public class Switch : InteractiveObject
+[Serializable]
+public class Switch : InteractiveObject, ConnectableToUPS
 {
     public string serverRackId; // id серверной стойки, на которую он установлен
 
     public int GetConnectedCamerasCount()
     {
         int camerasCount = 0;
-        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         foreach (var connection in connections)
         {
             InteractiveObject connectedObject = connection.ObjectA == this ? connection.ObjectB : connection.ObjectA;
@@ -52,12 +67,11 @@ public class Switch : InteractiveObject
         return camerasCount;
     }
 }
-[System.Serializable]
-public class Turnstile : InteractiveObject
-{
-    public bool CheckRoleIsAllowed(string role)
+[Serializable]
+public class Turnstile : InteractiveObject, ConnectableToUPS
+{    public bool CheckRoleIsAllowed(string role)
     {
-        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         if (connections.Count > 0)
         {
             Connection currentConnection = connections[0];
@@ -71,10 +85,9 @@ public class Turnstile : InteractiveObject
     }
 }
 
-[System.Serializable]
-public class AccessController : InteractiveObject
-{
-    public List<string> allowedRoles; // список допустимых ролей
+[Serializable]
+public class AccessController : InteractiveObject, ConnectableToUPS
+{    public List<string> allowedRoles; // список допустимых ролей
 
     public bool IsRoleAllowed(string role)
     {
@@ -82,15 +95,14 @@ public class AccessController : InteractiveObject
     }
 }
 
-[System.Serializable]
-public class NVR : InteractiveObject
-{
-    public int maxChannels; // список допустимых ролей
+[Serializable]
+public class NVR : InteractiveObject, ConnectableToUPS
+{    public int maxChannels; // список допустимых ролей
 
     public int GetFreeChannelsCount()
     {
         int busyChannels = 0;
-        List<Connection> connections = ConnectionsManager.Instance.GetConnections(this);
+        List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         foreach (var connection in connections)
         {
             // since the only connectable to NVR type is switch
@@ -99,4 +111,22 @@ public class NVR : InteractiveObject
         }
         return maxChannels - busyChannels;
     }
+}
+
+[Serializable]
+public class UPS : InteractiveObject
+{
+    public List<string> connectedBatteries; // подключенные АКБ
+    public List<string> connectedDevices; // подключенные АКБ
+    public int maxBatteries;
+    public bool HasAvailablePlaceForBattery()
+    {
+        return connectedBatteries.Count < maxBatteries;
+    }
+}
+
+[Serializable]
+public class Battery : InteractiveObject
+{
+    public int powerWatts;
 }

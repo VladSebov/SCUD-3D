@@ -1,15 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-public enum ObjectType
-{
-    Camera, 
-    Switch, 
-    Turnstile, 
-    AccessController,
-    NVR
-}
-
 
 public static class IDManager
 {
