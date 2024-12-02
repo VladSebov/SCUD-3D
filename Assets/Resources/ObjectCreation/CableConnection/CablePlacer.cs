@@ -118,6 +118,10 @@ public class CablePlacer : MonoBehaviour
                         // Create and save the connection
                         ConnectionsManager.Instance.AddConnection(newConnection);
                     }
+                    else
+                    {
+                        Debug.Log("No available ports or incopatible types");
+                    }
                 }
                 else if (currentCableType == CableType.UPS)
                 {
@@ -133,17 +137,13 @@ public class CablePlacer : MonoBehaviour
             }
             else
             {
-                Debug.Log("No available ports or incopatible types");
-            }
-        }
-        else
-        {
-            //TODO() add transparrency to mounting cable maybe
-            //currentCable.GetComponent<Cable>().SetMounted();
-            currentCable = null;
+                //TODO() add transparrency to mounting cable maybe
+                //currentCable.GetComponent<Cable>().SetMounted();
+                currentCable = null;
 
-            lastPoint = endPoint;
-            CreateCableSegment(lastPoint, lastPoint, currentCableMaterial);
+                lastPoint = endPoint;
+                CreateCableSegment(lastPoint, lastPoint, currentCableMaterial);
+            }
         }
     }
 

@@ -58,9 +58,9 @@ public class UPSSettingsManager : MonoBehaviour
 
     public void UpdateMenu()
     {
-        int currentObjectConnectionsCount = ConnectionsManager.Instance.GetEthernetConnections(UPSObject).Count;
+        int currentObjectConnectionsCount = ConnectionsManager.Instance.GetAllConnections(UPSObject).Count;
         // Update connection count text
-        connectionsCountText.text = $"{currentObjectConnectionsCount} / {UPSObject.maxConnections}";
+        connectionsCountText.text = $"{currentObjectConnectionsCount}";
 
         batteriesCountText.text = $"{UPSObject.connectedBatteries.Count} / {UPSObject.maxBatteries}";
 
