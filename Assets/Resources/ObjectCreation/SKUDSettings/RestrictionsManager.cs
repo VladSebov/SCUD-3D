@@ -40,7 +40,7 @@ public class RestrictionsManager : MonoBehaviour
 
     private void InitializeRestrictions()
     {
-        restrictions.Add(new Restriction { type = RestrictionType.MaxPrice, value = 10000, name = "Максимальная стоимость" });
+        restrictions.Add(new Restriction { type = RestrictionType.MaxPrice, value = 100000, name = "Максимальная стоимость" });
         restrictions.Add(new Restriction { type = RestrictionType.MaxCameras, value = 5, name = "Максимально допустимое кол-во камер" });
         restrictions.Add(new Restriction { type = RestrictionType.MaxRoles, value = 3, name = "Максимально допустимое кол-во ролей" });
     }

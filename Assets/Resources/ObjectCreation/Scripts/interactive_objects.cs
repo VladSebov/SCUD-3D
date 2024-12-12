@@ -30,6 +30,7 @@ abstract public class InteractiveObject : MonoBehaviour
     public ObjectType type;
     public int maxConnections;
     public int powerConsumption;
+    public float price;
     public List<ObjectType> connectableTypes; // list of connectable types
     public List<MountTag> mountTags; // list of tags on which object can be mounted
     public Transform connectionPoint;

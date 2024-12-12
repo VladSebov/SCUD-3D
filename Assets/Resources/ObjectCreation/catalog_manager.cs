@@ -155,6 +155,7 @@ public class CatalogItemData
     public string type;
     public int maxConnections;
     public int powerConsumption;
+    public float price;
     public List<string> connectableTypes;
     public List<string> mountTags;
     public string icon;  // Название иконки
