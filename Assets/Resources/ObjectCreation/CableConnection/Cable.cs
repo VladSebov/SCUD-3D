@@ -50,7 +50,7 @@ public class Cable : MonoBehaviour
         // Adjust the scale of the cube to match the length of the segment
         float length = (endPoint - startPoint).magnitude;
         Vector3 scale = cubeTransform.localScale;
-        cubeTransform.localScale = new Vector3(scale.x, scale.y, length);
+        cubeTransform.localScale = new Vector3(scale.x, scale.y, length*2);
     }
 
     public void SetMounted()
