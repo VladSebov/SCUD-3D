@@ -50,7 +50,7 @@ public class Cable : MonoBehaviour
         // Adjust the scale of the cube to match the length of the segment
         float length = (endPoint - startPoint).magnitude;
         Vector3 scale = cubeTransform.localScale;
-        cubeTransform.localScale = new Vector3(scale.x, scale.y, length);
+        cubeTransform.localScale = new Vector3(0.05f, length / 2, 0.05f);
     }
 
     public void SetMounted()
@@ -74,4 +74,15 @@ public class Cable : MonoBehaviour
         // Return the largest scale value to account for different orientations of the cube
         return Mathf.Max(cubeTransform.localScale.x, cubeTransform.localScale.y, cubeTransform.localScale.z);
     }
+
+    public void SetMaterial(Material material)
+    {
+        Renderer renderer = GetComponentInChildren<Renderer>();
+        if (renderer != null)
+        {
+            renderer.material = material;
+        }
+    }
+
+
 }
