@@ -70,7 +70,7 @@ public class ObjectSettingsManager : MonoBehaviour
     void Update()
     {
         // Check if the menu is active and the Escape key is pressed
-        if (objectSettings.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             CloseMenu();
         }

@@ -54,6 +54,20 @@ public class ConnectionsManager : MonoBehaviour
             connection.ObjectB.type != ObjectType.UPS);
     }
 
+    public int CountEthernetCables()
+    {
+        int count = 0;
+        foreach (var connection in connections)
+        {
+            if (connection.CableType == CableType.Ethernet)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+
     public List<Connection> GetAllConnections(InteractiveObject obj)
     {
         return connections.FindAll(connection =>
@@ -106,4 +120,22 @@ public class ConnectionsManager : MonoBehaviour
 
         return connectionsByType;
     }
+
+
+    public Dictionary<int, float> GetTotalCableLengthsByType()
+    {
+        Dictionary<int, float> totalLengthsByType = new Dictionary<int, float>();
+
+        foreach (Connection connection in connections)
+        {
+            if (!totalLengthsByType.ContainsKey(connection.CableType))
+            {
+                totalLengthsByType[connection.CableType] = 0f;
+            }
+            totalLengthsByType[connection.CableType] += connection.Length;
+        }
+
+        return totalLengthsByType;
+    }
 }
+

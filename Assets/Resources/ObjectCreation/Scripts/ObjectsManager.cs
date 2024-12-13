@@ -118,6 +118,7 @@ public class ObjectManager : MonoBehaviour
         newObject.powerConsumption = objectData.powerConsumption;
         newObject.connectionPoint = newObject.gameObject.transform.Find("ConnectionPoint");
         newObject.roomMetadata = roomMetadata;
+        newObject.price = objectData.price;
 
         // if connecting battery to UPS 
         if (type == ObjectType.Battery)
@@ -217,10 +218,21 @@ public class ObjectManager : MonoBehaviour
         // Iterate through all objects in the gameObjects dictionary
         foreach (var obj in gameObjects.Values)
         {
-            //totalPrice += obj.price; // Sum the price of each object
+            totalPrice += obj.price; // Sum the price of each object
+            
         }
 
         return totalPrice; // Return the total price
+    }
+
+    public int GetTotalAmount(){
+        int totalAmount = 0;
+
+        foreach (var obj in gameObjects.Values){
+            totalAmount += 1;
+        }
+        return totalAmount;
+
     }
 
     public List<string> GetObjectsByType(ObjectType type)
@@ -228,6 +240,12 @@ public class ObjectManager : MonoBehaviour
         return GetAllObjects()
            .Where(io => io.type == type)
            .Select(io => io.id)
+           .ToList();
+    }
+    public List<InteractiveObject> GetObjectsByTypeExt(ObjectType type)
+    {
+        return GetAllObjects()
+           .Where(io => io.type == type)
            .ToList();
     }
 }

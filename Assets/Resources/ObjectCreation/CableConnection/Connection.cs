@@ -6,13 +6,15 @@ public class Connection
     public InteractiveObject ObjectB; // Second object
     public GameObject Cable;          // Cable GameObject representing the connection
     public int CableType;          // Cable GameObject representing the connection
+    public float Length; //Cable length
 
-    public Connection(InteractiveObject objectA, InteractiveObject objectB, GameObject cable, int cableType)
+    public Connection(InteractiveObject objectA, InteractiveObject objectB, GameObject cable, int cableType, float length)
     {
         ObjectA = objectA;
         ObjectB = objectB;
         Cable = cable;
         CableType = cableType;
+        Length = length;
     }
 
     // Check if this connection involves a specific object
