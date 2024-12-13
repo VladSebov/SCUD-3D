@@ -81,6 +81,8 @@ public class CablePlacer : MonoBehaviour
         if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
         {
             string targetTag = currentCableType == CableType.Ethernet ? "Connectable" : "UPS";
+            if (currentCableType == CableType.UPS && connectingObject.type==ObjectType.UPS)
+                targetTag = "Connectable";
             if (hit.collider.CompareTag(targetTag))
             {
                 var hitObject = hit.collider.GetComponent<InteractiveObject>();
@@ -98,6 +100,8 @@ public class CablePlacer : MonoBehaviour
     if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
     {
         string targetTag = currentCableType == CableType.Ethernet ? "Connectable" : "UPS";
+        if (currentCableType == CableType.UPS && connectingObject.type==ObjectType.UPS)
+                targetTag = "Connectable";
         if (hit.collider.CompareTag(targetTag))
         {
             var hitObject = hit.collider.GetComponent<InteractiveObject>();
@@ -187,12 +191,14 @@ public class CablePlacer : MonoBehaviour
     private float wallHeight = 1.2f;
     public void AutoMountCable(InteractiveObject objectA, InteractiveObject objectB, int cableType)
     {
+        currentCableType = cableType;
         if (objectA == null || objectB == null)
         {
             Debug.LogError("Both objects must be provided for auto-mounting.");
             return;
         }
         if (CableUtility.IsConnectionBlockedByNVR(objectA, objectB)) return;
+        if (!objectB.HasAvailablePorts() && !connectingObject.connectableTypes.Contains(objectB.type)) return;
 
         Vector3 startPoint = objectA.connectionPoint.position;
         Vector3 endPoint = objectB.connectionPoint.position;
