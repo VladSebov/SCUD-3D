@@ -28,8 +28,8 @@ public class ScudSettings : MonoBehaviour
     public CamerasSettingsManager CamerasSettingsManager;
 
     //Statistics
-    public TextMeshProUGUI TotalPriceValue;
-    public TextMeshProUGUI TotalAmountValue;
+    public TextMeshProUGUI TotalPriceText;
+    public TextMeshProUGUI TotalAmountText;
     public TextMeshProUGUI EthernetCableLengthText;
     public TextMeshProUGUI UPSCableLengthText;
     public ScrollRect StatisticsScroll;
@@ -279,7 +279,7 @@ public class ScudSettings : MonoBehaviour
             GameObject item = Instantiate(RoleItem, RolesScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
             Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => { SelectRole(role, button);});
+            button.onClick.AddListener(() => { SelectRole(role, button); });
         }
     }
 
@@ -420,21 +420,24 @@ public class ScudSettings : MonoBehaviour
     }
 
 
-    
-    public void FillStatistics(){
+
+    public void FillStatistics()
+    {
         float TotalPrice = 0;
         int TotalAmount = 0;
-        
-        foreach (Transform child in StatisticsScroll.content){
+
+        foreach (Transform child in StatisticsScroll.content)
+        {
             Destroy(child.gameObject);
         }
 
-        foreach (Transform child in ConnectedToUPSScroll.content){
+        foreach (Transform child in ConnectedToUPSScroll.content)
+        {
             Destroy(child.gameObject);
         }
 
 
-        
+
 
         var objectTypes = System.Enum.GetValues(typeof(ObjectType));
         foreach (ObjectType type in objectTypes)
@@ -442,7 +445,7 @@ public class ScudSettings : MonoBehaviour
             List<InteractiveObject> objects = ObjectManager.Instance.GetObjectsByTypeExt(type);
             if (objects.Count > 0)
             {
-                    // Calculate total price for this type
+                // Calculate total price for this type
                 float totalPrice = objects.Sum(obj => obj.price);
 
                 // Instantiate a new statistics item
@@ -464,12 +467,17 @@ public class ScudSettings : MonoBehaviour
         PowerConsumptionText.text = $"Энергопотребление: {totalPowerConsumption} Вт";
         float totalUPSPower = CalculateTotalBatteryPower(allObjects);
 
-        if (totalUPSPower != 0 && totalPowerConsumption !=0){
-            float AutonomyDuration = totalUPSPower/totalPowerConsumption;
-            AutonomyDurationText.text = $"Время автономной работы: {AutonomyDuration}";
-        } else if ( totalUPSPower == 0 ){
-            AutonomyDurationText.text = $"ИБП не подключены";
-        } else {
+        if (totalUPSPower != 0 && totalPowerConsumption != 0)
+        {
+            float AutonomyDuration = totalUPSPower / totalPowerConsumption;
+            AutonomyDurationText.text = $"Время автономной работы: {AutonomyDuration} ч";
+        }
+        else if (totalUPSPower == 0)
+        {
+            AutonomyDurationText.text = $"К ИБП не подключены АКБ";
+        }
+        else
+        {
             AutonomyDurationText.text = $"Нет подключенных устройств";
         }
 
@@ -482,24 +490,29 @@ public class ScudSettings : MonoBehaviour
 
         // Get all interactive objects in the system
 
-
-        foreach (InteractiveObject obj in allObjects)
+        List<InteractiveObject> connectableToUPSObjects = ObjectManager.Instance.GetAllObjects()
+            .Where(io=>io.type!= ObjectType.UPS && io.type!= ObjectType.Battery).ToList();
+        foreach (InteractiveObject obj in connectableToUPSObjects)
         {
-            // Check if the object is connected to a UPS directly or via a switch
-            if (IsConnectedToUPSIndirectly(obj))
-            {
-                allConnectedDevices.Add(obj);
-            }
+                // Check if the object is connected to a UPS directly or via a switch
+                if (IsConnectedToUPSIndirectly(obj))
+                {
+                    allConnectedDevices.Add(obj);
+                }
         }
 
         int connectedTotalAmount = allConnectedDevices.Count();
-        if (TotalAmount!=0){
-            float UPSPercentage = ((float)connectedTotalAmount / TotalAmount) * 100f;
+        int connectableToUPSTotalAmount = connectableToUPSObjects.Count();
+        if (TotalAmount != 0)
+        {
+            float UPSPercentage = ((float)connectedTotalAmount / connectableToUPSTotalAmount) * 100f;
             UPSPercentageText.text = $"Подключено к ИБП устройств:{UPSPercentage} %";
-        } else {
+        }
+        else
+        {
             UPSPercentageText.text = $"Нет устройств";
         }
-        
+
 
 
         // Group all connected devices by type and count them
@@ -526,8 +539,8 @@ public class ScudSettings : MonoBehaviour
         Dictionary<int, float> cableLengths = ConnectionsManager.Instance.GetTotalCableLengthsByType();
         float ethernetCableLength = cableLengths.ContainsKey(CableType.Ethernet) ? cableLengths[CableType.Ethernet] : 0f;
         float upsCableLength = cableLengths.ContainsKey(CableType.UPS) ? cableLengths[CableType.UPS] : 0f;
-        EthernetCableLengthText.text = $"Длина Ethernet кабеля: {ethernetCableLength:F2} m";
-        UPSCableLengthText.text = $"Длина UPS кабеля: {upsCableLength:F2} m";
+        EthernetCableLengthText.text = $"Длина Ethernet кабеля: {ethernetCableLength:F1} м";
+        UPSCableLengthText.text = $"Длина UPS кабеля: {upsCableLength:F1} м";
 
         // Calculate number of Ethernet cables and connectors
         int ethernetCableCount = ConnectionsManager.Instance.CountEthernetCables();
@@ -536,67 +549,68 @@ public class ScudSettings : MonoBehaviour
         float totalConnectorPrice = connectorCount * connectorPrice;
 
         // Add connector information to statistics
-        if (connectorCount!=0){
+        if (connectorCount != 0)
+        {
             GameObject connectorItem = Instantiate(StatisticsItemPrefab, StatisticsScroll.content);
             StatisticsItem connectorStatItem = connectorItem.GetComponent<StatisticsItem>();
             connectorStatItem.SetValues("Connector", connectorCount, totalConnectorPrice);
         }
         // Update total price and amount
         TotalPrice += totalConnectorPrice;
-        TotalPriceValue.text = $"{TotalPrice:F2}";
-        TotalAmountValue.text = $"{TotalAmount}";
+        TotalPriceText.text = $"Общая стоимость: {TotalPrice:F2}₽";
+        TotalAmountText.text = $"Количество устройств: {TotalAmount}";
     }
 
     public bool IsConnectedToUPSIndirectly(InteractiveObject obj)
-{
-    HashSet<InteractiveObject> visited = new HashSet<InteractiveObject>();
-    Queue<InteractiveObject> toVisit = new Queue<InteractiveObject>();
-    toVisit.Enqueue(obj);
-
-    while (toVisit.Count > 0)
     {
-        InteractiveObject current = toVisit.Dequeue();
+        HashSet<InteractiveObject> visited = new HashSet<InteractiveObject>();
+        Queue<InteractiveObject> toVisit = new Queue<InteractiveObject>();
+        toVisit.Enqueue(obj);
 
-        //if battery return true
-        if (current.type == ObjectType.Battery)
-            return true;
-        
-        // Skip if already visited
-        if (visited.Contains(current))
-            continue;
-
-        visited.Add(current);
-
-        // Get all connections for the current object
-        List<Connection> connections = ConnectionsManager.Instance.GetAllConnections(current);
-
-        foreach (var connection in connections)
+        while (toVisit.Count > 0)
         {
-            InteractiveObject otherObject = connection.ObjectA == current ? connection.ObjectB : connection.ObjectA;
+            InteractiveObject current = toVisit.Dequeue();
 
-            // Check if the other object is a UPS
-            if (otherObject.type == ObjectType.UPS)
-            {
+            //if battery return true
+            if (current.type == ObjectType.Battery)
                 return true;
-            }
 
-            // If the other object is a switch, add it to the queue for further exploration
-            if (otherObject.type == ObjectType.Switch && !visited.Contains(otherObject))
-            {
-                toVisit.Enqueue(otherObject);
-            }
+            // Skip if already visited
+            if (visited.Contains(current))
+                continue;
 
-            // If the other object is neither a UPS nor a Switch but hasn't been visited, continue exploring
-            if (!visited.Contains(otherObject))
+            visited.Add(current);
+
+            // Get all connections for the current object
+            List<Connection> connections = ConnectionsManager.Instance.GetAllConnections(current);
+
+            foreach (var connection in connections)
             {
-                toVisit.Enqueue(otherObject);
+                InteractiveObject otherObject = connection.ObjectA == current ? connection.ObjectB : connection.ObjectA;
+
+                // Check if the other object is a UPS
+                if (otherObject.type == ObjectType.UPS)
+                {
+                    return true;
+                }
+
+                // If the other object is a switch, add it to the queue for further exploration
+                if (otherObject.type == ObjectType.Switch && !visited.Contains(otherObject))
+                {
+                    toVisit.Enqueue(otherObject);
+                }
+
+                // If the other object is neither a UPS nor a Switch but hasn't been visited, continue exploring
+                if (!visited.Contains(otherObject))
+                {
+                    toVisit.Enqueue(otherObject);
+                }
             }
         }
-    }
 
-    // If no connection to a UPS is found
-    return false;
-}
+        // If no connection to a UPS is found
+        return false;
+    }
 
     public void SelectUserRole(string role)
     {
