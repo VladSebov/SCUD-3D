@@ -107,6 +107,9 @@ public class ObjectManager : MonoBehaviour
                 newObject = gameObject.AddComponent<Battery>();
                 ((Battery)newObject).powerWatts = objectData.powerWatts;
                 break;
+            case ObjectType.Computer:
+                newObject = gameObject.AddComponent<Computer>();
+                break;
         }
 
         // Set up the InteractiveObject
@@ -247,6 +250,22 @@ public class ObjectManager : MonoBehaviour
         return GetAllObjects()
            .Where(io => io.type == type)
            .ToList();
+    }
+
+    public bool IsPlayerCloseToComputer(Vector3 playerPosition, float threshold = 1f)
+    {
+        List<InteractiveObject> computers = GetObjectsByTypeExt(ObjectType.Computer);
+        
+        foreach (InteractiveObject computer in computers)
+        {
+            float distance = Vector3.Distance(playerPosition, computer.transform.position);
+            if (distance <= threshold)
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
 

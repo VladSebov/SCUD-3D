@@ -18,7 +18,8 @@ public enum ObjectType
     AccessController,
     NVR,
     UPS,
-    Battery
+    Battery,
+    Computer
 }
 
 public interface ConnectableToUPS{}
@@ -130,4 +131,10 @@ public class UPS : InteractiveObject
 public class Battery : InteractiveObject
 {
     public int powerWatts;
+}
+
+[Serializable]
+public class Computer : InteractiveObject
+{
+
 }

@@ -229,11 +229,23 @@ public class ScudSettings : MonoBehaviour
     }
 
     // Update is called once per frame
+
+    public GameObject PlayerCapsule;
+    public GameObject SCUDTip;
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P) && (ObjectManager.Instance.IsPlayerCloseToComputer(PlayerCapsule.transform.position)))
         {
             scudSettings.SetActive(!scudSettings.activeSelf);
+        }
+        if ((ObjectManager.Instance.IsPlayerCloseToComputer(PlayerCapsule.transform.position)) && !scudSettings.activeSelf){
+            SCUDTip.SetActive(true);
+
+        } else{
+            SCUDTip.SetActive(false);
+        }
+        if (!ObjectManager.Instance.IsPlayerCloseToComputer(PlayerCapsule.transform.position)){
+            scudSettings.SetActive(false);
         }
     }
 
@@ -491,11 +503,11 @@ public class ScudSettings : MonoBehaviour
         // Get all interactive objects in the system
 
         List<InteractiveObject> connectableToUPSObjects = ObjectManager.Instance.GetAllObjects()
-            .Where(io=>io.type!= ObjectType.UPS && io.type!= ObjectType.Battery).ToList();
+            .Where(io=>io.type!= ObjectType.UPS && io.type!= ObjectType.Battery && io.type!= ObjectType.Computer).ToList();
         foreach (InteractiveObject obj in connectableToUPSObjects)
         {
                 // Check if the object is connected to a UPS directly or via a switch
-                if (IsConnectedToUPSIndirectly(obj))
+                if (IsConnectedToUPSIndirectly(obj) && obj)
                 {
                     allConnectedDevices.Add(obj);
                 }
@@ -503,7 +515,7 @@ public class ScudSettings : MonoBehaviour
 
         int connectedTotalAmount = allConnectedDevices.Count();
         int connectableToUPSTotalAmount = connectableToUPSObjects.Count();
-        if (TotalAmount != 0)
+        if (connectableToUPSTotalAmount != 0)
         {
             float UPSPercentage = ((float)connectedTotalAmount / connectableToUPSTotalAmount) * 100f;
             UPSPercentageText.text = $"Подключено к ИБП устройств:{UPSPercentage} %";

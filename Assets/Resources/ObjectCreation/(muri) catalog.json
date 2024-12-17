@@ -82,6 +82,18 @@
             "mountTags": ["UPS"],
             "powerWatts": 2400,
             "price": 5000
+        },
+        {
+            "itemName": "Компьютер СКУД",
+            "description": "Описание компьютера",
+            "icon": "turnstile3",
+            "prefab":"Mashes/SCUDTable",
+            "type": "Computer",
+            "maxConnections": 2,
+            "connectableTypes": ["NVR","AccessController"],
+            "mountTags": ["Floor"],
+            "powerConsumption": 900,
+            "price": 5000
         }
     ]
 }
