@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class CablePlacer : MonoBehaviour
 {
@@ -31,7 +32,7 @@ public class CablePlacer : MonoBehaviour
             }
 
             // Confirm placement on left click
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(1) && connectingObject!=null)
             {
                 MountCableSegment(snappedPosition);
             }
@@ -80,13 +81,20 @@ public class CablePlacer : MonoBehaviour
     {
         if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
         {
-            string targetTag = currentCableType == CableType.Ethernet ? "Connectable" : "UPS";
-            if (currentCableType == CableType.UPS && connectingObject.type==ObjectType.UPS)
-                targetTag = "Connectable";
-            if (hit.collider.CompareTag(targetTag))
+            List<string> targetTags = new List<string>();
+            if (currentCableType == CableType.Ethernet)
+                targetTags.Add("Connectable");
+            else if (currentCableType == CableType.UPS)
+            {
+                targetTags.Add("UPS");
+                if (connectingObject.type == ObjectType.UPS)
+                    targetTags.Add("Connectable");
+            }
+            if (targetTags.Any(tag => hit.collider.CompareTag(tag)))
             {
                 var hitObject = hit.collider.GetComponent<InteractiveObject>();
-                currentCable.GetComponent<Cable>().UpdateCable(startPoint, hitObject.connectionPoint.position);
+                if (connectingObject.name != hitObject.name)
+                    currentCable.GetComponent<Cable>().UpdateCable(startPoint, hitObject.connectionPoint.position);
             }
             else
             {
@@ -96,53 +104,61 @@ public class CablePlacer : MonoBehaviour
     }
 
     public void MountCableSegment(Vector3 endPoint)
-{
-    if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
     {
-        string targetTag = currentCableType == CableType.Ethernet ? "Connectable" : "UPS";
-        if (currentCableType == CableType.UPS && connectingObject.type==ObjectType.UPS)
-                targetTag = "Connectable";
-        if (hit.collider.CompareTag(targetTag))
+        if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hit))
         {
-            var hitObject = hit.collider.GetComponent<InteractiveObject>();
-
+            List<string> targetTags = new List<string>();
             if (currentCableType == CableType.Ethernet)
+                targetTags.Add("Connectable");
+            else if (currentCableType == CableType.UPS)
             {
-                if (hitObject.HasAvailablePorts() && connectingObject.connectableTypes.Contains(hitObject.type))
+                targetTags.Add("UPS");
+                if (connectingObject.type == ObjectType.UPS)
+                    targetTags.Add("Connectable");
+            }
+            if (targetTags.Any(tag => hit.collider.CompareTag(tag)))
+            {
+                var hitObject = hit.collider.GetComponent<InteractiveObject>();
+                if (connectingObject.name == hitObject.name) return;
+
+                if (currentCableType == CableType.Ethernet)
                 {
-                    if (CableUtility.IsConnectionBlockedByNVR(connectingObject, hitObject))
-                        return;
+                    if (hitObject.HasAvailablePorts() && connectingObject.connectableTypes.Contains(hitObject.type))
+                    {
+                        if (CableUtility.IsConnectionBlockedByNVR(connectingObject, hitObject))
+                            return;
+                        GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
+                        float cableLength = CableUtility.CalculateTotalCableLength(placedCables);
+                        Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType, cableLength);
+
+                        ConnectionsManager.Instance.AddConnection(newConnection);
+                    }
+                    else
+                    {
+                        Debug.Log("No available ports or incompatible types");
+                    }
+                }
+                else if (currentCableType == CableType.UPS)
+                {
                     GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
                     float cableLength = CableUtility.CalculateTotalCableLength(placedCables);
                     Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType, cableLength);
 
                     ConnectionsManager.Instance.AddConnection(newConnection);
                 }
-                else
-                {
-                    Debug.Log("No available ports or incompatible types");
-                }
+
+                currentCable = null;
+                placedCables.Clear();
+                connectingObject = null;
             }
-            else if (currentCableType == CableType.UPS)
+            else
             {
-                GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
-                float cableLength = CableUtility.CalculateTotalCableLength(placedCables);
-                Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType, cableLength);
-
-                ConnectionsManager.Instance.AddConnection(newConnection);
+                currentCable = null;
+                lastPoint = endPoint;
+                CreateCableSegment(lastPoint, lastPoint, currentCableMaterial);
             }
-
-            currentCable = null;
-            placedCables.Clear();
-        }
-        else
-        {
-            currentCable = null;
-            lastPoint = endPoint;
-            CreateCableSegment(lastPoint, lastPoint, currentCableMaterial);
         }
     }
-}
 
 
     // Method to cancel cable creation and reset to the original state
@@ -188,7 +204,6 @@ public class CablePlacer : MonoBehaviour
 
 
 
-    private float wallHeight = 1.2f;
     public void AutoMountCable(InteractiveObject objectA, InteractiveObject objectB, int cableType)
     {
         currentCableType = cableType;
@@ -204,8 +219,8 @@ public class CablePlacer : MonoBehaviour
         Vector3 endPoint = objectB.connectionPoint.position;
 
         // Step 1: Find the nearest wall to objectA and mount to it
-        Vector3? nearestWallHitPoint = FindNearestWallHitPoint(startPoint);
-        if (!nearestWallHitPoint.HasValue)
+        NearestWall nearestWall = FindNearestWallHitPoint(startPoint);
+        if (!nearestWall.wallBasePoint.HasValue)
         {
             Debug.LogError("No wall found near objectA.");
             return;
@@ -213,33 +228,28 @@ public class CablePlacer : MonoBehaviour
 
         currentCableMaterial = cableType == CableType.Ethernet ? ethernetCableMaterial : UPSCableMaterial;
 
-        Vector3 wallBasePoint = nearestWallHitPoint.Value;
-        CreateCableSegment(startPoint, wallBasePoint, currentCableMaterial);
-
+        CreateCableSegment(startPoint, nearestWall.wallBasePoint.Value, currentCableMaterial);
         // Step 2: Move vertically up the wall to the wall's top
-        Vector3 wallTopPoint = wallBasePoint + Vector3.up * wallHeight; // Replace `wallHeight` with your actual wall height value
-        CreateCableSegment(wallBasePoint, wallTopPoint, currentCableMaterial);
+        CreateCableSegment(nearestWall.wallBasePoint.Value, nearestWall.wallTopPoint.Value, currentCableMaterial);
 
         // Step 3: Move towards objectB along the walls
-        Vector3 currentPoint = wallTopPoint;
+        Vector3 currentPoint = nearestWall.wallTopPoint.Value;
         while (Vector3.Distance(currentPoint, endPoint) > 1.0f) // Adjustable threshold
         {
             // Find the next wall in the direction of objectB
             Vector3 directionToB = (endPoint - currentPoint).normalized;
-            Vector3? nextWallHitPoint = FindNearestWallHitPoint(currentPoint, directionToB);
+            NearestWall nextWall = FindNearestWallHitPoint(currentPoint, directionToB);
 
-            if (!nextWallHitPoint.HasValue)
+            if (!nextWall.wallBasePoint.HasValue)
             {
                 Debug.LogError("No further walls found towards objectB.");
                 break;
             }
 
             // Mount segment to the next wall
-            Vector3 nextWallBasePoint = nextWallHitPoint.Value;
-            Vector3 nextWallTopPoint = nextWallBasePoint + Vector3.up * wallHeight;
 
-            CreateCableSegment(currentPoint, nextWallTopPoint, currentCableMaterial);
-            currentPoint = nextWallTopPoint; // Update current point
+            CreateCableSegment(currentPoint, nextWall.wallTopPoint.Value, currentCableMaterial);
+            currentPoint = nextWall.wallTopPoint.Value; // Update current point
         }
 
         // Step 4: Mount cable from the last wall top point to objectB's height along walls
@@ -251,6 +261,15 @@ public class CablePlacer : MonoBehaviour
             currentPoint = horizontalPointX;
         }
 
+        // Step 5: Adjust vertically to objectB's height
+        if (Mathf.Abs(endPoint.y - currentPoint.y) > 0.1f) // Threshold to avoid unnecessary steps
+        {
+            Vector3 verticalPoint = new Vector3(currentPoint.x, endPoint.y, currentPoint.z);
+            CreateCableSegment(currentPoint, verticalPoint, currentCableMaterial);
+            currentPoint = verticalPoint;
+        }
+
+
         // Adjust horizontally along the Z-axis towards objectB
         if (Mathf.Abs(endPoint.z - currentPoint.z) > 0.1f) // Threshold to avoid unnecessary steps
         {
@@ -259,13 +278,6 @@ public class CablePlacer : MonoBehaviour
             currentPoint = horizontalPointZ;
         }
 
-        // Step 5: Adjust vertically to objectB's height
-        if (Mathf.Abs(endPoint.y - currentPoint.y) > 0.1f) // Threshold to avoid unnecessary steps
-        {
-            Vector3 verticalPoint = new Vector3(currentPoint.x, endPoint.y, currentPoint.z);
-            CreateCableSegment(currentPoint, verticalPoint, currentCableMaterial);
-            currentPoint = verticalPoint;
-        }
 
         // Final segment to objectB's connection point
         CreateCableSegment(currentPoint, endPoint, currentCableMaterial);
@@ -278,13 +290,14 @@ public class CablePlacer : MonoBehaviour
 
         currentCable = null;
         placedCables.Clear();
+        connectingObject = null;
     }
 
-    private Vector3? FindNearestWallHitPoint(Vector3 origin, Vector3? preferredDirection = null)
+    private NearestWall FindNearestWallHitPoint(Vector3 origin, Vector3? preferredDirection = null)
     {
+        int maxLoops = 20;
         float minDistance = float.MaxValue;
-        Vector3? nearestHitPoint = null;
-        Vector3? wallTopPoint = null;
+        NearestWall nearestWall = new NearestWall();
 
         // Cast rays in cardinal directions
         Vector3[] directions = preferredDirection.HasValue
@@ -293,21 +306,33 @@ public class CablePlacer : MonoBehaviour
 
         foreach (Vector3 direction in directions)
         {
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, Mathf.Infinity))
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, 200f))
             {
+                maxLoops--;
+                if (maxLoops == 0) break;
                 if (hit.collider.CompareTag("Wall"))
                 {
                     float distance = Vector3.Distance(origin, hit.point);
                     if (distance < minDistance)
                     {
                         minDistance = distance;
-                        nearestHitPoint = hit.point; // Store the exact hit point
-                                                     //wallTopPoint = ;
+                        nearestWall.wallBasePoint = hit.point;
+
+                        Collider wallCollider = hit.collider;
+                        Vector3 wallSize = wallCollider.bounds.size; // Get the size of the wall
+                        var some = wallCollider.bounds.max;
+                        nearestWall.wallTopPoint = hit.point + Vector3.up * (wallSize.y / 3);
                     }
                 }
             }
         }
 
-        return nearestHitPoint;
+        return nearestWall;
     }
+}
+
+public class NearestWall
+{
+    public Vector3? wallBasePoint;
+    public Vector3? wallTopPoint;
 }
