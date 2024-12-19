@@ -8,7 +8,7 @@ public class Cable : MonoBehaviour
     private Vector3 previousDirection; // The direction of the previous cable segment
 
     public Vector3 cableStartPoint;
-
+    //some shitty comment to check git intergation from windows
     public void Initialize(Material material)
     {
         // Get the cube (child object) transform inside the cable prefab
