@@ -166,6 +166,9 @@ public class CatalogItemData
     //UPS specific fields
     public int maxBatteries;
     //Battery specific fields
+
+    //ServerRackSpecifics
+    public int maxPlacedDevices;
     public int powerWatts;
 
 }

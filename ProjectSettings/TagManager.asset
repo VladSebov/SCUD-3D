@@ -10,6 +10,10 @@ TagManager:
   - Connectable
   - Ceiling
   - UPS
+  - NVRPlace
+  - SwitchPlace
+  - ServerBox
+  - ServerRack
   layers:
   - Default
   - TransparentFX
