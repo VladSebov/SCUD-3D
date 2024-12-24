@@ -21,7 +21,7 @@ public enum ObjectType
     Battery
 }
 
-public interface ConnectableToUPS{}
+public interface ConnectableToUPS { }
 
 [Serializable]
 abstract public class InteractiveObject : MonoBehaviour
@@ -46,7 +46,58 @@ abstract public class InteractiveObject : MonoBehaviour
 public class MyCamera : InteractiveObject
 {
     public string viewAngle; // угол обзора (для примера)
+    private Transform cameraBase; // Основание камеры
+    private Transform cameraLens; // Собственно камера (движущаяся часть)
+
+    private void Awake()
+    {
+        // Инициализация частей камеры
+        cameraBase = this.transform;
+        cameraLens = this.transform.Find("Camera");
+    }
+
+    // Установка угла поворота по вертикали
+    public void SetVerticalAngle(float angle)
+    {
+        if (cameraLens != null)
+        {
+            Vector3 rotation = cameraLens.localEulerAngles;
+            rotation.x = angle;
+            cameraLens.localEulerAngles = rotation;
+        }
+        else
+        {
+            Debug.LogWarning("Camera lens not found!");
+        }
+    }
+
+    // Установка угла поворота по горизонтали
+    public void SetHorizontalAngle(float angle)
+    {
+        if (cameraBase != null)
+        {
+            Vector3 rotation = cameraBase.localEulerAngles;
+            rotation.y = angle;
+            cameraBase.localEulerAngles = rotation;
+        }
+        else
+        {
+            Debug.LogWarning("Camera base not found!");
+        }
+    }
+
+    // Получение текущих углов поворота (для UI)
+    public float GetVerticalAngle()
+    {
+        return cameraLens != null ? cameraLens.localEulerAngles.x : 0f;
+    }
+
+    public float GetHorizontalAngle()
+    {
+        return cameraBase != null ? cameraBase.localEulerAngles.y : 0f;
+    }
 }
+
 
 [Serializable]
 public class Switch : InteractiveObject, ConnectableToUPS
@@ -70,7 +121,8 @@ public class Switch : InteractiveObject, ConnectableToUPS
 }
 [Serializable]
 public class Turnstile : InteractiveObject, ConnectableToUPS
-{    public bool CheckRoleIsAllowed(string role)
+{
+    public bool CheckRoleIsAllowed(string role)
     {
         List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         if (connections.Count > 0)
@@ -88,7 +140,8 @@ public class Turnstile : InteractiveObject, ConnectableToUPS
 
 [Serializable]
 public class AccessController : InteractiveObject, ConnectableToUPS
-{    public List<string> allowedRoles; // список допустимых ролей
+{
+    public List<string> allowedRoles; // список допустимых ролей
 
     public bool IsRoleAllowed(string role)
     {
@@ -98,7 +151,8 @@ public class AccessController : InteractiveObject, ConnectableToUPS
 
 [Serializable]
 public class NVR : InteractiveObject, ConnectableToUPS
-{    public int maxChannels; // список допустимых ролей
+{
+    public int maxChannels; // список допустимых ролей
 
     public int GetFreeChannelsCount()
     {

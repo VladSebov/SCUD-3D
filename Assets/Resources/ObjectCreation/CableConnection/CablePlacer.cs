@@ -32,7 +32,7 @@ public class CablePlacer : MonoBehaviour
             }
 
             // Confirm placement on left click
-            if (Input.GetMouseButtonDown(1) && connectingObject!=null)
+            if (Input.GetMouseButtonDown(1) && connectingObject != null)
             {
                 MountCableSegment(snappedPosition);
             }

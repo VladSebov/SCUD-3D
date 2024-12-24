@@ -1,88 +1,197 @@
-
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.PlayerLoop;
 
 public class CamerasSettingsManager : MonoBehaviour
 {
-
-    //Cameras
+    // UI компоненты
+    [Header("UI Components")]
     public ScrollRect CamerasScroll;
     public ScrollRect CamerasBigScroll;
     public GameObject CamerasBigPanel;
     public Button ButtonFullScreen;
     public GameObject CameraViewItem;
+    public TMP_Dropdown FloorDropdown; // Выпадающий список этажей
+    public Slider VerticalAngleSlider;
+    public Slider HorizontalAngleSlider;
 
+    // Переменные
+    private int currentPage = 0;
+    private GameObject selectedCamera;
+    private List<int> floorOptions;
 
+    private void Start()
+    {
+        PopulateFloorDropdown();
+        if (floorOptions.Count > 0)
+        {
+            FloorDropdown.value = 0;
+            OnFloorDropdownChanged(0); // Заполняем камеры для первого этажа
+        }
+    }
+
+    // Заполнение выпадающего списка этажей
+    private void PopulateFloorDropdown()
+    {
+        floorOptions = ObjectManager.Instance.GetAllObjects()
+            .Where(io => io.GetComponent<RoomMetadata>() != null)
+            .Select(io => io.GetComponent<RoomMetadata>().FloorNumber)
+            .Distinct()
+            .OrderBy(floor => floor)
+            .ToList();
+
+        if (FloorDropdown == null)
+        {
+            Debug.LogError("FloorDropdown не назначен в инспекторе!");
+            return;
+        }
+
+        FloorDropdown.ClearOptions();
+        var options = floorOptions.Select(floor => $"Этаж {floor}").ToList();
+        FloorDropdown.AddOptions(options);
+    }
+
+    // Заполнение списка камер
     public void FillCameras()
     {
-        var cameras = ObjectManager.Instance.GetAllObjects()
-        .Where(io => io.type == ObjectType.Camera) // Фильтруем объекты типа Camera
-        .ToList();
-        // Clear existing items in the scroll view
-        foreach (Transform child in CamerasScroll.content)
+        ClearScrollView(CamerasScroll);
+
+        var connectedCameras = GetConnectedCameras();
+        if (connectedCameras == null || connectedCameras.Count == 0)
         {
-            Destroy(child.gameObject);
+            Debug.LogWarning("Нет подключенных камер для отображения.");
+            return;
         }
 
-        // Populate the scroll view with connected device IDs
-        foreach (var camera in cameras)
+        foreach (var camera in connectedCameras)
         {
-            Camera cameraComponent = camera.gameObject.GetComponentInChildren<Camera>();
-            cameraComponent.enabled = true;
-            GameObject panel = Instantiate(CameraViewItem, CamerasScroll.content);
-            RawImage rawImage = panel.GetComponentInChildren<RawImage>();
-            panel.GetComponentInChildren<TextMeshProUGUI>().text = camera.id;
-            if (rawImage != null)
-            {
-                RenderTexture renderTexture = new RenderTexture(1024, 1024, 32);
-                cameraComponent.targetTexture = renderTexture;
-                rawImage.texture = renderTexture;
-            }
+            AddCameraToScrollView(camera, CamerasScroll);
         }
     }
 
-    public void Update()
+    // Заполнение списка камер по этажу
+    public void FillCamerasByFloor(int selectedFloor)
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        ClearScrollView(CamerasScroll);
+
+        var camerasOnFloor = ObjectManager.Instance.GetAllObjects()
+            .Where(io => io.type == ObjectType.Camera &&
+                         io.GetComponent<RoomMetadata>()?.FloorNumber == selectedFloor)
+            .ToList();
+
+        if (!camerasOnFloor.Any())
         {
-            if (CamerasBigPanel.activeSelf)
-            {
-                CamerasBigPanel.SetActive(false);
-            }
+            Debug.LogWarning($"Нет камер на этаже {selectedFloor}.");
+            return;
+        }
+
+        foreach (var camera in camerasOnFloor)
+        {
+            AddCameraToScrollView(camera.gameObject, CamerasScroll);
         }
     }
 
-    public void FillCamerasFullScreen()
+    // Обработчик изменения выбора этажа
+    public void OnFloorDropdownChanged(int selectedIndex)
     {
-        CamerasBigPanel.SetActive(true);
-        var cameras = ObjectManager.Instance.GetAllObjects()
-        .Where(io => io.type == ObjectType.Camera) // Фильтруем объекты типа Camera
-        .ToList();
-        // Clear existing items in the scroll view
-        foreach (Transform child in CamerasBigScroll.content)
+        if (selectedIndex < 0 || selectedIndex >= floorOptions.Count)
         {
-            Destroy(child.gameObject);
+            Debug.LogWarning("Некорректный выбор этажа.");
+            return;
         }
 
-        // Populate the scroll view with connected device IDs
-        foreach (var camera in cameras)
+        int selectedFloor = floorOptions[selectedIndex];
+        FillCamerasByFloor(selectedFloor);
+    }
+
+    // Добавление камеры в ScrollView
+    private void AddCameraToScrollView(GameObject cameraObject, ScrollRect scroll)
+    {
+        var interactiveObject = cameraObject.GetComponent<InteractiveObject>();
+        var roomMetadata = cameraObject.GetComponent<RoomMetadata>();
+
+        if (interactiveObject == null) return;
+
+        string cameraId = interactiveObject.id;
+        string roomInfo = roomMetadata != null
+            ? $"Этаж {roomMetadata.FloorNumber}, Помещение {roomMetadata.RoomNumber}"
+            : "Нет данных о помещении";
+
+        GameObject panel = Instantiate(CameraViewItem, scroll.content);
+        panel.GetComponentInChildren<TextMeshProUGUI>().text = $"{cameraId} ({roomInfo})";
+
+        var cameraComponent = cameraObject.GetComponentInChildren<Camera>();
+        if (cameraComponent != null)
         {
-            Camera cameraComponent = camera.gameObject.GetComponentInChildren<Camera>();
-            cameraComponent.enabled = true;
-            GameObject panel = Instantiate(CameraViewItem, CamerasBigScroll.content);
-            RawImage rawImage = panel.GetComponentInChildren<RawImage>();
-            panel.GetComponentInChildren<TextMeshProUGUI>().text = camera.id;
+            var rawImage = panel.GetComponentInChildren<RawImage>();
             if (rawImage != null)
             {
-                RenderTexture renderTexture = new RenderTexture(256, 256, 16);
+                var renderTexture = new RenderTexture(256, 256, 16);
                 cameraComponent.targetTexture = renderTexture;
                 rawImage.texture = renderTexture;
             }
+            else
+            {
+                Debug.LogWarning("RawImage не найден в префабе CameraViewItem.");
+            }
         }
+        else
+        {
+            Debug.LogWarning($"Камера не найдена на объекте {cameraId}.");
+        }
+    }
+
+    // Управление поворотом камеры
+    public void OnVerticalAngleSliderChanged(float value)
+    {
+        if (selectedCamera == null) return;
+
+        var cameraComponent = selectedCamera.GetComponent<MyCamera>();
+        cameraComponent?.SetVerticalAngle(value);
+    }
+
+    public void OnHorizontalAngleSliderChanged(float value)
+    {
+        if (selectedCamera == null) return;
+
+        var cameraComponent = selectedCamera.GetComponent<MyCamera>();
+        cameraComponent?.SetHorizontalAngle(value);
+    }
+
+    // Обновление ползунков для выбранной камеры
+    public void UpdateSlidersForSelectedCamera(GameObject camera)
+    {
+        selectedCamera = camera;
+
+        var cameraComponent = selectedCamera.GetComponent<MyCamera>();
+        if (cameraComponent == null) return;
+
+        VerticalAngleSlider.value = cameraComponent.GetVerticalAngle();
+        HorizontalAngleSlider.value = cameraComponent.GetHorizontalAngle();
+    }
+
+    // Очистка ScrollView
+    private void ClearScrollView(ScrollRect scroll)
+    {
+        foreach (Transform child in scroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    // Получение подключенных камер через NVR
+    private List<GameObject> GetConnectedCameras()
+    {
+        var nvrDevices = ObjectManager.Instance.GetAllObjects()
+            .Where(io => io.type == ObjectType.NVR)
+            .ToList();
+
+        return nvrDevices
+            .SelectMany(nvr => ConnectionsManager.Instance.GetEthernetConnections(nvr))
+            .Select(connection => connection.ObjectA.type == ObjectType.Camera ? connection.ObjectA.gameObject : connection.ObjectB.gameObject)
+            .Distinct()
+            .ToList();
     }
 }
