@@ -12521,8 +12521,7 @@ MonoBehaviour:
     prefab: 
     maxChannels: 0
     maxBatteries: 0
-    maxSwitches: 0
-    maxNVRs: 0
+    maxPlacedDevices: 0
     powerWatts: 0
   Ground: {fileID: 1083386955}
   inputs: {fileID: 0}

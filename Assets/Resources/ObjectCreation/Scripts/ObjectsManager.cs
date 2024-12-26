@@ -139,7 +139,7 @@ public class ObjectManager : MonoBehaviour
         }
 
         //if connecting to server rack
-        if (collider.GetComponent<ServerRack>() != null || collider.GetComponent<ServerBox>() != null){
+        /**if (collider.GetComponent<ServerRack>() != null || collider.GetComponent<ServerBox>() != null){
             if (objectData.type == ObjectType.Switch.ToString() || objectData.type == ObjectType.NVR.ToString()){
                 if (collider.GetComponent<ServerRack>() != null){
                     ServerRack parentServerRack = collider.GetComponent<ServerRack>();
@@ -158,7 +158,7 @@ public class ObjectManager : MonoBehaviour
                     }
                 }
         }
-        }
+        }*/
         // Add to the dictionary
         if (!gameObjects.ContainsKey(newObject.id))
         {
