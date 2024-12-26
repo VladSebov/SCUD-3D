@@ -43,6 +43,7 @@ public class RestrictionsManager : MonoBehaviour
         restrictions.Add(new Restriction { type = RestrictionType.MaxPrice, value = 100000, name = "Максимальная стоимость" });
         restrictions.Add(new Restriction { type = RestrictionType.MaxCameras, value = 5, name = "Максимально допустимое кол-во камер" });
         restrictions.Add(new Restriction { type = RestrictionType.MaxRoles, value = 3, name = "Максимально допустимое кол-во ролей" });
+        restrictions.Add(new Restriction { type = RestrictionType.MaxCableLength, value = 10, name = "Максимальная длина кабеля" });
     }
 
     public void SetRestrictions(List<Restriction> newRestrictions)
@@ -71,13 +72,26 @@ public class RestrictionsManager : MonoBehaviour
         return currentRolesCount < maxRoles;
     }
 
-     public bool CheckItemAffordable(int itemPrice)
+    public bool CheckItemAffordable(int itemPrice)
     {
         int maxPrice = restrictions.Find(r => r.type == RestrictionType.MaxPrice).value;
         float currentOverallPrice = ObjectManager.Instance.GetTotalPrice();
 
-        return (currentOverallPrice+itemPrice) <= maxPrice;
+        return (currentOverallPrice + itemPrice) <= maxPrice;
     }
+    public int GetMaxCableLength()
+{
+    return restrictions.Find(r => r.type == RestrictionType.MaxCableLength).value;
+}
+public void SetMaxCableLength(int newLength)
+{
+    var restriction = restrictions.Find(r => r.type == RestrictionType.MaxCableLength);
+    if (restriction != null)
+    {
+        restriction.value = newLength;
+    }
+}
+
 }
 
 
@@ -85,7 +99,8 @@ public enum RestrictionType
 {
     MaxPrice,
     MaxCameras,
-    MaxRoles
+    MaxRoles,
+    MaxCableLength
 }
 
 [System.Serializable]

@@ -17,6 +17,7 @@ public class CablePlacer : MonoBehaviour
     private bool isPlacingCable = false; // Flag to indicate active placement
     public Camera playerCam;
 
+
     private InteractiveObject connectingObject; // object which is being connected
     private List<Cable> placedCables = new List<Cable>(); // List of placed cables
 
@@ -33,7 +34,7 @@ public class CablePlacer : MonoBehaviour
             }
 
             // Confirm placement on left click
-            if (Input.GetMouseButtonDown(1) && connectingObject != null)
+            if (Input.GetMouseButtonDown(0) && connectingObject != null)
             {
                 MountCableSegment(snappedPosition);
             }
@@ -133,6 +134,7 @@ public class CablePlacer : MonoBehaviour
                         Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType, cableLength);
 
                         ConnectionsManager.Instance.AddConnection(newConnection);
+                        FinalizeConnection(connectingObject, hitObject);
                     }
                     else
                     {
@@ -146,6 +148,7 @@ public class CablePlacer : MonoBehaviour
                     Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType, cableLength);
 
                     ConnectionsManager.Instance.AddConnection(newConnection);
+                    FinalizeConnection(connectingObject, hitObject);
                 }
 
                 currentCable = null;
@@ -362,15 +365,30 @@ public class CablePlacer : MonoBehaviour
     {
         GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, objectA.name, objectB.name);
         float cableLength = CableUtility.CalculateTotalCableLength(placedCables);
-        Connection newConnection = new Connection(objectA, objectB, combinedCable, currentCableType, cableLength);
 
+        // Проверка длины кабеля
+        int maxCableLength = RestrictionsManager.Instance.GetMaxCableLength();
+        if (cableLength > maxCableLength)
+        {
+            Debug.LogError($"Cable length exceeds maximum allowed length: {cableLength} > {maxCableLength}");
+            // Здесь можно добавить логику для отмены соединения или уведомления игрока
+            foreach (var cable in placedCables)
+            {
+                Destroy(cable.gameObject);
+            }
+            placedCables.Clear();
+            return; // Выход из метода, чтобы не добавлять соединение
+        }
+
+        Connection newConnection = new Connection(objectA, objectB, combinedCable, currentCableType, cableLength);
         ConnectionsManager.Instance.AddConnection(newConnection);
 
-        // Cleanup
+        // Очистка
         currentCable = null;
         placedCables.Clear();
         connectingObject = null;
     }
+
 
     private NearestWall FindNearestWallHitPoint(Vector3 origin, Vector3? preferredDirection = null)
     {
