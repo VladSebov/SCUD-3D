@@ -633,7 +633,7 @@ public class ScudSettings : MonoBehaviour
 
     public void OnAddRoleClick()
     {
-        ScudManager.Instance.AddRole();
+        ScudManager.Instance.ConfirmAddRole();
         FillRoles();
     }
 }
