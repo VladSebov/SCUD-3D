@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 
 public class CablePlacer : MonoBehaviour
 {
@@ -33,7 +32,7 @@ public class CablePlacer : MonoBehaviour
             }
 
             // Confirm placement on left click
-            if (Input.GetMouseButtonDown(1) && connectingObject != null)
+            if (Input.GetMouseButtonDown(1) && connectingObject!=null)
             {
                 MountCableSegment(snappedPosition);
             }
@@ -200,6 +199,11 @@ public class CablePlacer : MonoBehaviour
 
 
 
+
+
+
+
+
     public void AutoMountCable(InteractiveObject objectA, InteractiveObject objectB, int cableType)
     {
         currentCableType = cableType;
@@ -208,165 +212,82 @@ public class CablePlacer : MonoBehaviour
             Debug.LogError("Both objects must be provided for auto-mounting.");
             return;
         }
-
-        // Validation checks
         if (CableUtility.IsConnectionBlockedByNVR(objectA, objectB)) return;
-        if (!objectB.HasAvailablePorts() && !objectA.connectableTypes.Contains(objectB.type)) return;
+        if (!objectB.HasAvailablePorts() && !connectingObject.connectableTypes.Contains(objectB.type)) return;
 
-        currentCableMaterial = cableType == CableType.Ethernet ? ethernetCableMaterial : UPSCableMaterial;
         Vector3 startPoint = objectA.connectionPoint.position;
         Vector3 endPoint = objectB.connectionPoint.position;
 
-        // 1. Get nearest walls for both objects
-        NearestWall nearestWallA = FindNearestWallHitPoint(startPoint);
-        NearestWall nearestWallB = FindNearestWallHitPoint(endPoint);
-
-        bool areObjectsOnTheSameFloor = nearestWallA.wallTopPoint.Value.y == nearestWallB.wallTopPoint.Value.y;
-
-        if (!nearestWallA.wallBasePoint.HasValue || !nearestWallB.wallBasePoint.HasValue)
+        // Step 1: Find the nearest wall to objectA and mount to it
+        NearestWall nearestWall = FindNearestWallHitPoint(startPoint);
+        if (!nearestWall.wallBasePoint.HasValue)
         {
-            Debug.LogError("Could not find walls near objects.");
+            Debug.LogError("No wall found near objectA.");
             return;
         }
 
-        // 2. Mount cable from object A to its nearest wall
-        CreateCableSegment(startPoint, nearestWallA.wallBasePoint.Value, currentCableMaterial);
+        currentCableMaterial = cableType == CableType.Ethernet ? ethernetCableMaterial : UPSCableMaterial;
 
-        // 3.Mount cable up the wall A
-        CreateCableSegment(nearestWallA.wallBasePoint.Value, nearestWallA.wallTopPoint.Value, currentCableMaterial);
+        CreateCableSegment(startPoint, nearestWall.wallBasePoint.Value, currentCableMaterial);
+        // Step 2: Move vertically up the wall to the wall's top
+        CreateCableSegment(nearestWall.wallBasePoint.Value, nearestWall.wallTopPoint.Value, currentCableMaterial);
 
-        Debug.Log("nearestWallA.wallTopPoint.Value: " + nearestWallA.wallTopPoint.Value);
-        Debug.Log("nearestWallB.wallTopPoint.Value: " + nearestWallB.wallTopPoint.Value);
-        // 4. check if z or x coordinates are the same (which means that objects are on the same wall)
-        if (Mathf.Abs(nearestWallA.wallTopPoint.Value.x - nearestWallB.wallTopPoint.Value.x) < 0.02f || Mathf.Abs(nearestWallA.wallTopPoint.Value.z - nearestWallB.wallTopPoint.Value.z) < 0.02f)
+        // Step 3: Move towards objectB along the walls
+        Vector3 currentPoint = nearestWall.wallTopPoint.Value;
+        while (Vector3.Distance(currentPoint, endPoint) > 1.0f) // Adjustable threshold
         {
-            if (areObjectsOnTheSameFloor)
+            // Find the next wall in the direction of objectB
+            Vector3 directionToB = (endPoint - currentPoint).normalized;
+            NearestWall nextWall = FindNearestWallHitPoint(currentPoint, directionToB);
+
+            if (!nextWall.wallBasePoint.HasValue)
             {
-                CreateCableSegment(nearestWallA.wallTopPoint.Value, nearestWallB.wallTopPoint.Value, currentCableMaterial);
-                CreateCableSegment(nearestWallB.wallTopPoint.Value, nearestWallB.wallBasePoint.Value, currentCableMaterial);
+                Debug.LogError("No further walls found towards objectB.");
+                break;
             }
-            else
-            {
-                Vector3 intermediatePoint = new Vector3(nearestWallB.wallTopPoint.Value.x, nearestWallA.wallTopPoint.Value.y, nearestWallB.wallTopPoint.Value.z);
-                CreateCableSegment(nearestWallA.wallTopPoint.Value, intermediatePoint, currentCableMaterial);
-                CreateCableSegment(intermediatePoint, nearestWallB.wallBasePoint.Value, currentCableMaterial);
-            }
-            CreateCableSegment(nearestWallB.wallBasePoint.Value, endPoint, currentCableMaterial);
-            FinalizeConnection(objectA, objectB);
-            return;
+
+            // Mount segment to the next wall
+
+            CreateCableSegment(currentPoint, nextWall.wallTopPoint.Value, currentCableMaterial);
+            currentPoint = nextWall.wallTopPoint.Value; // Update current point
         }
 
-        Vector3 currentPoint = nearestWallA.wallTopPoint.Value;
-        //5.
-        if (nearestWallA.wallDirection == WallDirection.zDirection)
+        // Step 4: Mount cable from the last wall top point to objectB's height along walls
+        // Adjust horizontally along the X-axis towards objectB
+        if (Mathf.Abs(endPoint.x - currentPoint.x) > 0.1f) // Threshold to avoid unnecessary steps
         {
-            currentPoint = new Vector3(nearestWallA.wallTopPoint.Value.x, nearestWallA.wallTopPoint.Value.y, nearestWallB.wallTopPoint.Value.z);
-            CreateCableSegment(nearestWallA.wallTopPoint.Value, currentPoint, currentCableMaterial);
-        }
-        else if (nearestWallA.wallDirection == WallDirection.xDirection)
-        {
-            currentPoint = new Vector3(nearestWallB.wallTopPoint.Value.x, nearestWallA.wallTopPoint.Value.y, nearestWallA.wallTopPoint.Value.z);
-            CreateCableSegment(nearestWallA.wallTopPoint.Value, currentPoint, currentCableMaterial);
+            Vector3 horizontalPointX = new Vector3(endPoint.x, currentPoint.y, currentPoint.z);
+            CreateCableSegment(currentPoint, horizontalPointX, currentCableMaterial);
+            currentPoint = horizontalPointX;
         }
 
-        bool areWallsParallel = nearestWallA.wallDirection == nearestWallB.wallDirection;
-        Debug.Log("areWallsParallel: " + areWallsParallel);
-        if (!areWallsParallel)
+        // Step 5: Adjust vertically to objectB's height
+        if (Mathf.Abs(endPoint.y - currentPoint.y) > 0.1f) // Threshold to avoid unnecessary steps
         {
-            if (areObjectsOnTheSameFloor)
-            {
-                CreateCableSegment(currentPoint, nearestWallB.wallTopPoint.Value, currentCableMaterial);
-                CreateCableSegment(nearestWallB.wallTopPoint.Value, nearestWallB.wallBasePoint.Value, currentCableMaterial);
-            }
-            else
-            {
-                Vector3 intermediatePoint = new Vector3(nearestWallB.wallTopPoint.Value.x, nearestWallA.wallTopPoint.Value.y, nearestWallB.wallTopPoint.Value.z);
-                CreateCableSegment(currentPoint, intermediatePoint, currentCableMaterial);
-                CreateCableSegment(intermediatePoint, nearestWallB.wallBasePoint.Value, currentCableMaterial);
-            }
-            CreateCableSegment(nearestWallB.wallBasePoint.Value, endPoint, currentCableMaterial);
-            FinalizeConnection(objectA, objectB);
-            return;
+            Vector3 verticalPoint = new Vector3(currentPoint.x, endPoint.y, currentPoint.z);
+            CreateCableSegment(currentPoint, verticalPoint, currentCableMaterial);
+            currentPoint = verticalPoint;
         }
-        else
+
+
+        // Adjust horizontally along the Z-axis towards objectB
+        if (Mathf.Abs(endPoint.z - currentPoint.z) > 0.1f) // Threshold to avoid unnecessary steps
         {
-            Vector3 direction = currentPoint - nearestWallA.wallTopPoint.Value;
-            Vector3 directionOfCableForth;
-            Vector3 directionOfCableBack;
-            if (Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
-            {
-                directionOfCableForth = direction.x > 0 ? Vector3.right : Vector3.left;
-                directionOfCableBack = direction.x > 0 ? Vector3.left : Vector3.right;
-            }
-            else
-            {
-                directionOfCableForth = direction.z > 0 ? Vector3.forward : Vector3.back;
-                directionOfCableBack = direction.z > 0 ? Vector3.back : Vector3.forward;
-            }
-            NearestWall nearestWallForth = FindNearestWallHitPoint(currentPoint, directionOfCableForth);
-            NearestWall nearestWallBack = FindNearestWallHitPoint(currentPoint, directionOfCableBack);
-            float distanceForth = nearestWallForth.wallBasePoint.HasValue ?
-                Vector3.Distance(currentPoint, nearestWallForth.wallBasePoint.Value) : float.MaxValue;
-            float distanceBack = nearestWallBack.wallBasePoint.HasValue ?
-                Vector3.Distance(currentPoint, nearestWallBack.wallBasePoint.Value) : float.MaxValue;
-
-            // Remove last cable segment
-            if (placedCables.Count > 0)
-            {
-                Destroy(placedCables[placedCables.Count - 1].gameObject);
-                placedCables.RemoveAt(placedCables.Count - 1);
-            }
-
-            NearestWall closerWall = distanceForth < distanceBack ? nearestWallForth : nearestWallBack;
-            if (!closerWall.wallBasePoint.HasValue)
-            {
-                Debug.LogError("No valid wall found in either direction");
-                return;
-            }
-
-            // Mount cable to closer wall's top
-            CreateCableSegment(nearestWallA.wallTopPoint.Value, closerWall.wallTopPoint.Value, currentCableMaterial);
-            // Calculate intermediate point that aligns with nearestWallB
-            Vector3 intermediatePoint;
-            if (nearestWallB.wallDirection == WallDirection.xDirection)
-            {
-                intermediatePoint = new Vector3(closerWall.wallTopPoint.Value.x, closerWall.wallTopPoint.Value.y, nearestWallB.wallTopPoint.Value.z);
-            }
-            else
-            {
-                intermediatePoint = new Vector3(nearestWallB.wallTopPoint.Value.x, closerWall.wallTopPoint.Value.y, closerWall.wallTopPoint.Value.z);
-            }
-
-
-            // Create remaining cable segments
-            CreateCableSegment(closerWall.wallTopPoint.Value, intermediatePoint, currentCableMaterial);
-            if (areObjectsOnTheSameFloor)
-            {
-                CreateCableSegment(intermediatePoint, nearestWallB.wallTopPoint.Value, currentCableMaterial);
-                CreateCableSegment(nearestWallB.wallTopPoint.Value, nearestWallB.wallBasePoint.Value, currentCableMaterial);
-            }
-            else
-            {
-                Vector3 intermediatePoint2 = new Vector3(nearestWallB.wallTopPoint.Value.x, closerWall.wallTopPoint.Value.y, nearestWallB.wallTopPoint.Value.z);
-                CreateCableSegment(intermediatePoint, intermediatePoint2, currentCableMaterial);
-                CreateCableSegment(intermediatePoint2, nearestWallB.wallBasePoint.Value, currentCableMaterial);
-            }
-            CreateCableSegment(nearestWallB.wallBasePoint.Value, endPoint, currentCableMaterial);
-
-            FinalizeConnection(objectA, objectB);
-            return;
+            Vector3 horizontalPointZ = new Vector3(currentPoint.x, currentPoint.y, endPoint.z);
+            CreateCableSegment(currentPoint, horizontalPointZ, currentCableMaterial);
+            currentPoint = horizontalPointZ;
         }
-    }
 
-    private void FinalizeConnection(InteractiveObject objectA, InteractiveObject objectB)
-    {
+
+        // Final segment to objectB's connection point
+        CreateCableSegment(currentPoint, endPoint, currentCableMaterial);
+
         GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, objectA.name, objectB.name);
         float cableLength = CableUtility.CalculateTotalCableLength(placedCables);
         Connection newConnection = new Connection(objectA, objectB, combinedCable, currentCableType, cableLength);
 
         ConnectionsManager.Instance.AddConnection(newConnection);
 
-        // Cleanup
         currentCable = null;
         placedCables.Clear();
         connectingObject = null;
@@ -398,9 +319,9 @@ public class CablePlacer : MonoBehaviour
                         nearestWall.wallBasePoint = hit.point;
 
                         Collider wallCollider = hit.collider;
+                        Vector3 wallSize = wallCollider.bounds.size; // Get the size of the wall
                         var some = wallCollider.bounds.max;
-                        nearestWall.wallTopPoint = new Vector3(hit.point.x, hit.collider.bounds.max.y - 0.05f, hit.point.z);
-                        nearestWall.wallDirection = direction == Vector3.forward || direction == Vector3.back ? WallDirection.xDirection : WallDirection.zDirection;
+                        nearestWall.wallTopPoint = hit.point + Vector3.up * (wallSize.y / 3);
                     }
                 }
             }
@@ -414,12 +335,4 @@ public class NearestWall
 {
     public Vector3? wallBasePoint;
     public Vector3? wallTopPoint;
-    public GameObject wall;
-    public WallDirection wallDirection;
-}
-
-public enum WallDirection
-{
-    xDirection,
-    zDirection,
 }
