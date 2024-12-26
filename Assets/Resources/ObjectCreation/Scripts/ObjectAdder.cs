@@ -21,7 +21,6 @@ namespace SCUD3D
         public CatalogManager CatalogManager;
 
         public ScudSettings ScudSettings;
-        public Guide Guide;
 
         public CatalogItemData objectData; // данные объекта
         // public ObjectType objectType; // тип объекта
@@ -53,7 +52,6 @@ namespace SCUD3D
             ObjectSettingsManager = GetComponent<ObjectSettingsManager>();
             UPSSettingsManager = GetComponent<UPSSettingsManager>();
             CatalogManager = GetComponent<CatalogManager>();
-            Guide = GetComponent<Guide>();
         }
 
         void ColorAnimation(GameObject chosenObject)
@@ -220,7 +218,7 @@ namespace SCUD3D
             }
             RaycastHit hit;
 
-            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || Guide.scudGuide.activeSelf)
+            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible)
             {
                 inputs.SetInputsState(false);
                 gameState = 2;
