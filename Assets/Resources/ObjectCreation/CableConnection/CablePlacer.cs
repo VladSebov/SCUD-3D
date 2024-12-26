@@ -321,6 +321,17 @@ public class CablePlacer : MonoBehaviour
             if (!closerWall.wallBasePoint.HasValue)
             {
                 Debug.LogError("No valid wall found in either direction");
+                // Cleanup
+                foreach (var cable in placedCables)
+                {
+                    if (cable != null)
+                    {
+                        Destroy(cable.gameObject); // Destroy the cable object
+                    }
+                }
+                currentCable = null;
+                connectingObject = null;
+                placedCables.Clear();   
                 return;
             }
 
