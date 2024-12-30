@@ -228,6 +228,10 @@ public class ScudSettings : MonoBehaviour
         }
     }
 
+    public LayerMask layermask;
+    public Camera playerCam;
+
+    public GameObject ObjectTipCanvas;
     // Update is called once per frame
     void Update()
     {
@@ -235,6 +239,27 @@ public class ScudSettings : MonoBehaviour
         {
             scudSettings.SetActive(!scudSettings.activeSelf);
         }
+        RaycastHit hit;
+
+        if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, 150f, layermask))
+        {
+
+            if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit))
+            {
+                GameObject clickedObject = hit.collider.gameObject;
+
+                InteractiveObject interactiveObject = ObjectManager.Instance.GetObject(clickedObject.name);
+                if (interactiveObject != null)
+                {
+                    ObjectTipCanvas.SetActive(true);
+                }
+                else
+                {
+                    ObjectTipCanvas.SetActive(false);
+                }
+            }
+        }
+
     }
 
 
@@ -491,14 +516,14 @@ public class ScudSettings : MonoBehaviour
         // Get all interactive objects in the system
 
         List<InteractiveObject> connectableToUPSObjects = ObjectManager.Instance.GetAllObjects()
-            .Where(io=>io.type!= ObjectType.UPS && io.type!= ObjectType.Battery && io.type!= ObjectType.ServerRack && io.type!= ObjectType.ServerBox).ToList();
+            .Where(io => io.type != ObjectType.UPS && io.type != ObjectType.Battery && io.type != ObjectType.ServerRack && io.type != ObjectType.ServerBox).ToList();
         foreach (InteractiveObject obj in connectableToUPSObjects)
         {
-                // Check if the object is connected to a UPS directly or via a switch
-                if (IsConnectedToUPSIndirectly(obj))
-                {
-                    allConnectedDevices.Add(obj);
-                }
+            // Check if the object is connected to a UPS directly or via a switch
+            if (IsConnectedToUPSIndirectly(obj))
+            {
+                allConnectedDevices.Add(obj);
+            }
         }
 
         int connectedTotalAmount = allConnectedDevices.Count();

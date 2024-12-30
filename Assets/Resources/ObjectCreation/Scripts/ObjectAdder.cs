@@ -73,7 +73,7 @@ namespace SCUD3D
                 // {
                 //     objectSettings.SetActive(true);
                 // }
-                if (Input.GetKeyDown(KeyCode.T))
+                if (Input.GetKeyDown(KeyCode.T) && ConnectionsManager.Instance.GetAllConnections(hit.collider.GetComponent<InteractiveObject>()).Count == 0)
                 {
                     objectPrefab = hit.collider.gameObject;
                     gameState = 3;
