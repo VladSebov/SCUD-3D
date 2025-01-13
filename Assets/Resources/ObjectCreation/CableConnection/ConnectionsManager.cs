@@ -121,6 +121,25 @@ public class ConnectionsManager : MonoBehaviour
         return connectionsByType;
     }
 
+    public List<InteractiveObject> GetConnectedObjectsByType(InteractiveObject obj, ObjectType targetType)
+    {
+        // Get all connections for the object
+        List<Connection> objConnections = GetAllConnections(obj);
+
+        // Count how many connections involve the specified type
+        List<InteractiveObject> connectedObjects = new List<InteractiveObject>();
+        foreach (var connection in objConnections)
+        {
+            InteractiveObject otherObject = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
+            if (otherObject.type == targetType)
+            {
+                connectedObjects.Add(otherObject);
+            }
+        }
+
+        return connectedObjects;
+    }
+
 
     public Dictionary<int, float> GetTotalCableLengthsByType()
     {

@@ -171,6 +171,8 @@ public class ObjectManager : MonoBehaviour
         return new List<InteractiveObject>(gameObjects.Values);
     }
 
+
+
     public List<string> GetAvailableDevicesIDs(string currentObjectId)
     {
         // Get the current object by its ID
@@ -219,16 +221,18 @@ public class ObjectManager : MonoBehaviour
         foreach (var obj in gameObjects.Values)
         {
             totalPrice += obj.price; // Sum the price of each object
-            
+
         }
 
         return totalPrice; // Return the total price
     }
 
-    public int GetTotalAmount(){
+    public int GetTotalAmount()
+    {
         int totalAmount = 0;
 
-        foreach (var obj in gameObjects.Values){
+        foreach (var obj in gameObjects.Values)
+        {
             totalAmount += 1;
         }
         return totalAmount;
@@ -247,6 +251,36 @@ public class ObjectManager : MonoBehaviour
         return GetAllObjects()
            .Where(io => io.type == type)
            .ToList();
+    }
+
+    public List<InteractiveObject> GetConnectedCameras()
+    {
+        var connectedCameras = new HashSet<InteractiveObject>(); // Using HashSet to avoid duplicates
+
+        // Get all NVRs
+        var nvrs = GetObjectsByTypeExt(ObjectType.NVR);
+
+        foreach (var nvr in nvrs)
+        {
+            // Get switches connected to this NVR
+            var connectedSwitches = ConnectionsManager.Instance.GetConnectedObjectsByType(nvr, ObjectType.Switch);
+
+            // For each switch, get connected cameras
+            foreach (var switch_ in connectedSwitches)
+            {
+                var camerasConnectedToSwitch = ConnectionsManager.Instance.GetConnectedObjectsByType(switch_, ObjectType.Camera);
+
+                foreach (var camera in camerasConnectedToSwitch)
+                {
+                    connectedCameras.Add(camera);
+                }
+            }
+        }
+
+        // Convert to list and sort by name/id
+        return connectedCameras
+            .OrderBy(camera => camera.id)
+            .ToList();
     }
 }
 

@@ -233,6 +233,9 @@ public class ScudSettings : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
+            // destroy all cameras when closing form for optimization
+            if (scudSettings.activeSelf)
+                CamerasSettingsManager.HideAllCameraPanels();
             scudSettings.SetActive(!scudSettings.activeSelf);
         }
     }
@@ -491,14 +494,14 @@ public class ScudSettings : MonoBehaviour
         // Get all interactive objects in the system
 
         List<InteractiveObject> connectableToUPSObjects = ObjectManager.Instance.GetAllObjects()
-            .Where(io=>io.type!= ObjectType.UPS && io.type!= ObjectType.Battery).ToList();
+            .Where(io => io.type != ObjectType.UPS && io.type != ObjectType.Battery).ToList();
         foreach (InteractiveObject obj in connectableToUPSObjects)
         {
-                // Check if the object is connected to a UPS directly or via a switch
-                if (IsConnectedToUPSIndirectly(obj))
-                {
-                    allConnectedDevices.Add(obj);
-                }
+            // Check if the object is connected to a UPS directly or via a switch
+            if (IsConnectedToUPSIndirectly(obj))
+            {
+                allConnectedDevices.Add(obj);
+            }
         }
 
         int connectedTotalAmount = allConnectedDevices.Count();
