@@ -14,6 +14,7 @@ public class UPSSettingsManager : MonoBehaviour
 
     //Connected devices UI
     public TextMeshProUGUI connectionsCountText; // Reference to the Text for connection count
+    public TextMeshProUGUI objectNameText; // Reference to the Text for object name
     public ScrollRect connectionsScroll; // Reference to the Scroll View
     public GameObject connectionItemPrefab; // Prefab for displaying connection items
     public Button deleteConnectionButton; // Reference to the delete button
@@ -61,6 +62,7 @@ public class UPSSettingsManager : MonoBehaviour
         int currentObjectConnectionsCount = ConnectionsManager.Instance.GetAllConnections(UPSObject).Count;
         // Update connection count text
         connectionsCountText.text = $"{currentObjectConnectionsCount}";
+        objectNameText.text = UPSObject.name;
 
         batteriesCountText.text = $"{UPSObject.connectedBatteries.Count} / {UPSObject.maxBatteries}";
 

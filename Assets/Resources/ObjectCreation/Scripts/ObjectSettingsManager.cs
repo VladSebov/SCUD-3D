@@ -14,6 +14,7 @@ public class ObjectSettingsManager : MonoBehaviour
     public int currentCableType;
     public InteractiveObject interactiveObject; // Reference to the InteractiveObject
     public TextMeshProUGUI connectionCountText; // Reference to the Text for connection count
+    public TextMeshProUGUI objectNameText; // Reference to the Text for name
     public ScrollRect scrollView; // Reference to the Scroll View
     public GameObject connectionItemPrefab; // Prefab for displaying connection items
     public Button deleteButton; // Reference to the delete button
@@ -88,7 +89,7 @@ public class ObjectSettingsManager : MonoBehaviour
         int currentObjectConnectionsCount = ConnectionsManager.Instance.GetEthernetConnections(interactiveObject).Count;
         // Update connection count text
         connectionCountText.text = $"{currentObjectConnectionsCount} / {interactiveObject.maxConnections}";
-
+        objectNameText.text = interactiveObject.name;
         FillConnections();
 
         FillUPSConnection();
