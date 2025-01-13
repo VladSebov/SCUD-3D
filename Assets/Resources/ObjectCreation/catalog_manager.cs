@@ -303,6 +303,10 @@ public class CatalogManager : MonoBehaviour
     {
         isItemsVisible = !isItemsVisible;
         PanelItems.SetActive(isItemsVisible);
+        if (!PanelItems.activeSelf)
+        {
+            customObjectForm.SetActive(false);
+        }
         if (!isItemsVisible)
         {
             if (isPreviewVisible) ShowHidePreview();
