@@ -66,7 +66,7 @@ public class CatalogManager : MonoBehaviour
         // Create containers for default and custom items
         defaultItemsContainer = new GameObject("DefaultItemsContainer", typeof(RectTransform), typeof(VerticalLayoutGroup)).transform;
         defaultItemsContainer.SetParent(contentPanel, false);
-        defaultListHeader = CreateListHeader("Default Items");
+        defaultListHeader = CreateListHeader("Встроенные объекты");
 
         // Set up layout group for default items container
         VerticalLayoutGroup defaultLayout = defaultItemsContainer.GetComponent<VerticalLayoutGroup>();
@@ -95,7 +95,7 @@ public class CatalogManager : MonoBehaviour
         // Repeat for custom items
         customItemsContainer = new GameObject("CustomItemsContainer", typeof(RectTransform), typeof(VerticalLayoutGroup)).transform;
         customItemsContainer.SetParent(contentPanel, false);
-        customListHeader = CreateListHeader("Custom Items");
+        customListHeader = CreateListHeader("Пользовательские");
 
         // Set up layout group for custom items container
         VerticalLayoutGroup customLayout = customItemsContainer.GetComponent<VerticalLayoutGroup>();
@@ -184,7 +184,7 @@ public class CatalogManager : MonoBehaviour
         Button toggleButton = header.GetOrAddComponent<Button>();
 
         // Setup toggle functionality
-        Transform container = headerText == "Default Items" ? defaultItemsContainer : customItemsContainer;
+        Transform container = headerText == "Встроенные объекты" ? defaultItemsContainer : customItemsContainer;
         toggleButton.onClick.AddListener(() => ToggleList(container, arrow));
 
         return header;
@@ -229,6 +229,11 @@ public class CatalogManager : MonoBehaviour
             deleteButton.onClick.AddListener(() => DeleteCustomItem(itemData));
         }
         buttonText.text = itemData.itemName;
+    }
+
+    public void CloseCustomObjectForm()
+    {
+        customObjectForm.SetActive(false);
     }
 
     public void ViewItem(CatalogItemData itemData)

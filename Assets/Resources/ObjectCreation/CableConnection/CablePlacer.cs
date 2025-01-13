@@ -326,7 +326,7 @@ public class CablePlacer : MonoBehaviour
                 {
                     if (cable != null)
                     {
-                        Destroy(cable.gameObject); // Destroy the cable object
+                        Destroy(cable.gameObject); 
                     }
                 }
                 currentCable = null;

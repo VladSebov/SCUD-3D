@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 
+
 public class CustomObjectForm : MonoBehaviour
 {
     public TMP_Dropdown typeDropdown;
@@ -38,7 +39,7 @@ public class CustomObjectForm : MonoBehaviour
     private void InitializeTypeDropdown()
     {
         typeDropdown.ClearOptions();
-        var options = new List<string> { "Camera", "Switch", "AccessController", "NVR", "UPS", "Battery" };
+        var options = new List<string> { "Камера", "Коммутатор", "СКУД контроллер", "Видеорегистратор", "ИБП", "Аккумулятор" };
         typeDropdown.AddOptions(options);
         OnTypeChanged(0); // Set default to Camera
     }
@@ -48,11 +49,11 @@ public class CustomObjectForm : MonoBehaviour
         string selectedType = typeDropdown.options[index].text;
 
         // Show/hide type-specific fields
-        nvrFields.SetActive(selectedType == "NVR");
-        upsFields.SetActive(selectedType == "UPS");
-        batteryFields.SetActive(selectedType == "Battery");
+        nvrFields.SetActive(selectedType == "Видеорегистратор");
+        upsFields.SetActive(selectedType == "ИБП");
+        batteryFields.SetActive(selectedType == "Аккумулятор");
         powerConsumptionBlock.SetActive(
-            selectedType != "UPS" && selectedType != "Battery");
+            selectedType != "ИБП" && selectedType != "Аккумулятор");
     }
 
     private bool ValidateInputs()
@@ -62,51 +63,51 @@ public class CustomObjectForm : MonoBehaviour
 
         if (string.IsNullOrEmpty(itemNameInput.text))
         {
-            errorText.text = "Item name is required";
+            errorText.text = "Имя элемента обязательно";
             return false;
         }
 
         if (!int.TryParse(maxConnectionsInput.text, out _))
         {
-            errorText.text = "Max connections must be a number";
+            errorText.text = "Максимальное количество подключений должно быть числом";
             return false;
         }
 
         if (!float.TryParse(priceInput.text, out _))
         {
-            errorText.text = "Price must be a number";
+            errorText.text = "Цена должна быть числом";
             return false;
         }
 
-        if (selectedType != "UPS" && selectedType != "Battery")
+        if (selectedType != "ИБП" && selectedType != "Аккумулятор")
         {
             if (!int.TryParse(powerConsumptionInput.text, out _))
             {
-                errorText.text = "Power consumption must be a number";
+                errorText.text = "Потребляемая мощность должна быть числом";
                 return false;
             }
         }
 
         switch (selectedType)
         {
-            case "NVR":
+            case "Видеорегистратор":
                 if (!int.TryParse(maxChannelsInput.text, out _))
                 {
-                    errorText.text = "Max channels must be a number";
+                    errorText.text = "Максимальное количество каналов должно быть числом";
                     return false;
                 }
                 break;
-            case "UPS":
+            case "ИБП":
                 if (!int.TryParse(maxBatteriesInput.text, out _))
                 {
-                    errorText.text = "Max batteries must be a number";
+                    errorText.text = "Максимальное количество батарей должно быть числом";
                     return false;
                 }
                 break;
-            case "Battery":
+            case "Аккумулятор":
                 if (!int.TryParse(powerWattsInput.text, out _))
                 {
-                    errorText.text = "Power watts must be a number";
+                    errorText.text = "Мощность должна быть числом";
                     return false;
                 }
                 break;
@@ -117,7 +118,12 @@ public class CustomObjectForm : MonoBehaviour
 
     private void SaveObject()
     {
-        if (!ValidateInputs()) return;
+        if (!ValidateInputs())
+        {
+            errorText.gameObject.SetActive(true);
+            return;
+        }
+        else errorText.gameObject.SetActive(false);
 
         var newItem = new CatalogItemData
         {
@@ -135,14 +141,14 @@ public class CustomObjectForm : MonoBehaviour
         // Set type-specific fields
         switch (newItem.type)
         {
-            case "NVR":
+            case "Видеорегистратор":
                 newItem.maxChannels = int.Parse(maxChannelsInput.text);
                 newItem.powerConsumption = int.Parse(powerConsumptionInput.text);
                 break;
-            case "UPS":
+            case "ИБП":
                 newItem.maxBatteries = int.Parse(maxBatteriesInput.text);
                 break;
-            case "Battery":
+            case "Аккумулятор":
                 newItem.powerWatts = int.Parse(powerWattsInput.text);
                 break;
             default:
@@ -157,26 +163,34 @@ public class CustomObjectForm : MonoBehaviour
     {
         switch (type)
         {
-            case "Camera": return "dummy_camera";
-            case "Switch": return "switch1";
+            case "Камера": return "dummy_camera";
+            case "Коммутатор": return "switch1";
             default: return "turnstile3";
         }
     }
 
     private string GetDefaultPrefab(string type)
     {
-        return $"Mashes/{type}";
+        switch (type)
+        {
+            case "Камера": return "Prefabs/Camera";
+            case "Коммутатор": return "Prefabs/Switch";
+            case "СКУД контроллер": return "Prefabs/AccessController";
+            case "Видеорегистратор": return "Prefabs/NVR";
+            case "ИБП": return "Prefabs/UPS";
+            default: return "Prefabs/Battery";
+        }
     }
 
     private List<string> GetDefaultConnectableTypes(string type)
     {
         switch (type)
         {
-            case "Camera": return new List<string> { "Switch" };
-            case "Switch": return new List<string> { "Camera", "Switch", "NVR" };
-            case "AccessController": return new List<string> { "Turnstile" };
-            case "NVR": return new List<string> { "Switch" };
-            case "UPS": return new List<string> { "UPS", "Switch" };
+            case "Камера": return new List<string> { "Switch" };
+            case "Коммутатор": return new List<string> { "Camera", "Switch", "NVR" };
+            case "СКУД контроллер": return new List<string> { "Turnstile" };
+            case "Видеорегистратор": return new List<string> { "Switch" };
+            case "ИБП": return new List<string> { "UPS", "Switch" };
             default: return new List<string>();
         }
     }
@@ -185,8 +199,8 @@ public class CustomObjectForm : MonoBehaviour
     {
         switch (type)
         {
-            case "Camera": return new List<string> { "Wall", "Ceiling" };
-            case "Battery": return new List<string> { "UPS" };
+            case "Камера": return new List<string> { "Wall", "Ceiling" };
+            case "Аккумулятор": return new List<string> { "UPS" };
             default: return new List<string> { "Floor" };
         }
     }
@@ -202,7 +216,7 @@ public class CustomObjectForm : MonoBehaviour
         // Check default catalog
         CatalogItemsList defaultCatalog = JsonUtility.FromJson<CatalogItemsList>(
             FindObjectOfType<CatalogManager>().jsonFile.text);
-        isDuplicate = defaultCatalog.items.Exists(item => 
+        isDuplicate = defaultCatalog.items.Exists(item =>
             item.itemName.Equals(newItem.itemName, StringComparison.OrdinalIgnoreCase));
 
         if (!isDuplicate)
@@ -212,7 +226,7 @@ public class CustomObjectForm : MonoBehaviour
             {
                 string jsonContent = File.ReadAllText(path);
                 catalog = JsonUtility.FromJson<CatalogItemsList>(jsonContent);
-                isDuplicate = catalog.items.Exists(item => 
+                isDuplicate = catalog.items.Exists(item =>
                     item.itemName.Equals(newItem.itemName, StringComparison.OrdinalIgnoreCase));
             }
             else
@@ -223,7 +237,7 @@ public class CustomObjectForm : MonoBehaviour
 
         if (isDuplicate)
         {
-            errorText.text = "An item with this name already exists";
+            errorText.text = "Объект с таким именем уже существует";
             return;
         }
 
