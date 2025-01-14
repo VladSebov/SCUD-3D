@@ -28,7 +28,7 @@
             "itemName": "Турникет",
             "description": "Описание турникета",
             "icon": "turnstile3",
-            "prefab":"Mashes/turnstile2_artem",
+            "prefab":"Mashes/TTR",
             "type": "Turnstile",
             "maxConnections": 1,
             "connectableTypes": ["AccessController"],
