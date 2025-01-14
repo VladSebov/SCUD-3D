@@ -24,7 +24,7 @@ public static class IDManager
     public static string GenerateId(ObjectType objectType)
     {
         // Generate a new ID based on the current count and increment the counter
-        string newId = $"{objectType.ToString().ToLower()}{idCounters[objectType]}";
+        string newId = $"{objectType}_{idCounters[objectType]}";
         idCounters[objectType]++;
         return newId;
     }

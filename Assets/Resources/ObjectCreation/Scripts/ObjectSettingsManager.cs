@@ -22,8 +22,17 @@ public class ObjectSettingsManager : MonoBehaviour
     private Connection selectedConnection; // Store the selected connection ID
 
     //UPS settings
+    public GameObject UPSPanel;
     public TextMeshProUGUI UPSInfoText;
     public Button UPSActionButton;
+
+    //Camera's rotating
+    public GameObject CameraRotatingPanel;
+    public Slider verticalRotatingSlider;
+    public TextMeshProUGUI verticalAngleValue;
+    public Slider horizontalRotatingSlider;
+    public TextMeshProUGUI horizontalAngleValue;
+    public RawImage cameraPreview;
 
     private CablePlacer CablePlacer;
     public MenuDevicesManager MenuDevicesManager; // скрипт для menuDevices
@@ -59,7 +68,74 @@ public class ObjectSettingsManager : MonoBehaviour
         {
             UpdateMenu();
             objectSettings.SetActive(true);
+
+            // Show/hide panels based on object type
+            if (interactiveObject.type == ObjectType.Camera)
+            {
+                UPSPanel.SetActive(false);
+                CameraRotatingPanel.SetActive(true);
+                SetupCameraPreview();
+                UpdateSlidersForSelectedCamera();
+            }
+            else
+            {
+                UPSPanel.SetActive(true);
+                CameraRotatingPanel.SetActive(false);
+            }
         }
+    }
+
+    private void SetupCameraPreview()
+    {
+        Camera cameraComponent = interactiveObject.GetComponentInChildren<Camera>();
+        cameraComponent.enabled = true;
+        if (cameraComponent != null && cameraPreview != null)
+        {
+            RenderTexture renderTexture = new RenderTexture(1024, 1024, 32);
+            cameraComponent.targetTexture = renderTexture;
+            cameraPreview.texture = renderTexture;
+        }
+    }
+
+    // Управление поворотом камеры
+    public void OnVerticalAngleSliderChanged(float value)
+    {
+        Transform cameraGameObject = interactiveObject.gameObject.transform.Find("GameObject");
+        Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
+
+        Vector3 currentRotation = camera.eulerAngles;
+        Vector3 newRotation = new Vector3(value, currentRotation.y, currentRotation.z);
+
+        camera.eulerAngles = newRotation;
+
+        verticalAngleValue.text = $"{value:F1}°";
+    }
+
+    public void OnHorizontalAngleSliderChanged(float value)
+    {
+        Transform cameraGameObject = interactiveObject.gameObject.transform.Find("GameObject");
+        Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
+
+        Vector3 currentRotation = camera.eulerAngles;
+        Vector3 newRotation = new Vector3(currentRotation.x, value, currentRotation.z);
+
+        camera.eulerAngles = newRotation;
+        horizontalAngleValue.text = $"{value:F1}°";
+    }
+
+    // Обновление ползунков для выбранной камеры
+    public void UpdateSlidersForSelectedCamera()
+    {
+        Transform cameraGameObject = interactiveObject.gameObject.transform.Find("GameObject");
+        Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
+        if (camera == null) return;
+
+        verticalRotatingSlider.value = camera.eulerAngles.z;
+        horizontalRotatingSlider.value = camera.eulerAngles.y;
+
+        // Format the text to show regular decimal numbers with 1 decimal place
+        verticalAngleValue.text = $"{camera.eulerAngles.z:F1}°";
+        horizontalAngleValue.text = $"{camera.eulerAngles.y:F1}°";
     }
 
     public void ShowAvailableDevices()
@@ -82,6 +158,17 @@ public class ObjectSettingsManager : MonoBehaviour
         selectConnectionForm.SetActive(false);
         objectSettings.SetActive(false);
         UPSSettingsManager.CloseMenu();
+
+        // Cleanup camera preview if it exists
+        // if (cameraPreview != null && cameraPreview.texture != null)
+        // {
+        //     if (cameraPreview.texture is RenderTexture rt)
+        //     {
+        //         rt.Release();
+        //         Destroy(rt);
+        //     }
+        //     cameraPreview.texture = null;
+        // }
     }
 
     public void UpdateMenu()
