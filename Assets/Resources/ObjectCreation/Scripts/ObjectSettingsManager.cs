@@ -100,11 +100,11 @@ public class ObjectSettingsManager : MonoBehaviour
     // Управление поворотом камеры
     public void OnVerticalAngleSliderChanged(float value)
     {
-        Transform cameraGameObject = interactiveObject.gameObject.transform.Find("GameObject");
-        Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
+        Transform camera = interactiveObject.gameObject.transform.Find("GameObject");
+        //Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
 
         Vector3 currentRotation = camera.eulerAngles;
-        Vector3 newRotation = new Vector3(value, currentRotation.y, currentRotation.z);
+        Vector3 newRotation = new Vector3(Mathf.Clamp(value, -89f, 89f), currentRotation.y, currentRotation.z);
 
         camera.eulerAngles = newRotation;
 
@@ -113,8 +113,8 @@ public class ObjectSettingsManager : MonoBehaviour
 
     public void OnHorizontalAngleSliderChanged(float value)
     {
-        Transform cameraGameObject = interactiveObject.gameObject.transform.Find("GameObject");
-        Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
+        Transform camera = interactiveObject.gameObject.transform.Find("GameObject");
+        //Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
 
         Vector3 currentRotation = camera.eulerAngles;
         Vector3 newRotation = new Vector3(currentRotation.x, value, currentRotation.z);
@@ -126,16 +126,24 @@ public class ObjectSettingsManager : MonoBehaviour
     // Обновление ползунков для выбранной камеры
     public void UpdateSlidersForSelectedCamera()
     {
-        Transform cameraGameObject = interactiveObject.gameObject.transform.Find("GameObject");
-        Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
+        Transform camera = interactiveObject.gameObject.transform.Find("GameObject");
+        //Transform camera = cameraGameObject.gameObject.transform.Find("Camera");
         if (camera == null) return;
 
-        verticalRotatingSlider.value = camera.eulerAngles.z;
-        horizontalRotatingSlider.value = camera.eulerAngles.y;
+        verticalRotatingSlider.value = NormalizeAngle(camera.eulerAngles.x);
+        horizontalRotatingSlider.value = NormalizeAngle(camera.eulerAngles.y);
 
         // Format the text to show regular decimal numbers with 1 decimal place
-        verticalAngleValue.text = $"{camera.eulerAngles.z:F1}°";
-        horizontalAngleValue.text = $"{camera.eulerAngles.y:F1}°";
+        verticalAngleValue.text = $"{NormalizeAngle(camera.eulerAngles.x):F1}°";
+        horizontalAngleValue.text = $"{NormalizeAngle(camera.eulerAngles.y):F1}°";
+    }
+
+    // Utility method to normalize angles (e.g., -180 to 180)
+    private float NormalizeAngle(float angle)
+    {
+        angle = angle % 360; // Ensure the angle stays within 0 to 360
+        if (angle > 180) angle -= 360; // Convert to -180 to 180 range
+        return angle;
     }
 
     public void ShowAvailableDevices()
