@@ -36,7 +36,8 @@ public static class CableUtility
         {
             totalLength += segment.GetLength(); // Assuming `GetLength` is implemented in `Cable`
         }
-        return totalLength;
+        Debug.Log("total length"+totalLength*0.4f);
+        return totalLength*0.4f;
     }
 
     public static GameObject CombineCableSegments(List<Cable> cableSegments, string objectAName, string objectBName)

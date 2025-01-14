@@ -129,25 +129,16 @@ public class CablePlacer : MonoBehaviour
                     {
                         if (CableUtility.IsConnectionBlockedByNVR(connectingObject, hitObject))
                             return;
-                        GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
-                        float cableLength = CableUtility.CalculateTotalCableLength(placedCables);
-                        Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType, cableLength);
-
-                        ConnectionsManager.Instance.AddConnection(newConnection);
                         FinalizeConnection(connectingObject, hitObject);
                     }
                     else
                     {
                         Debug.Log("No available ports or incompatible types");
+                        return;
                     }
                 }
                 else if (currentCableType == CableType.UPS)
                 {
-                    GameObject combinedCable = CableUtility.CombineCableSegments(placedCables, connectingObject.name, hitObject.name);
-                    float cableLength = CableUtility.CalculateTotalCableLength(placedCables);
-                    Connection newConnection = new Connection(connectingObject, hitObject, combinedCable, currentCableType, cableLength);
-
-                    ConnectionsManager.Instance.AddConnection(newConnection);
                     FinalizeConnection(connectingObject, hitObject);
                 }
 
@@ -329,12 +320,12 @@ public class CablePlacer : MonoBehaviour
                 {
                     if (cable != null)
                     {
-                        Destroy(cable.gameObject); 
+                        Destroy(cable.gameObject);
                     }
                 }
                 currentCable = null;
                 connectingObject = null;
-                placedCables.Clear();   
+                placedCables.Clear();
                 return;
             }
 
