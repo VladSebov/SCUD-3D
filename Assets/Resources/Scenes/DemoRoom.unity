@@ -16690,7 +16690,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roleInputPanel: {fileID: 1795906002}
   roleNameInputField: {fileID: 1795906000}
-  addRoleButton: {fileID: 1795906001}
+  addRoleButton: {fileID: 211992369}
   CancelButton: {fileID: 1795905999}
 --- !u!224 &1112806791 stripped
 RectTransform:
@@ -25099,6 +25099,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: NewRolePanel
       objectReference: {fileID: 0}
+    - target: {fileID: 2599195845196628045, guid: d00689d39e4b50c4183338e707f7d061,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1112806763}
+    - target: {fileID: 2599195845196628045, guid: d00689d39e4b50c4183338e707f7d061,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnAddRoleClick
+      objectReference: {fileID: 0}
     - target: {fileID: 5661225709763302064, guid: d00689d39e4b50c4183338e707f7d061,
         type: 3}
       propertyPath: m_Pivot.x
@@ -25232,18 +25242,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1795906001 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2599195845196628045, guid: d00689d39e4b50c4183338e707f7d061,
-    type: 3}
-  m_PrefabInstance: {fileID: 1795905997}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1795906002 stripped
