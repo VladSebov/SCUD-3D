@@ -75,11 +75,11 @@ namespace SCUD3D
                 // {
                 //     objectSettings.SetActive(true);
                 // }
-                if (Input.GetKeyDown(KeyCode.T))
-                {
-                    objectPrefab = hit.collider.gameObject;
-                    gameState = 3;
-                }
+                // if (Input.GetKeyDown(KeyCode.T))
+                // {
+                //     objectPrefab = hit.collider.gameObject;
+                //     gameState = 3;
+                // }
                 if (Input.GetKeyDown(KeyCode.X))
                 {
                     ObjectManager.Instance.RemoveObject(hit.collider.gameObject.name);
@@ -101,7 +101,6 @@ namespace SCUD3D
             ChangeSurfaceColor(hit, mountTag);
             if (objectData.mountTags.Contains(mountTag.ToString()))
             {
-                //if (objectData.type==ObjectType.Battery.ToString()) objectPrefab.SetActive(false);
                 if (previewObject == null)
                     CreatePreview(previewPosition, hit, mountTag);
                 else
@@ -115,7 +114,7 @@ namespace SCUD3D
             if (collider.CompareTag("Floor")) return MountTag.Floor;
             if (collider.CompareTag("Ceiling")) return MountTag.Ceiling;
             if (collider.CompareTag("UPS")) return MountTag.UPS;
-            return MountTag.Floor; // Default fallback
+            return MountTag.Undefined; // Default fallback
         }
 
         void ChangeSurfaceColor(RaycastHit hit, MountTag tag)
@@ -282,7 +281,7 @@ namespace SCUD3D
                 if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, 150f, layermask))
                 {
                     CreatePreviewObject(hit, previousPosition);
-                    objectPrefab.gameObject.SetActive(false);
+                    //objectPrefab.gameObject.SetActive(false);
                 }
                 if (Input.GetMouseButtonDown(0))
                 {

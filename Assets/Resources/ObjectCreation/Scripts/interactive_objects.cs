@@ -7,7 +7,8 @@ public enum MountTag
     Wall,
     Floor,
     Ceiling,
-    UPS
+    UPS,
+    Undefined
 }
 
 public enum ObjectType
