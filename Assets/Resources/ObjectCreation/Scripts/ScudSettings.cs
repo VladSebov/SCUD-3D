@@ -79,7 +79,6 @@ public class ScudSettings : MonoBehaviour
         RestrictionsSettingsButton.onClick.AddListener(ShowRestrictionsSettingsContent);
         UserSettingsButton.onClick.AddListener(ShowUserSettingsContent);
         StatisticsButton.onClick.AddListener((ShowStatisticsContent));
-        ShowAccessSettingsContent(); //show access settings by default
 
         CancelRestrictionsButton.onClick.AddListener(FillRestrictions);
         SaveRestrictionsButton.onClick.AddListener(SaveRestrictions);
@@ -236,6 +235,9 @@ public class ScudSettings : MonoBehaviour
             // destroy all cameras when closing form for optimization
             if (scudSettings.activeSelf)
                 CamerasSettingsManager.HideAllCameraPanels();
+            else
+                ShowAccessSettingsContent(); //show access settings by default
+
             scudSettings.SetActive(!scudSettings.activeSelf);
         }
     }
