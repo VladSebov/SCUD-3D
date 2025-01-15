@@ -4,190 +4,95 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using SCUD3D;
+using Unity.VisualScripting;
 
 [System.Serializable]
-public class GeneralInformationController
+public class GuideCategory
 {
-    public string id;          // Уникальный идентификатор
-    public string description; // Основное описание
+    public string name;
+    public string header;
+    public string content;
 }
 
 [System.Serializable]
-public class GeneralInformationControllerList
+public class GuideData
 {
-    public List<GeneralInformationController> generalInformationControllers;
+    public List<GuideCategory> categories;
 }
 
 public class Guide : MonoBehaviour
 {
-    public Button GeneralInformationButton;
-    public Button CameraInfoButton;
-    public Button SwitchboardInfoButton;
-    public Button TurnstileInfoButton;
-    public Button NvrInfoButton;
-    public Button IbpInfoButton;
-    public GameObject GeneralInformationContent;
-    public GameObject CameraInfoContent;
-    public GameObject SwitchboardInfoContent;
-    public GameObject TurnstileInfoContent;
-    public GameObject NvrInfoContent;
-    public GameObject IbpInfoContent;
-    public GameObject scudGuide;
-    public TextMeshProUGUI[] displayTexts = new TextMeshProUGUI[6]; // Массив для отображения текста 
-    public string[] targetIds; // Массив для хранения targetId для каждого TextMeshProUGUI
-    public TMP_InputField inputField; // Поле для ввода id
+    public GameObject guideMenu;
+    public GameObject categoryButtonPrefab; // Prefab for category buttons
+    public Transform sidebar; // Parent transform for category buttons
+    public TextMeshProUGUI headerText; // Text element for header
+    public TextMeshProUGUI contentText; // Text element for content
+    public RectTransform contentRect;  // RectTransform of the scroll view content
+    public TextAsset jsonGuide;        // JSON файл, подключённый через инспектор
+    private GuideData guideData;
+    private Button currentActiveButton; // Add this field
 
     void Start()
     {
-        GeneralInformationButton.onClick.AddListener(ShowGeneralInformationContent);
-        CameraInfoButton.onClick.AddListener(ShowCameraInfoContent);
-        SwitchboardInfoButton.onClick.AddListener(ShowSwitchboardInfoContent);
-        TurnstileInfoButton.onClick.AddListener(ShowTurnstileInfoContent);
-        NvrInfoButton.onClick.AddListener(ShowNvrInfoContent);
-        IbpInfoButton.onClick.AddListener(ShowIbpInfoContent);
-    }
-
-    private void ResetButtonColors()
-    {
-        GeneralInformationButton.interactable = true;
-        CameraInfoButton.interactable = true;
-        SwitchboardInfoButton.interactable = true;
-        TurnstileInfoButton.interactable = true;
-        NvrInfoButton.interactable = true;
-        IbpInfoButton.interactable = true;
-    }
-
-    private void ShowGeneralInformationContent()
-    {
-        ResetButtonColors();
-        GeneralInformationButton.interactable = false;
-        HideAllContent();
-        GeneralInformationContent.SetActive(true);
-        
-        // Загружаем и отображаем информацию для каждого targetId
-        for (int i = 0; i < targetIds.Length; i++)
+        LoadGuideData();
+        PopulateSidebar();
+        // Display first category and highlight its button
+        if (guideData.categories.Any())
         {
-            LoadAndDisplayText(targetIds[i], i); // Передаем targetId и индекс
-        }
-    }
-    private void ShowCameraInfoContent()
-    {
-        ResetButtonColors();
-        CameraInfoButton.interactable = false;
-        HideAllContent();
-        CameraInfoContent.SetActive(true);
-        
-        // Загружаем и отображаем информацию для каждого targetId
-        for (int i = 0; i < targetIds.Length; i++)
-        {
-            LoadAndDisplayText(targetIds[i], i); // Передаем targetId и индекс
-        }
-    }
-    private void ShowSwitchboardInfoContent()
-    {
-        ResetButtonColors();
-        SwitchboardInfoButton.interactable = false;
-        HideAllContent();
-        SwitchboardInfoContent.SetActive(true);
-        
-        // Загружаем и отображаем информацию для каждого targetId
-        for (int i = 0; i < targetIds.Length; i++)
-        {
-            LoadAndDisplayText(targetIds[i], i); // Передаем targetId и индекс
-        }
-    }
-    private void ShowTurnstileInfoContent()
-    {
-        ResetButtonColors();
-        TurnstileInfoButton.interactable = false;
-        HideAllContent();
-        TurnstileInfoContent.SetActive(true);
-        
-        // Загружаем и отображаем информацию для каждого targetId
-        for (int i = 0; i < targetIds.Length; i++)
-        {
-            LoadAndDisplayText(targetIds[i], i); // Передаем targetId и индекс
-        }
-    }
-    private void ShowNvrInfoContent()
-    {
-        ResetButtonColors();
-        NvrInfoButton.interactable = false;
-        HideAllContent();
-        NvrInfoContent.SetActive(true);
-        
-        // Загружаем и отображаем информацию для каждого targetId
-        for (int i = 0; i < targetIds.Length; i++)
-        {
-            LoadAndDisplayText(targetIds[i], i); // Передаем targetId и индекс
-        }
-    }
-    private void ShowIbpInfoContent()
-    {
-        ResetButtonColors();
-        IbpInfoButton.interactable = false;
-        HideAllContent();
-        IbpInfoContent.SetActive(true);
-        
-        // Загружаем и отображаем информацию для каждого targetId
-        for (int i = 0; i < targetIds.Length; i++)
-        {
-            LoadAndDisplayText(targetIds[i], i); // Передаем targetId и индекс
+            DisplayContent(guideData.categories.First());
+            if (sidebar.childCount > 0)
+            {
+                SetActiveButton(sidebar.GetChild(0).GetComponent<Button>());
+            }
         }
     }
 
-    private void HideAllContent()
+    void LoadGuideData()
     {
-        GeneralInformationContent.SetActive(false);
-        CameraInfoContent.SetActive(false);
-        SwitchboardInfoContent.SetActive(false);
-        TurnstileInfoContent.SetActive(false);
-        NvrInfoContent.SetActive(false);
-        IbpInfoContent.SetActive(false);
+        guideData = JsonUtility.FromJson<GuideData>(jsonGuide.text);
+    }
+
+    void PopulateSidebar()
+    {
+        foreach (var category in guideData.categories)
+        {
+            GameObject button = Instantiate(categoryButtonPrefab, sidebar);
+            button.GetComponentInChildren<TextMeshProUGUI>().text = category.name;
+            Button btnComponent = button.GetComponent<Button>();
+            btnComponent.onClick.AddListener(() =>
+            {
+                DisplayContent(category);
+                SetActiveButton(btnComponent);
+            });
+        }
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.H))
         {
-            HideAllContent();
-            ResetButtonColors();
-            scudGuide.SetActive(!scudGuide.activeSelf);
+            guideMenu.SetActive(!guideMenu.activeSelf);
         }
     }
 
-    private void LoadAndDisplayText(string id, int index)
+    void DisplayContent(GuideCategory category)
     {
-        GeneralInformationControllerList generalInformationControllerList = LoadGeneralInformationControllersFromJson();
+        headerText.text = category.header;
+        contentText.text = category.content;
 
-        if (generalInformationControllerList == null || generalInformationControllerList.generalInformationControllers.Count == 0)
-        {
-            displayTexts[index].text = "Нет доступной информации."; // Сообщение, если данных нет
-            return;
-        }
-
-        // Поиск контроллера по id
-        GeneralInformationController foundController = generalInformationControllerList.generalInformationControllers
-            .FirstOrDefault(controller => controller.id == id);
-
-        if (foundController != null)
-        {
-            // Заполнение поля displayTexts по индексу
-            displayTexts[index].text = foundController.description; // Отображаем описание
-        }
-        else
-        {
-            displayTexts[index].text = "Информация не найдена."; // Сообщение, если контроллер не найден
-        }
+        // Adjust the size of the content RectTransform based on the text size
+        float contentHeight = contentText.preferredHeight;
+        contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, contentHeight);
     }
 
-    private GeneralInformationControllerList LoadGeneralInformationControllersFromJson()
+    void SetActiveButton(Button button)
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>("information"); // Имя JSON-файла
-        if (jsonFile != null)
+        if (currentActiveButton != null)
         {
-            return JsonUtility.FromJson<GeneralInformationControllerList>(jsonFile.text);
+            currentActiveButton.interactable = true;
         }
-        return null;
+        currentActiveButton = button;
+        currentActiveButton.interactable = false;
     }
 }

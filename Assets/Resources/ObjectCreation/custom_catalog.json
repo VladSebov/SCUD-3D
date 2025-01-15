@@ -1,3 +1,24 @@
 {
-    "items": []
+    "items": [
+        {
+            "itemName": "sdf",
+            "description": "",
+            "type": "Камера",
+            "maxConnections": 33,
+            "powerConsumption": 33,
+            "price": 33.0,
+            "connectableTypes": [
+                "Switch"
+            ],
+            "mountTags": [
+                "Wall",
+                "Ceiling"
+            ],
+            "icon": "dummy_camera",
+            "prefab": "Prefabs/Camera",
+            "maxChannels": 0,
+            "maxBatteries": 0,
+            "powerWatts": 0
+        }
+    ]
 }

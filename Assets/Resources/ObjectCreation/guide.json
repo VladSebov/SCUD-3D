@@ -1,0 +1,19 @@
+{
+    "categories": [
+      {
+        "name": "Category 1",
+        "header": "Header for Category 1",
+        "content": "This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1.This is the content for Category 1."
+      },
+      {
+        "name": "Category 2",
+        "header": "Header for Category 2",
+        "content": "This is the content for Category 2."
+      },
+      {
+        "name": "Category 3",
+        "header": "Header for Category 3",
+        "content": "This is the content for Category 3."
+      }
+    ]
+  }

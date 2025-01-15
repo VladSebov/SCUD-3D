@@ -45,6 +45,8 @@ public class ScudSettings : MonoBehaviour
     //Access
     public ScrollRect AccessControllersScroll;
     public GameObject AccessControllerItem;
+    public TextMeshProUGUI accessHintText; // Add this field
+
     private string selectedAccessControllerId;
 
     //Roles
@@ -215,6 +217,7 @@ public class ScudSettings : MonoBehaviour
     {
         selectedRole = Role;
         DeleteRoleButton.interactable = !string.IsNullOrEmpty(selectedRole);
+        FillRoles();
     }
 
     public void DeleteRole()
@@ -254,6 +257,14 @@ public class ScudSettings : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+         if (accessControllers.Count == 0)
+        {
+            accessHintText.gameObject.SetActive(true);
+            return;
+        }
+
+        accessHintText.gameObject.SetActive(false);
+
         // Populate the scroll view with connected device IDs
         foreach (var device in accessControllers)
         {
@@ -284,6 +295,10 @@ public class ScudSettings : MonoBehaviour
             GameObject item = Instantiate(RoleItem, RolesScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = role;
             Button button = item.GetComponentInChildren<Button>();
+            if (role == selectedRole)
+            {
+                button.GetComponent<Image>().color = Color.gray;
+            }
             button.onClick.AddListener(() => { SelectRole(role, button); });
         }
     }

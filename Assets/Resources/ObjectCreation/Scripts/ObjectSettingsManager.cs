@@ -166,6 +166,7 @@ public class ObjectSettingsManager : MonoBehaviour
         selectConnectionForm.SetActive(false);
         objectSettings.SetActive(false);
         UPSSettingsManager.CloseMenu();
+        selectedConnection = null;
 
         // Cleanup camera preview if it exists
         // if (cameraPreview != null && cameraPreview.texture != null)
@@ -225,6 +226,10 @@ public class ObjectSettingsManager : MonoBehaviour
             GameObject item = Instantiate(connectionItemPrefab, scrollView.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = otherObject.id;
             Button button = item.GetComponentInChildren<Button>();
+            if (connection == selectedConnection)
+            {
+                button.GetComponent<Image>().color = Color.gray;
+            }
             button.onClick.AddListener(() => SelectConnection(connection));
         }
     }

@@ -219,7 +219,7 @@ namespace SCUD3D
             }
             RaycastHit hit;
 
-            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || Guide.scudGuide.activeSelf)
+            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || Guide.guideMenu.activeSelf)
             {
                 inputs.SetInputsState(false);
                 gameState = 2;

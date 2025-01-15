@@ -27,6 +27,7 @@ public class MenuDevicesManager : MonoBehaviour
     {
         interactiveObject = obj;
         currentCableType = cableType;
+        selectedDeviceId = null;
         menuDevices.SetActive(true);
         UpdateMenu();
     }
