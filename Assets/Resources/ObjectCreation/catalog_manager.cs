@@ -15,6 +15,7 @@ public class CatalogManager : MonoBehaviour
     public GameObject PanelItems;
     public GameObject PanelPreview;
     public GameObject PanelInfo;
+    public GameObject HintsPanel;
     public GameObject defaultItemPrefab; // Префаб элемента списка
     public GameObject customItemPrefab; // Префаб элемента списка
     public GameObject itemImage;
@@ -51,6 +52,9 @@ public class CatalogManager : MonoBehaviour
         if (InputHelper.IsTypingInInputField())
             return;
         if (Input.GetKeyDown(KeyCode.I)) ShowHideItems();
+        if (Input.GetKeyDown(KeyCode.M)) {
+            HintsPanel.SetActive(!HintsPanel.activeSelf);
+        }
     }
 
     // Метод для загрузки и отображения данных
