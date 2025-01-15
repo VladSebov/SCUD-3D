@@ -82,6 +82,8 @@ namespace SCUD3D
                 // }
                 if (Input.GetKeyDown(KeyCode.X))
                 {
+                    if (InputHelper.IsTypingInInputField())
+                        return;
                     ObjectManager.Instance.RemoveObject(hit.collider.gameObject.name);
                     //Destroy(hit.collider.gameObject);
                 }

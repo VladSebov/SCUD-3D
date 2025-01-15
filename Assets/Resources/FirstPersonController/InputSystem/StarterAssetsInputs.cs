@@ -23,12 +23,14 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
 		{
+			if (InputHelper.IsTypingInInputField())
+				return;
 			MoveInput(value.Get<Vector2>());
 		}
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook)
+			if (cursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
 			}
@@ -49,7 +51,7 @@ namespace StarterAssets
 		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-		} 
+		}
 
 		public void LookInput(Vector2 newLookDirection)
 		{
@@ -65,7 +67,7 @@ namespace StarterAssets
 		{
 			sprint = newSprintState;
 		}
-		
+
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
@@ -76,12 +78,13 @@ namespace StarterAssets
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
 
-		public void SetInputsState(bool newState) {
+		public void SetInputsState(bool newState)
+		{
 			cursorLocked = newState;
-            cursorInputForLook = newState;
-			look.Set(0,0);
-            SetCursorState(cursorLocked);
+			cursorInputForLook = newState;
+			look.Set(0, 0);
+			SetCursorState(cursorLocked);
 		}
 	}
-	
+
 }

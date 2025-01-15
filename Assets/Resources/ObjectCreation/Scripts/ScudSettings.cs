@@ -233,6 +233,8 @@ public class ScudSettings : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (InputHelper.IsTypingInInputField())
+            return;
         if (Input.GetKeyDown(KeyCode.P))
         {
             // destroy all cameras when closing form for optimization
@@ -257,7 +259,7 @@ public class ScudSettings : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-         if (accessControllers.Count == 0)
+        if (accessControllers.Count == 0)
         {
             accessHintText.gameObject.SetActive(true);
             return;

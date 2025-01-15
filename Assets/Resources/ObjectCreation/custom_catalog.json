@@ -1,12 +1,12 @@
 {
     "items": [
         {
-            "itemName": "sdf",
+            "itemName": "ыва",
             "description": "",
             "type": "Камера",
-            "maxConnections": 33,
-            "powerConsumption": 33,
-            "price": 33.0,
+            "maxConnections": 22,
+            "powerConsumption": 22,
+            "price": 22.0,
             "connectableTypes": [
                 "Switch"
             ],
@@ -16,6 +16,26 @@
             ],
             "icon": "dummy_camera",
             "prefab": "Prefabs/Camera",
+            "maxChannels": 0,
+            "maxBatteries": 0,
+            "powerWatts": 0
+        },
+        {
+            "itemName": "ы",
+            "description": "",
+            "type": "Камера",
+            "maxConnections": 1,
+            "powerConsumption": 22,
+            "price": 22.0,
+            "connectableTypes": [
+                "Switch"
+            ],
+            "mountTags": [
+                "Wall",
+                "Ceiling"
+            ],
+            "icon": "dummy_camera",
+            "prefab": "Mashes/Camera",
             "maxChannels": 0,
             "maxBatteries": 0,
             "powerWatts": 0

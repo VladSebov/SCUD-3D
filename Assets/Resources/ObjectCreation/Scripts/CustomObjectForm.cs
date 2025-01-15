@@ -173,12 +173,12 @@ public class CustomObjectForm : MonoBehaviour
     {
         switch (type)
         {
-            case "Камера": return "Prefabs/Camera";
-            case "Коммутатор": return "Prefabs/Switch";
-            case "СКУД контроллер": return "Prefabs/AccessController";
-            case "Видеорегистратор": return "Prefabs/NVR";
-            case "ИБП": return "Prefabs/UPS";
-            default: return "Prefabs/Battery";
+            case "Камера": return "Mashes/Camera";
+            case "Коммутатор": return "Mashes/Switch";
+            case "СКУД контроллер": return "Mashes/AccessController";
+            case "Видеорегистратор": return "Mashes/NVR";
+            case "ИБП": return "Mashes/UPS";
+            default: return "Mashes/Battery";
         }
     }
 
@@ -237,9 +237,11 @@ public class CustomObjectForm : MonoBehaviour
 
         if (isDuplicate)
         {
+            errorText.gameObject.SetActive(true);
             errorText.text = "Объект с таким именем уже существует";
             return;
         }
+        errorText.gameObject.SetActive(false);
 
         catalog.items.Add(newItem);
         string json = JsonUtility.ToJson(catalog, true);

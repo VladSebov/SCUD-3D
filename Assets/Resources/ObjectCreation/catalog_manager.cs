@@ -48,6 +48,8 @@ public class CatalogManager : MonoBehaviour
 
     private void Update()
     {
+        if (InputHelper.IsTypingInInputField())
+            return;
         if (Input.GetKeyDown(KeyCode.I)) ShowHideItems();
     }
 
@@ -146,7 +148,7 @@ public class CatalogManager : MonoBehaviour
         contentLayout.childForceExpandHeight = false;
         contentLayout.childForceExpandWidth = true;
         contentLayout.spacing = 5;
-        
+
         // Add or get ContentSizeFitter
         ContentSizeFitter sizeFitter = contentPanel.GetOrAddComponent<ContentSizeFitter>();
         sizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
@@ -162,18 +164,18 @@ public class CatalogManager : MonoBehaviour
     private GameObject CreateListHeader(string headerText)
     {
         GameObject header = Instantiate(listHeaderPrefab, contentPanel);
-        
+
         // Set proper size for the header
         RectTransform headerRect = header.GetComponent<RectTransform>();
         headerRect.sizeDelta = new Vector2(0, 40); // Set height to 40 (or your desired height)
-        
+
         // Add LayoutElement to maintain height
         LayoutElement headerLayout = header.GetOrAddComponent<LayoutElement>();
         headerLayout.minHeight = 40;
         headerLayout.preferredHeight = 40;
         headerLayout.flexibleHeight = 0;
         headerLayout.flexibleWidth = 1;
-        
+
         TextMeshProUGUI text = header.GetComponentsInChildren<TextMeshProUGUI>()[1];
         text.text = headerText;
 
@@ -208,12 +210,12 @@ public class CatalogManager : MonoBehaviour
     {
         Transform parent = isCustom ? customItemsContainer : defaultItemsContainer;
         GameObject newItemButton = Instantiate(isCustom ? customItemPrefab : defaultItemPrefab, parent);
-        
+
         // // Ensure proper layout element settings on the button
         // LayoutElement buttonLayout = newItemButton.GetComponent<LayoutElement>();
         // if (buttonLayout == null)
         //     buttonLayout = newItemButton.AddComponent<LayoutElement>();
-        
+
         // buttonLayout.minHeight = 30; // Adjust this value to match your button height
         // buttonLayout.flexibleWidth = 1;
 
@@ -224,7 +226,8 @@ public class CatalogManager : MonoBehaviour
             isCustomItem = isCustom;
             ViewItem(itemData);
         });
-        if (isCustom){
+        if (isCustom)
+        {
             Button deleteButton = newItemButton.GetComponentsInChildren<Button>()[1];
             deleteButton.onClick.AddListener(() => DeleteCustomItem(itemData));
         }

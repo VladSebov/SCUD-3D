@@ -70,6 +70,8 @@ public class Guide : MonoBehaviour
 
     void Update()
     {
+        if (InputHelper.IsTypingInInputField())
+            return;
         if (Input.GetKeyDown(KeyCode.H))
         {
             guideMenu.SetActive(!guideMenu.activeSelf);
