@@ -76,6 +76,10 @@ public class Guide : MonoBehaviour
         {
             guideMenu.SetActive(!guideMenu.activeSelf);
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            guideMenu.SetActive(false);
+        }
     }
 
     void DisplayContent(GuideCategory category)

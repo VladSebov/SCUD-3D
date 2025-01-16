@@ -270,7 +270,7 @@ namespace SCUD3D
                     CreateObject(previewObject.transform, hit.collider);
                     previousSelection.GetComponent<Renderer>().material.color = Color.white;
                 }
-                else if (Input.GetMouseButtonDown(1))
+                else if (Input.GetKeyDown(KeyCode.Escape))
                 {
                     if (previewObject != null) Destroy(previewObject);
                     gameState = 0;
@@ -293,7 +293,7 @@ namespace SCUD3D
 
                     gameState = 0;
                 }
-                else if (Input.GetMouseButtonDown(1))
+                else if (Input.GetKeyDown(KeyCode.Escape))
                 {
                     Destroy(previewObject);
                     objectPrefab.gameObject.SetActive(true);

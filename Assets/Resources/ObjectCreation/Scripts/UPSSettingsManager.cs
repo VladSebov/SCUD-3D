@@ -107,6 +107,10 @@ public class UPSSettingsManager : MonoBehaviour
             GameObject item = Instantiate(connectionItemPrefab, connectionsScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = otherObject.id;
             Button button = item.GetComponentInChildren<Button>();
+            if (connection == selectedConnection)
+            {
+                button.GetComponent<Image>().color = Color.gray;
+            }
             button.onClick.AddListener(() => SelectConnection(connection));
         }
     }
@@ -141,6 +145,10 @@ public class UPSSettingsManager : MonoBehaviour
             GameObject item = Instantiate(batteryItemPrefab, installedBatteriesScroll.content);
             item.GetComponentInChildren<TextMeshProUGUI>().text = batteryId;
             Button button = item.GetComponentInChildren<Button>();
+            if (batteryId == selectedBatteryId)
+            {
+                button.GetComponent<Image>().color = Color.gray;
+            }
             button.onClick.AddListener(() => SelectBattery(batteryId));
         }
     }

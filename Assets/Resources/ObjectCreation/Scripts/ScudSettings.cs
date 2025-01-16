@@ -245,6 +245,12 @@ public class ScudSettings : MonoBehaviour
 
             scudSettings.SetActive(!scudSettings.activeSelf);
         }
+        // Check if the menu is active and the Escape key is pressed
+        if (scudSettings.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        {
+            CamerasSettingsManager.HideAllCameraPanels();
+            scudSettings.SetActive(false);
+        }
     }
 
 

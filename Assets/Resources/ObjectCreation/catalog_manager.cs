@@ -56,6 +56,21 @@ public class CatalogManager : MonoBehaviour
         {
             HintsPanel.SetActive(!HintsPanel.activeSelf);
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (customObjectForm.activeSelf)
+            {
+                customObjectForm.SetActive(false);
+            }
+            else
+            {
+                isItemsVisible = false;
+                PanelItems.SetActive(isItemsVisible);
+                PanelPreview.SetActive(false);
+                PanelInfo.SetActive(false);
+            }
+
+        }
     }
 
     // Метод для загрузки и отображения данных
