@@ -107,6 +107,9 @@ public class ObjectManager : MonoBehaviour
                 newObject = gameObject.AddComponent<Battery>();
                 ((Battery)newObject).powerWatts = objectData.powerWatts;
                 break;
+            case ObjectType.DoorLock:
+                newObject = gameObject.AddComponent<DoorLock>();
+                break;
         }
 
         // Set up the InteractiveObject
@@ -219,16 +222,18 @@ public class ObjectManager : MonoBehaviour
         foreach (var obj in gameObjects.Values)
         {
             totalPrice += obj.price; // Sum the price of each object
-            
+
         }
 
         return totalPrice; // Return the total price
     }
 
-    public int GetTotalAmount(){
+    public int GetTotalAmount()
+    {
         int totalAmount = 0;
 
-        foreach (var obj in gameObjects.Values){
+        foreach (var obj in gameObjects.Values)
+        {
             totalAmount += 1;
         }
         return totalAmount;

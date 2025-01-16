@@ -37,13 +37,25 @@
             "price": 5000
         },
         {
+            "itemName": "Электронный дверной замок",
+            "description": "Описание замка",
+            "icon": "turnstile3",
+            "prefab":"Mashes/door_lock1_artem",
+            "type": "DoorLock",
+            "maxConnections": 1,
+            "connectableTypes": ["AccessController"],
+            "mountTags": ["ForLock"],
+            "powerConsumption": 50,
+            "price": 5000
+        },
+        {
             "itemName": "СКУД контроллер",
             "description": "Описание контроллера",
             "icon": "turnstile3",
             "prefab":"Mashes/AccessController",
             "type": "AccessController",
             "maxConnections": 2,
-            "connectableTypes": ["Turnstile"],
+            "connectableTypes": ["Turnstile", "DoorLock"],
             "mountTags": ["Wall"],
             "powerConsumption": 110,
             "price": 5000

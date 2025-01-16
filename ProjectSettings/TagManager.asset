@@ -10,6 +10,7 @@ TagManager:
   - Connectable
   - Ceiling
   - UPS
+  - ForLock
   layers:
   - Default
   - TransparentFX

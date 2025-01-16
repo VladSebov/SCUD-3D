@@ -4,31 +4,33 @@ using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using SCUD3D;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 
-public class TurnstileController : MonoBehaviour
+public class DoorLockController : MonoBehaviour
 {
-    private HingeJoint TurnstileHingeJoint;
+    private HingeJoint DoorHingeJoint;
 
-    private Rigidbody TurnstileRigidbody;
+    private Rigidbody DoorRigidbody;
 
-    private static string CurrentTurnstile;
-
-    private float CompareAngle = 25f;
+    private static string CurrentDoor;
 
     public static bool IsInTrigger = false;
+
+    public GameObject LockOnWall;
 
     void Start()
     {
         // Получаем компонент HingeJoint
-        TurnstileRigidbody = GetComponentInChildren<Rigidbody>();
-        TurnstileHingeJoint = GetComponentInChildren<HingeJoint>();
-        if (TurnstileHingeJoint == null)
+        DoorRigidbody = GetComponentInChildren<Rigidbody>();
+        DoorHingeJoint = GetComponentInChildren<HingeJoint>();
+        if (DoorHingeJoint == null)
         {
-            Debug.LogWarning("TurnstileHingeJoint не найден на объекте: " + gameObject.name);
+            Debug.LogWarning("DoorHingeJoint не найден на объекте: " + gameObject.name);
         }
-        if (TurnstileRigidbody == null)
+        if (DoorRigidbody == null)
         {
-            Debug.LogWarning("TurnstileRigidBody не найден на объекте: " + gameObject.name);
+            Debug.LogWarning("DoorRigidBody не найден на объекте: " + gameObject.name);
         }
     }
     void OnTriggerEnter(Collider PlayerCollider)
@@ -36,9 +38,14 @@ public class TurnstileController : MonoBehaviour
         // Проверяем, какой объект вошел в триггер
         if (PlayerCollider.CompareTag("Player")) // Предположим, что у объекта есть тег "Player"
         {
-            CurrentTurnstile = gameObject.name;
+            CurrentDoor = gameObject.name;
             IsInTrigger = true;
-            Debug.Log("Нажмите E, чтобы приложить карту к устройству: " + CurrentTurnstile);
+            if (LockOnWall != null) Debug.Log("Нажмите E, чтобы приложить карту к устройству: " + CurrentDoor);
+            else if (LockOnWall == null)
+            {
+                EnableDoor();
+                Debug.Log("На двери: " + CurrentDoor + " не установлен замок");
+            }
         }
 
     }
@@ -49,7 +56,7 @@ public class TurnstileController : MonoBehaviour
         //Debug.Log("Объект " + PlayerCollider.gameObject.name + " находится в триггере.");
         if (PlayerCollider.CompareTag("Player")) // Предположим, что у объекта есть тег "Player"
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            if (LockOnWall != null && Input.GetKeyDown(KeyCode.E))
             {
                 CheckRoleEnabled();
             }
@@ -61,70 +68,67 @@ public class TurnstileController : MonoBehaviour
         if (PlayerCollider.CompareTag("Player")) // Предположим, что у объекта есть тег "Player"
         {
             IsInTrigger = false;
-            DisableTurnstile();
-        }
-
-    }
-
-    void EnableTurnstile()
-    {
-        if (gameObject.name == CurrentTurnstile && TurnstileRigidbody != null)
-        {
-            TurnstileHingeJoint.useLimits = false;
-            TurnstileRigidbody.isKinematic = false;
-            Debug.Log("isKinematic выключен у объекта: " + gameObject.name);
+            DisableDoor();
         }
     }
 
-    void DisableTurnstile()
+    void EnableDoor()
     {
-        if (gameObject.name == CurrentTurnstile && TurnstileRigidbody != null && TurnstileRigidbody.isKinematic == false)
+        if (gameObject.name == CurrentDoor && DoorRigidbody != null)
         {
-            TurnstileHingeJoint.useLimits = true;
-            Debug.Log("isKinematic включен у объекта: " + gameObject.name);
+            DoorHingeJoint.useLimits = false;
+            Debug.Log("useLimits выключен у объекта: " + gameObject.name);
+        }
+    }
+
+    void DisableDoor()
+    {
+        if (gameObject.name == CurrentDoor && DoorRigidbody != null && DoorRigidbody.isKinematic == false)
+        {
+            DoorHingeJoint.useLimits = true;
+            Debug.Log("useLimits включен у объекта: " + gameObject.name);
         }
     }
 
     void CheckRoleEnabled()
-    {   
-        InteractiveObject obj = ObjectManager.Instance.GetObject(gameObject.name);
+    {
+        InteractiveObject obj = ObjectManager.Instance.GetObject(LockOnWall.name);
         Connection connection = ConnectionsManager.Instance.GetAllConnections(obj).FirstOrDefault();
         if (connection != null)
         {
             InteractiveObject controller = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
             if (controller is AccessController accessController)
             {
-                if (PlayerManager.Instance.GetRole() == null) {
+                if (PlayerManager.Instance.GetRole() == null)
+                {
                     Debug.Log("Для пользователя не выбрана роль");
-                    DisableTurnstile();
+                    DisableDoor();
                 }
                 else if (accessController.allowedRoles == null)
                 {
                     Debug.Log("Не выбрана роль на контролере");
-                    DisableTurnstile();
+                    DisableDoor();
                 }
-                else if (accessController.allowedRoles.FirstOrDefault() != PlayerManager.Instance.GetRole()) {
+                else if (accessController.allowedRoles.FirstOrDefault() != PlayerManager.Instance.GetRole())
+                {
                     Debug.Log("Нет доступа для роли: " + PlayerManager.Instance.GetRole());
-                    DisableTurnstile();
+                    DisableDoor();
                 }
-                else if (accessController.allowedRoles.FirstOrDefault() == PlayerManager.Instance.GetRole()) {
+                else if (accessController.allowedRoles.FirstOrDefault() == PlayerManager.Instance.GetRole())
+                {
                     Debug.Log("Можно проходить");
-                    EnableTurnstile();
+                    EnableDoor();
                 }
+
             }
         }
         else if (connection == null)
         {
             Debug.Log("Устройство не подключено к Контролеру");
-            DisableTurnstile();
+            DisableDoor();
         }
     }
 
 
 
-    void Update()
-    {
-        if (TurnstileHingeJoint != null && TurnstileHingeJoint.useLimits == false && math.abs(TurnstileHingeJoint.angle) < CompareAngle && !IsInTrigger) DisableTurnstile();
-        //Debug.Log(TurnstileHingeJoint.angle);
-    }
 }

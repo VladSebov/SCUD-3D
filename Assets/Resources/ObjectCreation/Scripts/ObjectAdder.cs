@@ -113,6 +113,7 @@ namespace SCUD3D
             if (collider.CompareTag("Floor")) return MountTag.Floor;
             if (collider.CompareTag("Ceiling")) return MountTag.Ceiling;
             if (collider.CompareTag("UPS")) return MountTag.UPS;
+            if (collider.CompareTag("ForLock")) return MountTag.ForLock;
             return MountTag.Floor; // Default fallback
         }
 
@@ -184,13 +185,32 @@ namespace SCUD3D
                 if (!parentUPS.HasAvailablePlaceForBattery())
                 {
                     Debug.Log("У ИБП нет свободных мест под АКБ");
+                    Destroy(previewObject); // Удаляем объект предварительного просмотра
+                    gameState = 0;
+                    return;
+                }
+            }
+            if (objectData.type == ObjectType.DoorLock.ToString())
+            {
+                DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
+                if (ParentDoorWall.LockOnWall != null)
+                {
+                    Debug.Log("У этой двери уже есть электронный замок");
+                    Destroy(previewObject); // Удаляем объект предварительного просмотра
+                    gameState = 0;
                     return;
                 }
             }
             objectPrefab = Instantiate(objectPrefab, transform.position, transform.rotation);
+            if (objectData.type == ObjectType.DoorLock.ToString())
+            {
+                DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
+                ParentDoorWall.LockOnWall = objectPrefab;
+            }
             ObjectManager.Instance.AddObject(objectData, objectPrefab, collider); // creates an object 
             Destroy(previewObject); // Удаляем объект предварительного просмотра
             gameState = 0;
+
         }
 
         void Update()
