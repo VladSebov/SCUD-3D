@@ -464,9 +464,6 @@ public class ScudSettings : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-
-
-
         var objectTypes = System.Enum.GetValues(typeof(ObjectType));
         foreach (ObjectType type in objectTypes)
         {
@@ -517,7 +514,6 @@ public class ScudSettings : MonoBehaviour
         List<InteractiveObject> allConnectedDevices = new List<InteractiveObject>();
 
         // Get all interactive objects in the system
-
         List<InteractiveObject> connectableToUPSObjects = ObjectManager.Instance.GetAllObjects()
             .Where(io => io.type != ObjectType.UPS && io.type != ObjectType.Battery).ToList();
         foreach (InteractiveObject obj in connectableToUPSObjects)
@@ -540,8 +536,6 @@ public class ScudSettings : MonoBehaviour
         {
             UPSPercentageText.text = $"Нет устройств";
         }
-
-
 
         // Group all connected devices by type and count them
         var groupedDevices = allConnectedDevices

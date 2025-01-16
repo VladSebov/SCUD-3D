@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor.VersionControl;
 
 public class CableType{
     public const int Ethernet = 0;
