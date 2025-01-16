@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor.VersionControl;
 
 public class ScudManager : MonoBehaviour
 {
@@ -80,7 +81,7 @@ public class ScudManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Название роли не может быть пустым.");
+            MessageManager.Instance.ShowMessage("Название роли не может быть пустым.");
         }
     }
 
@@ -89,7 +90,7 @@ public class ScudManager : MonoBehaviour
     {
         if (!RestrictionsManager.Instance.CheckRoleAvailable())
         {
-            Debug.Log("Достигнуто максимальное количество ролей");
+            MessageManager.Instance.ShowMessage("Достигнуто максимальное количество ролей");
             return;
         }
 
@@ -105,7 +106,7 @@ public class ScudManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Role '{roleName}' already exists.");
+            MessageManager.Instance.ShowMessage("Роль с таким названием уже существует.");
         }
     }
 

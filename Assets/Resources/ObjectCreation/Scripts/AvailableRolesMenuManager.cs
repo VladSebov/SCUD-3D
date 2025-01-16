@@ -95,7 +95,7 @@ public class AvailableRolesMenuManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("interactiveObject is not a Turnstile.");
+                Debug.LogWarning("interactiveObject is not an AccessController.");
             }
             // Button button = item.GetComponentInChildren<Button>();
 
@@ -118,7 +118,7 @@ public class AvailableRolesMenuManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("The interactiveObject is not a Turnstile.");
+            Debug.LogWarning("The interactiveObject is not an AccessController.");
         }
     }
 }

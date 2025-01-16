@@ -186,7 +186,7 @@ namespace SCUD3D
                 UPS parentUPS = collider.GetComponent<UPS>();
                 if (!parentUPS.HasAvailablePlaceForBattery())
                 {
-                    Debug.Log("У ИБП нет свободных мест под АКБ");
+                    MessageManager.Instance.ShowMessage("ИБП не имеет свободных мест под АКБ");
                     return;
                 }
             }

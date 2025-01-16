@@ -46,51 +46,7 @@ abstract public class InteractiveObject : MonoBehaviour
 [Serializable]
 public class MyCamera : InteractiveObject
 {
-    private Transform cameraBase; // Основание камеры
-    private Transform cameraLens; // Собственно камера (движущаяся часть)
-    private void Awake()
-    {
-        // Инициализация частей камеры
-        cameraBase = this.transform;
-        cameraLens = this.transform.Find("Camera");
-    }
-    // Установка угла поворота по вертикали
-    public void SetVerticalAngle(float angle)
-    {
-        if (cameraLens != null)
-        {
-            Vector3 rotation = cameraLens.localEulerAngles;
-            rotation.x = angle;
-            cameraLens.localEulerAngles = rotation;
-        }
-        else
-        {
-            Debug.LogWarning("Camera lens not found!");
-        }
-    }
-    // Установка угла поворота по горизонтали
-    public void SetHorizontalAngle(float angle)
-    {
-        if (cameraBase != null)
-        {
-            Vector3 rotation = cameraBase.localEulerAngles;
-            rotation.y = angle;
-            cameraBase.localEulerAngles = rotation;
-        }
-        else
-        {
-            Debug.LogWarning("Camera base not found!");
-        }
-    }
-    // Получение текущих углов поворота (для UI)
-    public float GetVerticalAngle()
-    {
-        return cameraLens != null ? cameraLens.localEulerAngles.x : 0f;
-    }
-    public float GetHorizontalAngle()
-    {
-        return cameraBase != null ? cameraBase.localEulerAngles.y : 0f;
-    }
+   
 }
 
 [Serializable]

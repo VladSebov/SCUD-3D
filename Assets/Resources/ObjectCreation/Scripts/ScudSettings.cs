@@ -90,7 +90,7 @@ public class ScudSettings : MonoBehaviour
     {
         if (!CheckRestrictionsCorrect())
         {
-            Debug.Log("Новые ограничения противоречат текущему состоянию системы");
+            MessageManager.Instance.ShowMessage("Новые ограничения противоречат текущему состоянию системы");
             return;
         }
         RestrictionsManager.Instance.SetRestrictions(restrictionsCopy);
@@ -346,7 +346,7 @@ public class ScudSettings : MonoBehaviour
         else
         {
             // Handle the case where the input is not a valid integer
-            Debug.LogWarning($"Invalid input for restriction at index {index}: {newValue}");
+            MessageManager.Instance.ShowMessage($"Неверный ввод для ограничения №{index}: {newValue}");
         }
     }
 

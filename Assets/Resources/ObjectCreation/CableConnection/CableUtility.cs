@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor.VersionControl;
 
 public class CableType{
     public const int Ethernet = 0;
@@ -71,7 +72,7 @@ public static class CableUtility
             InteractiveObject switchObject = objA.type == ObjectType.Switch ? objA : objB;
             if (ConnectionsManager.Instance.GetConnectionsByType(switchObject, ObjectType.NVR).Count > 0)
             {
-                Debug.Log("Disconnect from NVR to add new connections");
+                MessageManager.Instance.ShowMessage("Отключите коммутатор от видеорегистратора, чтобы добавлять новые соединения");
                 return true; // Connection is blocked
             }
         }

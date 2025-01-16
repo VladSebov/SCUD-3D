@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEditor.VersionControl;
 
 public class CablePlacer : MonoBehaviour
 {
@@ -133,7 +134,7 @@ public class CablePlacer : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("No available ports or incompatible types");
+                        MessageManager.Instance.ShowMessage("Нет доступных портов или устройства несовместимы");
                         return;
                     }
                 }
@@ -219,7 +220,7 @@ public class CablePlacer : MonoBehaviour
 
         if (!nearestWallA.wallBasePoint.HasValue || !nearestWallB.wallBasePoint.HasValue)
         {
-            Debug.LogError("Could not find walls near objects.");
+            MessageManager.Instance.ShowMessage("Не удалось найти стены рядом с объектами.");
             return;
         }
 
@@ -229,8 +230,6 @@ public class CablePlacer : MonoBehaviour
         // 3.Mount cable up the wall A
         CreateCableSegment(nearestWallA.wallBasePoint.Value, nearestWallA.wallTopPoint.Value, currentCableMaterial);
 
-        Debug.Log("nearestWallA.wallTopPoint.Value: " + nearestWallA.wallTopPoint.Value);
-        Debug.Log("nearestWallB.wallTopPoint.Value: " + nearestWallB.wallTopPoint.Value);
         // 4. check if z or x coordinates are the same (which means that objects are on the same wall)
         if (Mathf.Abs(nearestWallA.wallTopPoint.Value.x - nearestWallB.wallTopPoint.Value.x) < 0.02f || Mathf.Abs(nearestWallA.wallTopPoint.Value.z - nearestWallB.wallTopPoint.Value.z) < 0.02f)
         {
@@ -264,7 +263,6 @@ public class CablePlacer : MonoBehaviour
         }
 
         bool areWallsParallel = nearestWallA.wallDirection == nearestWallB.wallDirection;
-        Debug.Log("areWallsParallel: " + areWallsParallel);
         if (!areWallsParallel)
         {
             if (areObjectsOnTheSameFloor)
@@ -314,7 +312,7 @@ public class CablePlacer : MonoBehaviour
             NearestWall closerWall = distanceForth < distanceBack ? nearestWallForth : nearestWallBack;
             if (!closerWall.wallBasePoint.HasValue)
             {
-                Debug.LogError("No valid wall found in either direction");
+                MessageManager.Instance.ShowMessage("Не удалось найти стены для соединения объектов.");
                 // Cleanup
                 foreach (var cable in placedCables)
                 {
@@ -372,7 +370,7 @@ public class CablePlacer : MonoBehaviour
         int maxCableLength = RestrictionsManager.Instance.GetMaxCableLength();
         if (cableLength > maxCableLength)
         {
-            Debug.LogError($"Cable length exceeds maximum allowed length: {cableLength} > {maxCableLength}");
+            MessageManager.Instance.ShowMessage($"Длина кабеля превышает максимально допустимую длину: {cableLength}м > {maxCableLength}м");
             // Здесь можно добавить логику для отмены соединения или уведомления игрока
             foreach (var cable in placedCables)
             {

@@ -52,7 +52,8 @@ public class CatalogManager : MonoBehaviour
         if (InputHelper.IsTypingInInputField())
             return;
         if (Input.GetKeyDown(KeyCode.I)) ShowHideItems();
-        if (Input.GetKeyDown(KeyCode.M)) {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
             HintsPanel.SetActive(!HintsPanel.activeSelf);
         }
     }
@@ -269,12 +270,12 @@ public class CatalogManager : MonoBehaviour
         Enum.TryParse(selectedItemData.type, true, out ObjectType type);
         if (!CheckTypeRestriction(type))
         {
-            Debug.Log($"Достигнуто максимальное количество объектов типа {type}");
+            MessageManager.Instance.ShowMessage($"Достигнуто максимальное количество объектов типа {type}");
             return;
         }
         if (!CheckPriceRestriction(1000)) // TODO() replace with actual price
         {
-            Debug.Log($"Не хватает средств на установку объекта");
+            MessageManager.Instance.ShowMessage($"Не хватает средств на установку объекта");
             return;
         }
         ShowHideItems();
