@@ -71,6 +71,7 @@ public class TurnstileController : MonoBehaviour
     {
         if (gameObject.name == CurrentTurnstile && TurnstileRigidbody != null)
         {
+            TurnstileHingeJoint.useLimits = false;
             TurnstileRigidbody.isKinematic = false;
             Debug.Log("isKinematic выключен у объекта: " + gameObject.name);
         }
@@ -80,6 +81,7 @@ public class TurnstileController : MonoBehaviour
     {
         if (gameObject.name == CurrentTurnstile && TurnstileRigidbody != null && TurnstileRigidbody.isKinematic == false)
         {
+            TurnstileHingeJoint.useLimits = true;
             TurnstileRigidbody.isKinematic = true;
             Debug.Log("isKinematic включен у объекта: " + gameObject.name);
         }
