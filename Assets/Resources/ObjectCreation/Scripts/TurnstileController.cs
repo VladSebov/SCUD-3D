@@ -38,7 +38,7 @@ public class TurnstileController : MonoBehaviour
         {
             CurrentTurnstile = gameObject.name;
             IsInTrigger = true;
-            Debug.Log("Нажмите E, чтобы приложить карту к турникету" + CurrentTurnstile);
+            Debug.Log("Нажмите E, чтобы приложить карту к устройству: " + CurrentTurnstile);
         }
 
     }
@@ -52,7 +52,6 @@ public class TurnstileController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.E))
             {
                 CheckRoleEnabled();
-                EnableTurnstile();
             }
         }
     }
@@ -88,13 +87,28 @@ public class TurnstileController : MonoBehaviour
     }
 
     void CheckRoleEnabled()
-    {
+    {   
         InteractiveObject obj = ObjectManager.Instance.GetObject(gameObject.name);
-        Connection connection = ConnectionsManager.Instance.GetAllConnections(obj).First();
-        InteractiveObject controller = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
-        if (controller is AccessController accessController)
+        Connection connection = ConnectionsManager.Instance.GetAllConnections(obj).FirstOrDefault();
+        if (connection != null)
         {
-            if (accessController.allowedRoles.First() == PlayerManager.Instance.GetRole()) Debug.Log("Можно проходить");
+            InteractiveObject controller = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
+            if (controller is AccessController accessController)
+            {
+                if (accessController.allowedRoles.First() == PlayerManager.Instance.GetRole()) {
+                    Debug.Log("Можно проходить");
+                    EnableTurnstile();
+                }
+                else if (accessController.allowedRoles.First() != PlayerManager.Instance.GetRole()) {
+                    Debug.Log("Нет доступа для пользователя: " + PlayerManager.Instance.GetRole());
+                    DisableTurnstile();
+                }
+            }
+        }
+        else if (connection == null)
+        {
+            Debug.Log("Устройство не подключено к Контролеру");
+            DisableTurnstile();
         }
     }
 
