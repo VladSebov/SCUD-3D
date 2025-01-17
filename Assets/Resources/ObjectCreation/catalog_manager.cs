@@ -16,6 +16,8 @@ public class CatalogManager : MonoBehaviour
     public GameObject PanelPreview;
     public GameObject PanelInfo;
     public GameObject HintsPanel;
+    public GameObject ExitMenu;
+    public GameObject SettingsMenu;
     public GameObject defaultItemPrefab; // Префаб элемента списка
     public GameObject customItemPrefab; // Префаб элемента списка
     public GameObject itemImage;
@@ -62,15 +64,39 @@ public class CatalogManager : MonoBehaviour
             {
                 customObjectForm.SetActive(false);
             }
-            else
-            {
-                isItemsVisible = false;
-                PanelItems.SetActive(isItemsVisible);
-                PanelPreview.SetActive(false);
-                PanelInfo.SetActive(false);
-            }
+            // else
+            // {
+            //     isItemsVisible = false;
+            //     PanelItems.SetActive(isItemsVisible);
+            //     PanelPreview.SetActive(false);
+            //     PanelInfo.SetActive(false);
+            // }
 
         }
+    }
+
+    public void ShowExitMenu()
+    {
+        ExitMenu.SetActive(true);
+    }
+
+    public void HideExitMenu()
+    {
+        ExitMenu.SetActive(false);
+    }
+
+    public void ShowSettingsMenu()
+    {
+        SettingsMenu.SetActive(true);
+    }
+
+    public void Exit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
     }
 
     // Метод для загрузки и отображения данных

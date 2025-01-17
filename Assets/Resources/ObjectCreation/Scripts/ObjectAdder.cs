@@ -221,7 +221,13 @@ namespace SCUD3D
             }
             RaycastHit hit;
 
-            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || Guide.guideMenu.activeSelf)
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (!(ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || CatalogManager.customObjectForm.activeSelf || CatalogManager.PanelItems.activeSelf || CatalogManager.PanelPreview.activeSelf || CatalogManager.PanelInfo.activeSelf|| CatalogManager.ExitMenu.activeSelf || Guide.guideMenu.activeSelf))
+                    CatalogManager.ShowExitMenu();
+            }
+            
+            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || CatalogManager.ExitMenu.activeSelf || Guide.guideMenu.activeSelf)
             {
                 inputs.SetInputsState(false);
                 gameState = 2;
