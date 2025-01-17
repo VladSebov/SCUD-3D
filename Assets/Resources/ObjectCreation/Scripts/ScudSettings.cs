@@ -515,7 +515,7 @@ public class ScudSettings : MonoBehaviour
 
         // Get all interactive objects in the system
         List<InteractiveObject> connectableToUPSObjects = ObjectManager.Instance.GetAllObjects()
-            .Where(io => io.type != ObjectType.UPS && io.type != ObjectType.Battery).ToList();
+            .Where(io=>io.type!= ObjectType.UPS && io.type!= ObjectType.Battery && io.type!= ObjectType.ServerRack && io.type!= ObjectType.ServerBox).ToList();
         foreach (InteractiveObject obj in connectableToUPSObjects)
         {
             // Check if the object is connected to a UPS directly or via a switch

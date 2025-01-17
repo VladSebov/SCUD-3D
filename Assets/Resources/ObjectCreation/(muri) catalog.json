@@ -20,7 +20,7 @@
             "type": "Switch",
             "maxConnections": 52,
             "connectableTypes": ["Camera", "Switch", "NVR"],
-            "mountTags": ["Floor"],
+            "mountTags": ["Floor", "ServerRack", "ServerBox"],
             "powerConsumption": 550,
             "price": 5000
         },
@@ -56,7 +56,7 @@
             "type": "NVR",
             "maxConnections": 2,
             "connectableTypes": ["Switch"],
-            "mountTags": ["Floor"],
+            "mountTags": ["Floor","ServerRack"],
             "maxChannels": 4,
             "powerConsumption": 900,
             "price": 5000
@@ -82,6 +82,27 @@
             "mountTags": ["UPS"],
             "powerWatts": 2400,
             "price": 5000
+        },
+        {
+            "itemName": "Серверная стойка",
+            "description": "Описание серверной стойки",
+            "icon": "turnstile3",
+            "prefab":"Mashes/serverrack",
+            "type": "ServerRack",
+            "mountTags": ["Floor"],
+            "maxPlacedDevices": 4,
+            "price": 10000
+        },
+        {
+            "itemName": "Серверный шкаф",
+            "description": "Описание серверного шкафа",
+            "icon": "turnstile3",
+            "prefab":"Mashes/serverbox",
+            "type": "ServerBox",
+            "mountTags": ["Wall"],
+            "maxPlacedDevices":1,
+            "price": 5000
         }
+
     ]
 }

@@ -8,6 +8,8 @@ public enum MountTag
     Floor,
     Ceiling,
     UPS,
+    ServerBox,
+    ServerRack,
     Undefined
 }
 
@@ -19,7 +21,9 @@ public enum ObjectType
     AccessController,
     NVR,
     UPS,
-    Battery
+    Battery,
+    ServerBox,
+    ServerRack
 }
 
 public interface ConnectableToUPS{}
@@ -131,4 +135,29 @@ public class UPS : InteractiveObject
 public class Battery : InteractiveObject
 {
     public int powerWatts;
+}
+
+
+[Serializable]
+public class ServerRack : InteractiveObject{
+    public List<string> placedDevices;
+    public int maxPlacedDevices;
+
+    public bool HasAvailablePlace()
+    {
+        return placedDevices.Count < maxPlacedDevices;
+    }
+}
+
+
+[Serializable]
+public class ServerBox : InteractiveObject{
+    public List<string> placedDevices;
+    public int maxPlacedDevices;
+
+    public bool HasAvailablePlace()
+    {
+        return placedDevices.Count < maxPlacedDevices;
+    }
+
 }
