@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Resources/ObjectCreation/ScudGuide.meta
 guid: 11bac38a0ff23874986238f6286a31a8
+========
+guid: bfd22a9cae38e9d4caaa66aaab827f25
+>>>>>>>> Overlock:Assets/Resources/Scenes/DemoRoom.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

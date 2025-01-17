@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/UI.meta
 guid: cc826fa84875a7b49b852532a1bd2b31
+========
+guid: 4cd0bd5f5e04a8e4eb8904242ae8a325
+>>>>>>>> Overlock:Assets/ModularHousePack1.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

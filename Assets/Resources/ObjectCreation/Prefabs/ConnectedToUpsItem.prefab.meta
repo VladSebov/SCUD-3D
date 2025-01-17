@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Resources/ObjectCreation/Prefabs/ConnectedToUpsItem.prefab.meta
 guid: e928e027df1da41df95d0db301b60556
+========
+guid: c2f17a2926fbc774d990dd6e286d4fad
+>>>>>>>> Overlock:Assets/nappin/Office Props Softpack/Prefabs/(Prb)BookOpen.prefab.meta
 PrefabImporter:
   externalObjects: {}
   userData: 

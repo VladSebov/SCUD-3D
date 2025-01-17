@@ -1,6 +1,11 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Resources/ObjectCreation/Prefabs/CategoryItem.prefab.meta
 guid: 45e597dd0f5fa2c49bb1a9e4fa6a75ff
 PrefabImporter:
+========
+guid: f69eac5a99e35d14da2b83802f73f08b
+DefaultImporter:
+>>>>>>>> Overlock:Assets/Resources/Basic Asset Pack Interior/Materials/Resources.lnk.meta
   externalObjects: {}
   userData: 
   assetBundleName: 

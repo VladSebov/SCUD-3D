@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts.meta
 guid: 55a9ea4005df7a440a17316fd476cc0b
+========
+guid: 5d7705204c89765409306f6611f14fbd
+>>>>>>>> Overlock:Assets/DigitalKonstrukt.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
