@@ -106,15 +106,14 @@
             "price": 10000
         },
         {
-            "itemName": "Серверный шкаф",
-            "description": "Описание серверного шкафа",
+            "itemName": "Дверь",
+            "description": "Описание двери",
             "icon": "turnstile3",
-            "prefab":"Mashes/serverbox",
-            "type": "ServerBox",
-            "mountTags": ["Wall"],
+            "prefab":"Mashes/WallDoor",
+            "type": "WallDoor",
+            "mountTags": ["Floor"],
             "maxPlacedDevices":1,
             "price": 5000
         }
-
     ]
 }

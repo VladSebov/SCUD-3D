@@ -25,7 +25,8 @@ public enum ObjectType
     Battery,
     ServerBox,
     ServerRack,
-    DoorLock
+    DoorLock,
+    WallDoor
 }
 
 public interface ConnectableToUPS { }
@@ -96,6 +97,11 @@ public class Turnstile : InteractiveObject, ConnectableToUPS
 
 [Serializable]
 public class DoorLock : InteractiveObject
+{
+}
+
+[Serializable]
+public class WallDoor : InteractiveObject
 {
 }
 

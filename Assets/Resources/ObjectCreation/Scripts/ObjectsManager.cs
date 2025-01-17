@@ -120,6 +120,9 @@ public class ObjectManager : MonoBehaviour
             case ObjectType.DoorLock:
                 newObject = gameObject.AddComponent<DoorLock>();
                 break;
+            case ObjectType.WallDoor:
+                newObject = gameObject.AddComponent<DoorLock>();
+                break;
         }
 
         // Set up the InteractiveObject
