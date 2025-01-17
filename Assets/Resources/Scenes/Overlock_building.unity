@@ -34520,6 +34520,7 @@ MonoBehaviour:
     prefab: 
     maxChannels: 0
     maxBatteries: 0
+    maxPlacedDevices: 0
     powerWatts: 0
   Ground: {fileID: 0}
   inputs: {fileID: 0}
