@@ -14,6 +14,7 @@ TagManager:
   - SwitchPlace
   - ServerBox
   - ServerRack
+  - ForLock
   layers:
   - Default
   - TransparentFX

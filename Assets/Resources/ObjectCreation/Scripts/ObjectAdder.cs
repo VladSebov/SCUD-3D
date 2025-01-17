@@ -118,6 +118,7 @@ namespace SCUD3D
             if (collider.CompareTag("UPS")) return MountTag.UPS;
             if (collider.CompareTag("ServerBox")) return MountTag.ServerBox;
             if (collider.CompareTag("ServerRack")) return MountTag.ServerRack;
+            if (collider.CompareTag("ForLock")) return MountTag.ForLock;
             return MountTag.Undefined; // Default fallback
         }
 
@@ -189,37 +190,60 @@ namespace SCUD3D
                 if (!parentUPS.HasAvailablePlaceForBattery())
                 {
                     MessageManager.Instance.ShowMessage("ИБП не имеет свободных мест под АКБ");
+                    Destroy(previewObject); // Удаляем объект предварительного просмотра
+                    gameState = 0;
+                    return;
+                }
+            }
+            if (objectData.type == ObjectType.DoorLock.ToString())
+            {
+                DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
+                if (ParentDoorWall.LockOnWall != null)
+                {
+                    MessageManager.Instance.ShowMessage("У этой двери уже есть электронный замок");
+                    Destroy(previewObject); // Удаляем объект предварительного просмотра
+                    gameState = 0;
                     return;
                 }
             }
             // check if Server rack has space for switch
-            if (collider.GetComponent<ServerRack>() != null || collider.GetComponent<ServerBox>() != null){
-            if (objectData.type == ObjectType.Switch.ToString() || objectData.type == ObjectType.NVR.ToString()){
-                if (collider.GetComponent<ServerRack>() != null){
-                    ServerRack parentServerRack = collider.GetComponent<ServerRack>();
-                    if (!parentServerRack.HasAvailablePlace())
-                    {                      
-                        Debug.Log("У серверной стойки нет свободного места");
-                        return;
-                    }
-                }
-
-                if(collider.GetComponent<ServerBox>() != null && !(objectData.type.ToString() == ObjectType.NVR.ToString())){
-                    ServerBox parentServerBox = collider.GetComponent<ServerBox>();
-                    if (!parentServerBox.HasAvailablePlace() && collider.GetComponent<ServerBox>() != null)
+            if (collider.GetComponent<ServerRack>() != null || collider.GetComponent<ServerBox>() != null)
+            {
+                if (objectData.type == ObjectType.Switch.ToString() || objectData.type == ObjectType.NVR.ToString())
+                {
+                    if (collider.GetComponent<ServerRack>() != null)
                     {
-                        Debug.Log("У серверного ящика нет свободного места");
-                        return;
+                        ServerRack parentServerRack = collider.GetComponent<ServerRack>();
+                        if (!parentServerRack.HasAvailablePlace())
+                        {
+                            Debug.Log("У серверной стойки нет свободного места");
+                            return;
+                        }
+                    }
+
+                    if (collider.GetComponent<ServerBox>() != null && !(objectData.type.ToString() == ObjectType.NVR.ToString()))
+                    {
+                        ServerBox parentServerBox = collider.GetComponent<ServerBox>();
+                        if (!parentServerBox.HasAvailablePlace() && collider.GetComponent<ServerBox>() != null)
+                        {
+                            Debug.Log("У серверного ящика нет свободного места");
+                            return;
+                        }
                     }
                 }
-        }
-        }
-            
-            
+            }
+
+
             objectPrefab = Instantiate(objectPrefab, transform.position, transform.rotation);
+            if (objectData.type == ObjectType.DoorLock.ToString())
+            {
+                DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
+                ParentDoorWall.LockOnWall = objectPrefab;
+            }
             ObjectManager.Instance.AddObject(objectData, objectPrefab, collider); // creates an object 
             Destroy(previewObject); // Удаляем объект предварительного просмотра
             gameState = 0;
+
         }
 
         void Update()
@@ -249,10 +273,10 @@ namespace SCUD3D
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (!(ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || CatalogManager.customObjectForm.activeSelf || CatalogManager.PanelItems.activeSelf || CatalogManager.PanelPreview.activeSelf || CatalogManager.PanelInfo.activeSelf|| CatalogManager.ExitMenu.activeSelf || Guide.guideMenu.activeSelf))
+                if (!(ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || CatalogManager.customObjectForm.activeSelf || CatalogManager.PanelItems.activeSelf || CatalogManager.PanelPreview.activeSelf || CatalogManager.PanelInfo.activeSelf || CatalogManager.ExitMenu.activeSelf || Guide.guideMenu.activeSelf))
                     CatalogManager.ShowExitMenu();
             }
-            
+
             if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || CatalogManager.ExitMenu.activeSelf || Guide.guideMenu.activeSelf)
             {
                 inputs.SetInputsState(false);

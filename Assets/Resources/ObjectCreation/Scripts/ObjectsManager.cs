@@ -109,13 +109,16 @@ public class ObjectManager : MonoBehaviour
                 break;
             case ObjectType.ServerRack:
                 newObject = gameObject.AddComponent<ServerRack>();
-                ((ServerRack)newObject).maxPlacedDevices = objectData.maxPlacedDevices;      
+                ((ServerRack)newObject).maxPlacedDevices = objectData.maxPlacedDevices;
                 ((ServerRack)newObject).placedDevices = new List<string>();
                 break;
             case ObjectType.ServerBox:
                 newObject = gameObject.AddComponent<ServerBox>();
                 ((ServerBox)newObject).maxPlacedDevices = objectData.maxPlacedDevices;
                 ((ServerBox)newObject).placedDevices = new List<string>();
+                break;
+            case ObjectType.DoorLock:
+                newObject = gameObject.AddComponent<DoorLock>();
                 break;
         }
 
@@ -139,9 +142,12 @@ public class ObjectManager : MonoBehaviour
         }
 
         //if connecting to server rack
-        if (collider.GetComponent<ServerRack>() != null || collider.GetComponent<ServerBox>() != null){
-            if (objectData.type == ObjectType.Switch.ToString() || objectData.type == ObjectType.NVR.ToString()){
-                if (collider.GetComponent<ServerRack>() != null){
+        if (collider.GetComponent<ServerRack>() != null || collider.GetComponent<ServerBox>() != null)
+        {
+            if (objectData.type == ObjectType.Switch.ToString() || objectData.type == ObjectType.NVR.ToString())
+            {
+                if (collider.GetComponent<ServerRack>() != null)
+                {
                     ServerRack parentServerRack = collider.GetComponent<ServerRack>();
                     if (parentServerRack.HasAvailablePlace())
                     {
@@ -150,14 +156,15 @@ public class ObjectManager : MonoBehaviour
                     }
                 }
 
-                if(collider.GetComponent<ServerBox>() != null && !(objectData.type.ToString() == ObjectType.NVR.ToString())){
+                if (collider.GetComponent<ServerBox>() != null && !(objectData.type.ToString() == ObjectType.NVR.ToString()))
+                {
                     ServerBox parentServerBox = collider.GetComponent<ServerBox>();
                     if (parentServerBox.HasAvailablePlace() && collider.GetComponent<ServerBox>() != null)
                     {
                         parentServerBox.placedDevices.Add(newObject.id);
                     }
                 }
-        }
+            }
         }
         // Add to the dictionary
         if (!gameObjects.ContainsKey(newObject.id))

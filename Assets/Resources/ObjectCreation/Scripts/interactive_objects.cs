@@ -10,7 +10,8 @@ public enum MountTag
     UPS,
     ServerBox,
     ServerRack,
-    Undefined
+    Undefined,
+    ForLock
 }
 
 public enum ObjectType
@@ -23,10 +24,11 @@ public enum ObjectType
     UPS,
     Battery,
     ServerBox,
-    ServerRack
+    ServerRack,
+    DoorLock
 }
 
-public interface ConnectableToUPS{}
+public interface ConnectableToUPS { }
 
 [Serializable]
 abstract public class InteractiveObject : MonoBehaviour
@@ -75,7 +77,8 @@ public class Switch : InteractiveObject, ConnectableToUPS
 }
 [Serializable]
 public class Turnstile : InteractiveObject, ConnectableToUPS
-{    public bool CheckRoleIsAllowed(string role)
+{
+    public bool CheckRoleIsAllowed(string role)
     {
         List<Connection> connections = ConnectionsManager.Instance.GetEthernetConnections(this);
         if (connections.Count > 0)
@@ -92,8 +95,14 @@ public class Turnstile : InteractiveObject, ConnectableToUPS
 }
 
 [Serializable]
+public class DoorLock : InteractiveObject
+{
+}
+
+[Serializable]
 public class AccessController : InteractiveObject, ConnectableToUPS
-{    public List<string> allowedRoles; // список допустимых ролей
+{
+    public List<string> allowedRoles; // список допустимых ролей
 
     public bool IsRoleAllowed(string role)
     {
@@ -103,7 +112,8 @@ public class AccessController : InteractiveObject, ConnectableToUPS
 
 [Serializable]
 public class NVR : InteractiveObject, ConnectableToUPS
-{    public int maxChannels; // список допустимых ролей
+{
+    public int maxChannels; // список допустимых ролей
 
     public int GetFreeChannelsCount()
     {
