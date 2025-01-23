@@ -5,7 +5,7 @@ public class DoorLockController : MonoBehaviour
 {
     private HingeJoint DoorHingeJoint;
 
-    private Rigidbody DoorRigidbody;
+    public Rigidbody DoorRigidbody;
 
     private static string CurrentDoor;
 
@@ -70,6 +70,7 @@ public class DoorLockController : MonoBehaviour
     {
         if (gameObject.name == CurrentDoor && DoorRigidbody != null)
         {
+            DoorRigidbody.isKinematic = false;
             DoorHingeJoint.useLimits = false;
             Debug.Log("useLimits выключен у объекта: " + gameObject.name);
         }

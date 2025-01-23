@@ -109,7 +109,7 @@
             "itemName": "Дверь",
             "description": "Описание двери",
             "icon": "turnstile3",
-            "prefab":"Mashes/WallDoor",
+            "prefab":"Mashes/NewWallDoor",
             "type": "WallDoor",
             "mountTags": ["Floor"],
             "maxPlacedDevices":1,
