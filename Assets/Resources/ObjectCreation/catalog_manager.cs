@@ -31,7 +31,6 @@ public class CatalogManager : MonoBehaviour
     public bool isItemsVisible = true;
 
     public GameObject customObjectForm;
-    public TextAsset customCatalogFile;
     private List<CatalogItemData> allItems = new List<CatalogItemData>();
 
     private bool isCustomItem = false;
@@ -169,15 +168,22 @@ public class CatalogManager : MonoBehaviour
             CreateItemButton(item, false);
         }
 
-        // Load custom catalog if exists
-        if (customCatalogFile != null)
+        CatalogItemsList customCatalog = null;
+        string customPath = Path.Combine(Application.persistentDataPath, "CustomCatalogs/custom_catalog.json");
+        if (File.Exists(customPath))
         {
-            CatalogItemsList customItemList = JsonUtility.FromJson<CatalogItemsList>(customCatalogFile.text);
-            foreach (var item in customItemList.items)
+            string jsonContent = File.ReadAllText(customPath);
+            customCatalog = JsonUtility.FromJson<CatalogItemsList>(jsonContent);
+        }
+        else
+        {
+            customCatalog = new CatalogItemsList { items = new List<CatalogItemData>() };
+        }
+
+        foreach (var item in customCatalog.items)
             {
                 CreateItemButton(item, true);
             }
-        }
 
         // Make sure containers start expanded
         defaultItemsContainer.gameObject.SetActive(true);
@@ -377,19 +383,6 @@ public class CatalogManager : MonoBehaviour
 
     public void ReloadCatalog()
     {
-        // Read custom catalog directly from file
-        string customCatalogPath = Path.Combine(Application.dataPath, "Resources/ObjectCreation/custom_catalog.json");
-        if (File.Exists(customCatalogPath))
-        {
-            string jsonContent = File.ReadAllText(customCatalogPath);
-            JsonUtility.FromJson<CatalogItemsList>(jsonContent);
-            customCatalogFile = new TextAsset(jsonContent);
-        }
-        else
-        {
-            customCatalogFile = null;
-        }
-
         LoadCatalog();
         customObjectForm.SetActive(false);
     }
@@ -397,7 +390,7 @@ public class CatalogManager : MonoBehaviour
     // Add new method to delete custom items
     public void DeleteCustomItem(CatalogItemData itemData)
     {
-        string path = Path.Combine(Application.dataPath, "Resources/ObjectCreation/custom_catalog.json");
+        string path = Path.Combine(Application.persistentDataPath, "CustomCatalogs/custom_catalog.json");
         if (File.Exists(path))
         {
             string jsonContent = File.ReadAllText(path);

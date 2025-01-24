@@ -207,7 +207,16 @@ public class CustomObjectForm : MonoBehaviour
 
     private void SaveToCustomCatalog(CatalogItemData newItem)
     {
-        string path = Path.Combine(Application.dataPath, "Resources/ObjectCreation/custom_catalog.json");
+        // Используем persistentDataPath вместо Application.dataPath
+        string directoryPath = Path.Combine(Application.persistentDataPath, "CustomCatalogs");
+        string path = Path.Combine(directoryPath, "custom_catalog.json");
+
+        // Создаем директорию если ее нет
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+        
         CatalogItemsList catalog = null;
 
         // Check both default and custom catalogs for duplicate names
