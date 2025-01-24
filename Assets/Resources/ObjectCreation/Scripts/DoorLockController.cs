@@ -35,11 +35,10 @@ public class DoorLockController : MonoBehaviour
             CurrentDoor = gameObject.name;
             IsInTrigger = true;
             if (LockOnWall != null)
-                MessageManager.Instance.ShowHint("Нажмите E, чтобы приложить карту к устройству: " + CurrentDoor);
+                MessageManager.Instance.ShowHint("Нажмите E, чтобы приложить карту к замку.");
             else if (LockOnWall == null)
             {
                 EnableDoor();
-                Debug.Log("На двери: " + CurrentDoor + " не установлен замок");
             }
         }
 
@@ -54,6 +53,11 @@ public class DoorLockController : MonoBehaviour
             if (LockOnWall != null && Input.GetKeyDown(KeyCode.E))
             {
                 CheckRoleEnabled();
+            }
+            else if (LockOnWall == null)
+            {
+                EnableDoor();
+                MessageManager.Instance.ShowHint("На двери не установлен замок.");
             }
         }
     }
