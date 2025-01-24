@@ -259,9 +259,13 @@ public class ScudSettings : MonoBehaviour
 
     public void FillAccessControllers()
     {
+        // Получаем все контроллеры доступа, подключенные к PC
         var accessControllers = ObjectManager.Instance.GetAllObjects()
-            .Where(io => io.type == ObjectType.AccessController) // Фильтруем объекты типа AccessController
+            .Where(io => io.type == ObjectType.AccessController &&
+                        ConnectionsManager.Instance.GetConnectedObjectsByType(io, ObjectType.Computer).Any())
             .ToList();
+
+
         // Clear existing items in the scroll view
         foreach (Transform child in AccessControllersScroll.content)
         {

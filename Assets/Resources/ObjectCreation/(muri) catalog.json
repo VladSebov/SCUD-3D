@@ -55,7 +55,7 @@
             "prefab":"Mashes/AccessController",
             "type": "AccessController",
             "maxConnections": 2,
-            "connectableTypes": ["Turnstile", "DoorLock"],
+            "connectableTypes": ["Turnstile", "DoorLock", "Computer"],
             "mountTags": ["Wall"],
             "powerConsumption": 110,
             "price": 5000
@@ -67,7 +67,7 @@
             "prefab":"Mashes/NVR",
             "type": "NVR",
             "maxConnections": 2,
-            "connectableTypes": ["Switch"],
+            "connectableTypes": ["Switch", "Computer"],
             "mountTags": ["Floor","ServerRack"],
             "maxChannels": 4,
             "powerConsumption": 900,
@@ -113,6 +113,18 @@
             "type": "WallDoor",
             "mountTags": ["Floor"],
             "maxPlacedDevices":1,
+            "price": 5000
+        },
+        {
+            "itemName": "Компьютер СКУД",
+            "description": "Описание компьютера",
+            "icon": "turnstile3",
+            "prefab":"Mashes/SCUDTable",
+            "type": "Computer",
+            "maxConnections": 4,
+            "connectableTypes": ["NVR","AccessController"],
+            "mountTags": ["Floor"],
+            "powerConsumption": 900,
             "price": 5000
         }
     ]

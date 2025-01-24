@@ -26,7 +26,8 @@ public enum ObjectType
     ServerBox,
     ServerRack,
     DoorLock,
-    WallDoor
+    WallDoor,
+    Computer
 }
 
 public interface ConnectableToUPS { }
@@ -177,3 +178,6 @@ public class ServerBox : InteractiveObject{
     }
 
 }
+
+[Serializable]
+public class Computer : InteractiveObject, ConnectableToUPS {}

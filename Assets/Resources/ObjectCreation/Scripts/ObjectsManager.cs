@@ -123,6 +123,9 @@ public class ObjectManager : MonoBehaviour
             case ObjectType.WallDoor:
                 newObject = gameObject.AddComponent<WallDoor>();
                 break;
+            case ObjectType.Computer:
+                newObject = gameObject.AddComponent<Computer>();
+                break;
         }
 
         // Set up the InteractiveObject
@@ -303,6 +306,10 @@ public class ObjectManager : MonoBehaviour
 
         foreach (var nvr in nvrs)
         {
+            // Проверяем подключение NVR к компьютеру
+            var connectedPCs = ConnectionsManager.Instance.GetConnectedObjectsByType(nvr, ObjectType.Computer);
+            if (connectedPCs.Count == 0) continue; // Пропускаем NVR без подключения к PC
+
             // Get switches connected to this NVR
             var connectedSwitches = ConnectionsManager.Instance.GetConnectedObjectsByType(nvr, ObjectType.Switch);
 
