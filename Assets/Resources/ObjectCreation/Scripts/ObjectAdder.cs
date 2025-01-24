@@ -114,6 +114,27 @@ namespace SCUD3D
                     CreatePreview(previewPosition, hit, mountTag);
                 else
                     MovePreview(hit, mountTag);
+                // Handle server rack mounting for both switches and NVRs
+                if (mountTag == MountTag.ServerRack &&
+                    (objectData.type == ObjectType.Switch.ToString() || objectData.type == ObjectType.NVR.ToString()))
+                {
+                    ServerRack serverRack = hit.collider.GetComponent<ServerRack>();
+                    if (serverRack != null)
+                    {
+                        Transform closestMount = serverRack.GetClosestMountPoint(hit.point);
+                        if (closestMount != null)
+                        {
+                            previewObject.transform.position = closestMount.position;
+                            previewObject.transform.rotation = closestMount.rotation;
+
+                            // Optional: Add visual feedback
+                            if (previewObject.GetComponent<Renderer>() != null)
+                            {
+                                previewObject.GetComponent<Renderer>().material.color = Color.green;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -213,30 +234,50 @@ namespace SCUD3D
                     return;
                 }
             }
-            // check if Server rack has space for switch
-            if (collider.GetComponent<ServerRack>() != null || collider.GetComponent<ServerBox>() != null)
+            // Check for ServerRack placement
+            ServerRack serverRack = collider.GetComponent<ServerRack>();
+            if (serverRack != null)
             {
                 if (objectData.type == ObjectType.Switch.ToString() || objectData.type == ObjectType.NVR.ToString())
                 {
-                    if (collider.GetComponent<ServerRack>() != null)
+                    if (!serverRack.HasAvailablePlace())
                     {
-                        ServerRack parentServerRack = collider.GetComponent<ServerRack>();
-                        if (!parentServerRack.HasAvailablePlace())
-                        {
-                            Debug.Log("У серверной стойки нет свободного места");
-                            return;
-                        }
+                        Debug.Log("У серверной стойки нет свободного места");
+                        return;
                     }
 
-                    if (collider.GetComponent<ServerBox>() != null && !(objectData.type.ToString() == ObjectType.NVR.ToString()))
+                    Transform mountPoint = serverRack.GetClosestMountPoint(transform.position);
+                    if (mountPoint != null)
                     {
-                        ServerBox parentServerBox = collider.GetComponent<ServerBox>();
-                        if (!parentServerBox.HasAvailablePlace() && collider.GetComponent<ServerBox>() != null)
-                        {
-                            Debug.Log("У серверного ящика нет свободного места");
-                            return;
-                        }
+                        CreateMountedDevice(mountPoint, serverRack, null);
+                        return;
                     }
+                }
+            }
+
+            // Check for ServerBox placement
+            ServerBox serverBox = collider.GetComponent<ServerBox>();
+            if (serverBox != null)
+            {
+                if (objectData.type == ObjectType.Switch.ToString()) // Only switches, no NVRs
+                {
+                    if (!serverBox.HasAvailablePlace())
+                    {
+                        Debug.Log("У серверного ящика нет свободного места");
+                        return;
+                    }
+
+                    Transform mountPoint = serverBox.GetClosestMountPoint(transform.position);
+                    if (mountPoint != null)
+                    {
+                        CreateMountedDevice(mountPoint, null, serverBox);
+                        return;
+                    }
+                }
+                else if (objectData.type == ObjectType.NVR.ToString())
+                {
+                    Debug.Log("NVR нельзя установить в серверный ящик");
+                    return;
                 }
             }
 
@@ -252,6 +293,55 @@ namespace SCUD3D
             gameState = 0;
 
         }
+
+        private void CreateMountedDevice(Transform mountPoint, ServerRack rack = null, ServerBox box = null)
+        {
+            GameObject newObject = Instantiate(objectPrefab, mountPoint.position, mountPoint.rotation);
+            string newDeviceId = System.Guid.NewGuid().ToString();
+
+            InteractiveObject interactiveObj = newObject.GetComponent<InteractiveObject>();
+            if (interactiveObj != null)
+            {
+                interactiveObj.id = newDeviceId;
+            }
+
+            newObject.transform.SetParent(mountPoint);
+
+            if (rack != null)
+            {
+                rack.OccupyMountPoint(mountPoint, newDeviceId);
+            }
+            else if (box != null)
+            {
+                box.OccupyMountPoint(mountPoint, newDeviceId);
+            }
+
+            ObjectManager.Instance.AddObject(objectData, newObject, rack != null ? rack.gameObject.GetComponent<Collider>() : box.gameObject.GetComponent<Collider>());
+            Destroy(previewObject);
+            gameState = 0;
+        }
+
+
+        // Add this method to handle removal of objects from rack
+        public void RemoveObjectFromRack(GameObject obj)
+        {
+            ServerRack serverRack = obj.GetComponentInParent<ServerRack>();
+            ServerBox serverBox = obj.GetComponentInParent<ServerBox>();
+            Transform mountPoint = obj.transform.parent;
+            InteractiveObject interactiveObj = obj.GetComponent<InteractiveObject>();
+
+            if (serverRack != null && interactiveObj != null)
+            {
+                serverRack.FreeMountPoint(mountPoint, interactiveObj.id);
+            }
+            else if (serverBox != null && interactiveObj != null)
+            {
+                serverBox.FreeMountPoint(mountPoint, interactiveObj.id);
+            }
+
+            obj.transform.SetParent(null); // Unparent before destroying
+        }
+
 
         void Update()
         {
