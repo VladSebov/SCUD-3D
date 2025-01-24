@@ -1,3 +1,47 @@
 {
-    "items": []
+    "items": [
+        {
+            "itemName": "ыва",
+            "description": "",
+            "type": "Камера",
+            "maxConnections": 33,
+            "powerConsumption": 33,
+            "price": 33.0,
+            "connectableTypes": [
+                "Switch"
+            ],
+            "mountTags": [
+                "Wall",
+                "Ceiling"
+            ],
+            "icon": "dummy_camera",
+            "prefab": "Mashes/Camera",
+            "maxChannels": 0,
+            "maxBatteries": 0,
+            "maxPlacedDevices": 0,
+            "powerWatts": 0
+        },
+        {
+            "itemName": "в",
+            "description": "",
+            "type": "Коммутатор",
+            "maxConnections": 33,
+            "powerConsumption": 33,
+            "price": 33.0,
+            "connectableTypes": [
+                "Camera",
+                "Switch",
+                "NVR"
+            ],
+            "mountTags": [
+                "Floor"
+            ],
+            "icon": "switch1",
+            "prefab": "Mashes/Switch",
+            "maxChannels": 0,
+            "maxBatteries": 0,
+            "maxPlacedDevices": 0,
+            "powerWatts": 0
+        }
+    ]
 }

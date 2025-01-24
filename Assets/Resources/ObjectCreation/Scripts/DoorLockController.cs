@@ -34,7 +34,8 @@ public class DoorLockController : MonoBehaviour
         {
             CurrentDoor = gameObject.name;
             IsInTrigger = true;
-            if (LockOnWall != null) Debug.Log("Нажмите E, чтобы приложить карту к устройству: " + CurrentDoor);
+            if (LockOnWall != null)
+                MessageManager.Instance.ShowHint("Нажмите E, чтобы приложить карту к устройству: " + CurrentDoor);
             else if (LockOnWall == null)
             {
                 EnableDoor();
@@ -62,6 +63,7 @@ public class DoorLockController : MonoBehaviour
         if (PlayerCollider.CompareTag("Player")) // Предположим, что у объекта есть тег "Player"
         {
             IsInTrigger = false;
+            MessageManager.Instance.HideHint();
             DisableDoor();
         }
     }
@@ -96,22 +98,22 @@ public class DoorLockController : MonoBehaviour
             {
                 if (PlayerManager.Instance.GetRole() == null)
                 {
-                    Debug.Log("Для пользователя не выбрана роль");
+                    MessageManager.Instance.ShowMessage("Для пользователя не выбрана роль");
                     DisableDoor();
                 }
                 else if (accessController.allowedRoles == null)
                 {
-                    Debug.Log("Не выбрана роль на контролере");
+                    MessageManager.Instance.ShowMessage("Не выбрана роль на контролере");
                     DisableDoor();
                 }
                 else if (accessController.allowedRoles.FirstOrDefault() != PlayerManager.Instance.GetRole())
                 {
-                    Debug.Log("Нет доступа для роли: " + PlayerManager.Instance.GetRole());
+                    MessageManager.Instance.ShowMessage("Нет доступа для роли: " + PlayerManager.Instance.GetRole());
                     DisableDoor();
                 }
                 else if (accessController.allowedRoles.FirstOrDefault() == PlayerManager.Instance.GetRole())
                 {
-                    Debug.Log("Можно проходить");
+                    MessageManager.Instance.ShowMessage("Доступ разрешен");
                     EnableDoor();
                 }
 
@@ -119,7 +121,7 @@ public class DoorLockController : MonoBehaviour
         }
         else if (connection == null)
         {
-            Debug.Log("Устройство не подключено к Контролеру");
+            MessageManager.Instance.ShowMessage("Устройство не подключено к Контролеру");
             DisableDoor();
         }
     }

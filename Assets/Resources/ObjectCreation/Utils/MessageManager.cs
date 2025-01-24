@@ -6,11 +6,16 @@ public class MessageManager : MonoBehaviour
 {
     public static MessageManager Instance { get; private set; }
 
+    // Для обычных сообщений
     public GameObject messagePanel;
     public TextMeshProUGUI messageText;
-    public float displayDuration = 2f;
-
+    private float displayDuration = 2f;
     private Coroutine currentMessageCoroutine;
+
+
+    // Для подсказок (hints)
+    public GameObject hintPanel;
+    public TextMeshProUGUI hintText;
 
     private void Awake()
     {
@@ -22,16 +27,22 @@ public class MessageManager : MonoBehaviour
         Instance = this;
     }
 
+    // Для временных сообщений
     public void ShowMessage(string message)
     {
-        // If a message is already being displayed, stop it
-        if (currentMessageCoroutine != null)
-        {
-            StopCoroutine(currentMessageCoroutine);
-        }
-
-        // Start a new message display
+        if (currentMessageCoroutine != null) StopCoroutine(currentMessageCoroutine);
         currentMessageCoroutine = StartCoroutine(DisplayMessage(message));
+    }
+
+    // Для подсказок (постоянные)
+    public void ShowHint(string hint)
+    {
+        hintPanel.SetActive(true);
+        hintText.text = hint;
+    }
+    public void HideHint()
+    {
+        hintPanel.SetActive(false);
     }
 
     private IEnumerator DisplayMessage(string message)

@@ -38,7 +38,7 @@ public class TurnstileController : MonoBehaviour
         {
             CurrentTurnstile = gameObject.name;
             IsInTrigger = true;
-            Debug.Log("Нажмите E, чтобы приложить карту к устройству: " + CurrentTurnstile);
+            MessageManager.Instance.ShowHint("Нажмите E, чтобы приложить карту к устройству: " + CurrentTurnstile);
         }
 
     }
@@ -61,6 +61,7 @@ public class TurnstileController : MonoBehaviour
         if (PlayerCollider.CompareTag("Player")) // Предположим, что у объекта есть тег "Player"
         {
             IsInTrigger = false;
+            MessageManager.Instance.HideHint();
             DisableTurnstile();
         }
 
@@ -95,27 +96,27 @@ public class TurnstileController : MonoBehaviour
             if (controller is AccessController accessController)
             {
                 if (PlayerManager.Instance.GetRole() == null) {
-                    Debug.Log("Для пользователя не выбрана роль");
+                    MessageManager.Instance.ShowMessage("Для пользователя не выбрана роль");
                     DisableTurnstile();
                 }
                 else if (accessController.allowedRoles == null)
                 {
-                    Debug.Log("Не выбрана роль на контролере");
+                    MessageManager.Instance.ShowMessage("Не выбрана роль на контролере");
                     DisableTurnstile();
                 }
                 else if (accessController.allowedRoles.FirstOrDefault() != PlayerManager.Instance.GetRole()) {
-                    Debug.Log("Нет доступа для роли: " + PlayerManager.Instance.GetRole());
+                    MessageManager.Instance.ShowMessage("Нет доступа для роли: " + PlayerManager.Instance.GetRole());
                     DisableTurnstile();
                 }
                 else if (accessController.allowedRoles.FirstOrDefault() == PlayerManager.Instance.GetRole()) {
-                    Debug.Log("Можно проходить");
+                    MessageManager.Instance.ShowMessage("Доступ разрешен");
                     EnableTurnstile();
                 }
             }
         }
         else if (connection == null)
         {
-            Debug.Log("Устройство не подключено к Контролеру");
+            MessageManager.Instance.ShowMessage("Устройство не подключено к Контролеру");
             DisableTurnstile();
         }
     }

@@ -54,6 +54,7 @@ public class ScudSettings : MonoBehaviour
     public GameObject RoleItem;
     public Button AddRoleButton;
     public Button DeleteRoleButton;
+    public TextMeshProUGUI rolesHintText; // Add this field
     public AvailableRolesMenuManager AvailableRolesMenuManager; // скрипт для available roles
     private string selectedRole;
 
@@ -67,6 +68,7 @@ public class ScudSettings : MonoBehaviour
     //User
     public ScrollRect UserRolesScroll;
     public GameObject UserRoleItem;
+    public TextMeshProUGUI userHintText; // Add this field
     private string selectedUserRole;
     public Button SaveUserSettingsButton;
     public Button CancelUserSettingsButton;
@@ -94,6 +96,7 @@ public class ScudSettings : MonoBehaviour
             return;
         }
         RestrictionsManager.Instance.SetRestrictions(restrictionsCopy);
+        FillRestrictions();
     }
     private bool CheckRestrictionsCorrect()
     {
@@ -297,6 +300,14 @@ public class ScudSettings : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+        if (roles.Count == 0)
+        {
+            rolesHintText.gameObject.SetActive(true);
+            return;
+        }
+
+        rolesHintText.gameObject.SetActive(false);
+
         // Populate the scroll view with connected device IDs
         foreach (var role in roles)
         {
@@ -349,11 +360,6 @@ public class ScudSettings : MonoBehaviour
         {
             restrictionsCopy[index].value = intValue;
         }
-        else
-        {
-            // Handle the case where the input is not a valid integer
-            MessageManager.Instance.ShowMessage($"Неверный ввод для ограничения №{index}: {newValue}");
-        }
     }
 
     public void FillUser()
@@ -368,6 +374,14 @@ public class ScudSettings : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        if (roles.Count == 0)
+        {
+            userHintText.gameObject.SetActive(true);
+            return;
+        }
+
+        userHintText.gameObject.SetActive(false);
 
         // Populate the scroll view with connected device IDs
         foreach (var role in roles)
@@ -515,7 +529,7 @@ public class ScudSettings : MonoBehaviour
 
         // Get all interactive objects in the system
         List<InteractiveObject> connectableToUPSObjects = ObjectManager.Instance.GetAllObjects()
-            .Where(io=>io.type!= ObjectType.UPS && io.type!= ObjectType.Battery && io.type!= ObjectType.ServerRack && io.type!= ObjectType.ServerBox).ToList();
+            .Where(io => io.type != ObjectType.UPS && io.type != ObjectType.Battery && io.type != ObjectType.ServerRack && io.type != ObjectType.ServerBox).ToList();
         foreach (InteractiveObject obj in connectableToUPSObjects)
         {
             // Check if the object is connected to a UPS directly or via a switch
