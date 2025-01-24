@@ -68,24 +68,31 @@ namespace SCUD3D
         void SelectObject(RaycastHit hit)
         {
             var gameObjects = ObjectManager.Instance.GetAllObjects().Select(io => io.gameObject).ToList();
+
+            var hitObject = hit.collider.gameObject;
+
+            GameObject parentObject = hitObject.transform.parent != null
+                ? hitObject.transform.parent.gameObject
+                : hitObject;
+
+            if (gameObjects.Contains(parentObject))
+            {
+                if (Input.GetKeyDown(KeyCode.X))
+                {
+                    if (InputHelper.IsTypingInInputField())
+                        return;
+                    ObjectManager.Instance.RemoveObject(parentObject.name);
+                }
+            }
+
             if (gameObjects.Contains(hit.collider.gameObject))
             {
                 ColorAnimation(hit.collider.gameObject);
-                // if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E))
-                // {
-                //     objectSettings.SetActive(true);
-                // }
-                // if (Input.GetKeyDown(KeyCode.T))
-                // {
-                //     objectPrefab = hit.collider.gameObject;
-                //     gameState = 3;
-                // }
                 if (Input.GetKeyDown(KeyCode.X))
                 {
                     if (InputHelper.IsTypingInInputField())
                         return;
                     ObjectManager.Instance.RemoveObject(hit.collider.gameObject.name);
-                    //Destroy(hit.collider.gameObject);
                 }
             }
             if (previousSelection == null) previousSelection = hit.collider.gameObject;
@@ -306,7 +313,7 @@ namespace SCUD3D
 
                         // Check if the clicked object is interactive
                         InteractiveObject interactiveObject = ObjectManager.Instance.GetObject(clickedObject.name);
-                        if (interactiveObject != null)
+                        if (interactiveObject != null && interactiveObject.type != ObjectType.ServerRack)
                         {
                             // Show configuration menu
                             currentObject = interactiveObject;

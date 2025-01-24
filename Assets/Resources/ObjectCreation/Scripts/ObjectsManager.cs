@@ -121,7 +121,7 @@ public class ObjectManager : MonoBehaviour
                 newObject = gameObject.AddComponent<DoorLock>();
                 break;
             case ObjectType.WallDoor:
-                newObject = gameObject.AddComponent<DoorLock>();
+                newObject = gameObject.AddComponent<WallDoor>();
                 break;
         }
 
