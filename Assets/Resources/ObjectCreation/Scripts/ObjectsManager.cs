@@ -215,7 +215,20 @@ public class ObjectManager : MonoBehaviour
         return new List<InteractiveObject>(gameObjects.Values);
     }
 
-
+    public void CleanupAllCameras(){
+        var cameras = GetAllObjects()
+            .Where(io => io.type == ObjectType.Camera)
+            .ToList();
+        foreach (var camera in cameras)
+        {
+            Camera cameraComponent = camera.gameObject.GetComponentInChildren<Camera>();
+            if (cameraComponent != null)
+            {
+                cameraComponent.targetTexture = null; // Ensure the camera stops rendering
+                cameraComponent.enabled = false;      // Disable the camera if needed
+            }
+        }
+    }
 
     public List<string> GetAvailableDevicesIDs(string currentObjectId)
     {

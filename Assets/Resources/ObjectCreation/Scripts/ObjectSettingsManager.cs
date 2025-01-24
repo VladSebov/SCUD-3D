@@ -163,6 +163,9 @@ public class ObjectSettingsManager : MonoBehaviour
 
     public void CloseMenu()
     {
+        if (interactiveObject.type == ObjectType.Camera)
+            // cleanup for any cameras that were rendering
+            ObjectManager.Instance.CleanupAllCameras();
         selectConnectionForm.SetActive(false);
         objectSettings.SetActive(false);
         UPSSettingsManager.CloseMenu();
