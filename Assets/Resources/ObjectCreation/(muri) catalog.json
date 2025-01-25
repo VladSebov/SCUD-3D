@@ -22,7 +22,7 @@
             "connectableTypes": ["Camera", "Switch", "NVR"],
             "mountTags": ["Floor", "ServerRack", "ServerBox"],
             "powerConsumption": 550,
-            "price": 5000
+            "price": 20000
         },
         {
             "itemName": "Турникет",
@@ -34,7 +34,7 @@
             "connectableTypes": ["AccessController"],
             "mountTags": ["Floor"],
             "powerConsumption": 50,
-            "price": 5000
+            "price": 20000
         },
         {
             "itemName": "Электронный дверной замок",
@@ -46,7 +46,7 @@
             "connectableTypes": ["AccessController"],
             "mountTags": ["ForLock"],
             "powerConsumption": 50,
-            "price": 5000
+            "price": 3000
         },
         {
             "itemName": "СКУД контроллер",
@@ -71,7 +71,7 @@
             "mountTags": ["Floor","ServerRack"],
             "maxChannels": 4,
             "powerConsumption": 900,
-            "price": 5000
+            "price": 40000
         },
         {
             "itemName": "ИБП",
@@ -83,7 +83,7 @@
             "connectableTypes": ["UPS","Switch", "Computer", "NVR", "AccessController", "Turnstile"],
             "mountTags": ["Floor"],
             "maxBatteries": 2,
-            "price": 5000
+            "price": 70000
         },
         {
             "itemName": "АКБ",
@@ -103,7 +103,7 @@
             "type": "ServerRack",
             "mountTags": ["Floor"],
             "maxPlacedDevices": 4,
-            "price": 10000
+            "price": 5000
         },
         {
             "itemName": "Дверь",
@@ -113,7 +113,7 @@
             "type": "WallDoor",
             "mountTags": ["Floor"],
             "maxPlacedDevices":1,
-            "price": 5000
+            "price": 20000
         },
         {
             "itemName": "Компьютер СКУД",
@@ -125,7 +125,7 @@
             "connectableTypes": ["NVR","AccessController"],
             "mountTags": ["Floor"],
             "powerConsumption": 900,
-            "price": 5000
+            "price": 50000
         }
     ]
 }
