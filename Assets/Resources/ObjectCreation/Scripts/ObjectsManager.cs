@@ -185,7 +185,23 @@ public class ObjectManager : MonoBehaviour
     {
         if (gameObjects.ContainsKey(id))
         {
-            GameObject gameObject = GetObject(id).gameObject;
+            InteractiveObject interactiveObject = GetObject(id);
+
+            // If the object is a ServerRack, remove all placed devices
+            if (interactiveObject.type == ObjectType.ServerRack)
+            {
+                ServerRack serverRack = interactiveObject as ServerRack;
+                if (serverRack != null)
+                {
+                    // Iterate through all placed devices and remove them
+                    foreach (string deviceId in serverRack.placedDevices.ToList()) // Use ToList() to avoid modifying the collection while iterating
+                    {
+                        RemoveObject(deviceId); // Recursively remove each device
+                    }
+                }
+            }
+
+            GameObject gameObject = interactiveObject.gameObject;
             //Remove object connections
             List<Connection> objectConnections = ConnectionsManager.Instance.GetAllConnections(gameObjects[id]);
             foreach (Connection connection in objectConnections)
@@ -215,7 +231,8 @@ public class ObjectManager : MonoBehaviour
         return new List<InteractiveObject>(gameObjects.Values);
     }
 
-    public void CleanupAllCameras(){
+    public void CleanupAllCameras()
+    {
         var cameras = GetAllObjects()
             .Where(io => io.type == ObjectType.Camera)
             .ToList();

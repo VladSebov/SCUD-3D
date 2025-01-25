@@ -163,9 +163,12 @@ public class CustomObjectForm : MonoBehaviour
     {
         switch (type)
         {
-            case "Камера": return "dummy_camera";
-            case "Коммутатор": return "switch1";
-            default: return "turnstile3";
+            case "Камера": return "Sprites/NewItemSprites/Camera";
+            case "Коммутатор": return "Sprites/NewItemSprites/Switch";
+            case "СКУД контроллер": return "Sprites/NewItemSprites/AccessController";
+            case "Видеорегистратор": return "Sprites/NewItemSprites/NVR";
+            case "ИБП": return "Sprites/NewItemSprites/UPS";
+            default: return "Sprites/NewItemSprites/Battery";
         }
     }
 
