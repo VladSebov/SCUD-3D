@@ -68,6 +68,14 @@ public class ScudSettings : MonoBehaviour
     //User
     public ScrollRect UserRolesScroll;
     public GameObject UserRoleItem;
+
+    public GameObject createUserPanel;
+
+    public Image createUserImage;
+
+    public GameObject AddUserItem;
+
+    public GameObject AddGroupItem;
     public TextMeshProUGUI userHintText; // Add this field
     private string selectedUserRole;
     public Button SaveUserSettingsButton;
@@ -135,18 +143,41 @@ public class ScudSettings : MonoBehaviour
 
     private void ResetButtonColors()
     {
+        Color targetColor = new Color32(0, 36, 63, 255); // HEX #00243F
+
         AccessSettingsButton.interactable = true;
         RolesSettingsButton.interactable = true;
         CamerasSettingsButton.interactable = true;
         RestrictionsSettingsButton.interactable = true;
         UserSettingsButton.interactable = true;
         StatisticsButton.interactable = true;
+
+        SetButtonTextColor(AccessSettingsButton, targetColor);
+        SetButtonTextColor(RolesSettingsButton, targetColor);
+        SetButtonTextColor(CamerasSettingsButton, targetColor);
+        SetButtonTextColor(RestrictionsSettingsButton, targetColor);
+        SetButtonTextColor(UserSettingsButton, targetColor);
+        SetButtonTextColor(StatisticsButton, targetColor);
+    }
+
+    private void SetButtonTextColor(Button button, Color color)
+    {
+        TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
+        if (text != null)
+        {
+            text.color = color;
+        }
+        else
+        {
+            Debug.LogWarning($"Не найден TextMeshProUGUI у кнопки {button.name}");
+        }
     }
 
     private void ShowAccessSettingsContent()
     {
         ResetButtonColors();
         AccessSettingsButton.interactable = false;
+        SetButtonTextColor(AccessSettingsButton, Color.white);
         HideAllContent();
         AccessSettingsContent.SetActive(true);
         FillAccessControllers();
@@ -156,6 +187,7 @@ public class ScudSettings : MonoBehaviour
     {
         ResetButtonColors();
         RolesSettingsButton.interactable = false;
+        SetButtonTextColor(RolesSettingsButton, Color.white);
         HideAllContent();
         RolesSettingsContent.SetActive(true);
         FillRoles();
@@ -165,6 +197,7 @@ public class ScudSettings : MonoBehaviour
     {
         ResetButtonColors();
         CamerasSettingsButton.interactable = false;
+        SetButtonTextColor(CamerasSettingsButton, Color.white);
         HideAllContent();
         CamerasSettingsContent.SetActive(true);
         CamerasSettingsManager.FillCameras();
@@ -174,6 +207,7 @@ public class ScudSettings : MonoBehaviour
     {
         ResetButtonColors();
         RestrictionsSettingsButton.interactable = false;
+        SetButtonTextColor(RestrictionsSettingsButton, Color.white);
         HideAllContent();
         RestrictionsSettingsContent.SetActive(true);
         FillRestrictions();
@@ -183,15 +217,17 @@ public class ScudSettings : MonoBehaviour
     {
         ResetButtonColors();
         UserSettingsButton.interactable = false;
+        SetButtonTextColor(UserSettingsButton, Color.white);
         HideAllContent();
         UserSettingsContent.SetActive(true);
-        FillUser();
+        FillUsers();
     }
 
     private void ShowStatisticsContent()
     {
         ResetButtonColors();
         StatisticsButton.interactable = false;
+        SetButtonTextColor(StatisticsButton, Color.white);
         HideAllContent();
         StatisticsContent.SetActive(true);
         FillStatistics();
@@ -304,13 +340,13 @@ public class ScudSettings : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        if (roles.Count == 0)
+        /* if (roles.Count == 0)
         {
             rolesHintText.gameObject.SetActive(true);
             return;
-        }
+        } */
 
-        rolesHintText.gameObject.SetActive(false);
+        /* rolesHintText.gameObject.SetActive(false); */
 
         // Populate the scroll view with connected device IDs
         foreach (var role in roles)
@@ -322,6 +358,7 @@ public class ScudSettings : MonoBehaviour
             {
                 button.GetComponent<Image>().color = Color.gray;
             }
+            GameObject createGroupItem = Instantiate(AddGroupItem, RolesScroll.content);
             button.onClick.AddListener(() => { SelectRole(role, button); });
         }
     }
@@ -366,39 +403,48 @@ public class ScudSettings : MonoBehaviour
         }
     }
 
-    public void FillUser()
+    public void FillUsers()
     {
-        var roles = ScudManager.Instance.GetRoles();
-        if (selectedUserRole == null)
-        {
-            selectedUserRole = PlayerManager.Instance.GetRole() ?? string.Empty;
-        }
+        var users = ScudManager.Instance.GetUsers();
         // Clear existing items in the scroll view
         foreach (Transform child in UserRolesScroll.content)
         {
             Destroy(child.gameObject);
         }
 
-        if (roles.Count == 0)
-        {
-            userHintText.gameObject.SetActive(true);
-            return;
-        }
 
-        userHintText.gameObject.SetActive(false);
 
         // Populate the scroll view with connected device IDs
-        foreach (var role in roles)
+        foreach (var user in users)
         {
             GameObject item = Instantiate(UserRoleItem, UserRolesScroll.content);
-            item.GetComponentInChildren<TextMeshProUGUI>().text = role;
+            item.GetComponentInChildren<TextMeshProUGUI>().text = user.username;
             Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => { SelectUserRole(role); });
-            if (role == selectedUserRole)
-            {
-                button.interactable = false;
-            }
         }
+        GameObject createUserItem = Instantiate(AddUserItem, UserRolesScroll.content);
+        Button createUserButton = createUserItem.GetComponentInChildren<Button>();
+        createUserButton.onClick.AddListener(() => { ShowCreateUserPanel(); });
+    }
+
+    public void ShowEditUserPanel()
+    {
+        createUserPanel.SetActive(true);
+    }
+
+    public void HideEditUserPanel()
+    {
+        createUserPanel.SetActive(false);
+    }
+
+    public void ShowCreateUserPanel()
+    {
+        createUserPanel.SetActive(true);
+
+    }
+
+    public void HideCreateUserPanel()
+    {
+        createUserPanel.SetActive(false);
     }
 
 
@@ -597,7 +643,7 @@ public class ScudSettings : MonoBehaviour
         }
         // Update total price and amount
         TotalPrice += totalConnectorPrice;
-        TotalPriceText.text = $"Общая стоимость: {TotalPrice:F2}₽";
+        TotalPriceText.text = $"Общая стоимость: {TotalPrice:F2}Р";
         TotalAmountText.text = $"Количество устройств: {TotalAmount}";
     }
 
@@ -655,20 +701,20 @@ public class ScudSettings : MonoBehaviour
     public void SelectUserRole(string role)
     {
         selectedUserRole = role;
-        FillUser();
+        FillUsers();
     }
 
     public void SaveUserRole()
     {
         PlayerManager.Instance.SetRole(selectedUserRole);
         selectedUserRole = null;
-        FillUser();
+        FillUsers();
     }
 
     public void CancelUserRole()
     {
         selectedUserRole = null;
-        FillUser();
+        FillUsers();
     }
 
     public void OnAddRoleClick()

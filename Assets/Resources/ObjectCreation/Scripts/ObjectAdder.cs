@@ -40,6 +40,8 @@ namespace SCUD3D
 
         private float deltat;
         private GameObject previousSelection = null;
+        private Color originalColor;
+        private Color originalSurfaceColor;
 
         void Start()
         {
@@ -84,10 +86,15 @@ namespace SCUD3D
                     ObjectManager.Instance.RemoveObject(parentObject.name);
                 }
             }
+            if (previousSelection == null) {
+                previousSelection = hit.collider.gameObject;
+                originalColor = previousSelection.GetComponentInChildren<Renderer>().material.color;
+            }
 
-            if (gameObjects.Contains(hit.collider.gameObject))
+            if (gameObjects.Contains(hit.collider.gameObject) && hit.collider.gameObject == previousSelection)
             {
-                ColorAnimation(hit.collider.gameObject);
+                Material material = hit.collider.gameObject.GetComponentInChildren<Renderer>().material;
+                material.color = Color.HSVToRGB(200 / 360f, 0.7f, 1f);
                 if (Input.GetKeyDown(KeyCode.X))
                 {
                     if (InputHelper.IsTypingInInputField())
@@ -95,11 +102,12 @@ namespace SCUD3D
                     ObjectManager.Instance.RemoveObject(hit.collider.gameObject.name);
                 }
             }
-            if (previousSelection == null) previousSelection = hit.collider.gameObject;
+
             else if (previousSelection != null && hit.collider.gameObject != previousSelection)
             {
-                previousSelection.GetComponentInChildren<Renderer>().material.color = Color.white;
+                previousSelection.GetComponentInChildren<Renderer>().material.color = originalColor;
                 previousSelection = hit.collider.gameObject;
+                originalColor = previousSelection.GetComponentInChildren<Renderer>().material.color;
             }
         }
 
@@ -107,7 +115,7 @@ namespace SCUD3D
         {
             // Check if the hit collider matches any of the mountTags of the object
             MountTag mountTag = GetMountTagFromCollider(hit.collider);
-            ChangeSurfaceColor(hit, mountTag);
+            //ChangeSurfaceColor(hit, mountTag);
             if (objectData.mountTags.Contains(mountTag.ToString()))
             {
                 if (previewObject == null)
@@ -152,7 +160,10 @@ namespace SCUD3D
 
         void ChangeSurfaceColor(RaycastHit hit, MountTag tag)
         {
-            if (previousSelection == null) previousSelection = hit.collider.gameObject;
+            if (previousSelection == null) {
+                previousSelection = hit.collider.gameObject;
+                originalColor = previousSelection.GetComponentInChildren<Renderer>().material.color;
+            }
             else if (previousSelection != null && hit.collider.gameObject != previousSelection)
             {
                 Renderer renderer = hit.collider.gameObject.GetComponentInChildren<Renderer>();
@@ -165,8 +176,9 @@ namespace SCUD3D
                 {
                     renderer.material.color = Color.red;
                 }
-                previousSelection.GetComponentInChildren<Renderer>().material.color = Color.white;
+                previousSelection.GetComponentInChildren<Renderer>().material.color = originalColor;
                 previousSelection = hit.collider.gameObject;
+                originalColor = previousSelection.GetComponentInChildren<Renderer>().material.color;
             }
         }
 

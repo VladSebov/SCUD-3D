@@ -5,18 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class StartMenuScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     public void LoadNextScene()
     {
-        // Получаем текущую сцену
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-
-        // Загружаем следующую сцену
         SceneManager.LoadScene(currentSceneIndex + 1);
     }
 
@@ -27,11 +18,5 @@ public class StartMenuScript : MonoBehaviour
         #else
             Application.Quit();
         #endif
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
