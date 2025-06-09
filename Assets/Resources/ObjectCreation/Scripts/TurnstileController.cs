@@ -95,20 +95,16 @@ public class TurnstileController : MonoBehaviour
             InteractiveObject controller = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
             if (controller is AccessController accessController)
             {
-                if (PlayerManager.Instance.GetRole() == null) {
-                    MessageManager.Instance.ShowMessage("Для пользователя не выбрана роль");
-                    DisableTurnstile();
-                }
-                else if (accessController.allowedRoles == null)
+                if (accessController.allowedRoles == null)
                 {
                     MessageManager.Instance.ShowMessage("Не выбрана роль на контролере");
                     DisableTurnstile();
                 }
-                else if (accessController.allowedRoles.FirstOrDefault() != PlayerManager.Instance.GetRole()) {
-                    MessageManager.Instance.ShowMessage("Нет доступа для роли: " + PlayerManager.Instance.GetRole());
+                else if (accessController.allowedRoles.FirstOrDefault() != PlayerManager.Instance.GetUser().username) {
+                    MessageManager.Instance.ShowMessage("Нет доступа для роли: " + PlayerManager.Instance.GetUser().username);
                     DisableTurnstile();
                 }
-                else if (accessController.allowedRoles.FirstOrDefault() == PlayerManager.Instance.GetRole()) {
+                else if (accessController.allowedRoles.FirstOrDefault() == PlayerManager.Instance.GetUser().username) {
                     MessageManager.Instance.ShowMessage("Доступ разрешен");
                     EnableTurnstile();
                 }

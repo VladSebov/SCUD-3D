@@ -8,14 +8,19 @@ public class DoorLockController : MonoBehaviour
     public Rigidbody DoorRigidbody;
 
     private static string CurrentDoor;
+    
+    private int status = 0;
 
     public static bool IsInTrigger = false;
 
     public GameObject LockOnWall;
+    
+    public GameObject EnterPanel;
 
     void Start()
     {
         // Получаем компонент HingeJoint
+        EnterPanel = GameObject.Find("MessageForm (1)");
         DoorRigidbody = GetComponentInChildren<Rigidbody>();
         DoorHingeJoint = GetComponentInChildren<HingeJoint>();
         if (DoorHingeJoint == null)
@@ -35,13 +40,24 @@ public class DoorLockController : MonoBehaviour
             CurrentDoor = gameObject.name;
             IsInTrigger = true;
             if (LockOnWall != null)
-                MessageManager.Instance.ShowHint("Нажмите E, чтобы приложить карту к замку.");
+                MessageManager.Instance.ShowHint("Для взаимодействия с электронным замком нажмите E.");
             else if (LockOnWall == null)
             {
                 EnableDoor();
+                MessageManager.Instance.ShowMessage("Для двери не установлен электронный замок");
             }
         }
 
+    }
+    
+    public void hideEnterPanel1() {
+    	MessageManager.Instance.ShowMessage("Доступ запрещен");
+        DisableDoor();
+    	
+    }
+    public void hideEnterPanel2() {
+    	MessageManager.Instance.ShowMessage("Доступ разрешен");
+        EnableDoor();
     }
 
     private void OnTriggerStay(Collider PlayerCollider)
@@ -52,12 +68,12 @@ public class DoorLockController : MonoBehaviour
         {
             if (LockOnWall != null && Input.GetKeyDown(KeyCode.E))
             {
-                CheckRoleEnabled();
+            	EnterPanel.SetActive(true);
+                
             }
             else if (LockOnWall == null)
             {
                 EnableDoor();
-                MessageManager.Instance.ShowHint("На двери не установлен замок.");
             }
         }
     }
@@ -100,22 +116,14 @@ public class DoorLockController : MonoBehaviour
             InteractiveObject controller = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
             if (controller is AccessController accessController)
             {
-                if (PlayerManager.Instance.GetRole() == null)
-                {
-                    MessageManager.Instance.ShowMessage("Для пользователя не выбрана роль");
+            
+            if (LockOnWall != null && status == 1)
+            {
+            
+                MessageManager.Instance.ShowMessage("Доступ запрещен");
                     DisableDoor();
-                }
-                else if (accessController.allowedRoles == null)
-                {
-                    MessageManager.Instance.ShowMessage("Не выбрана роль на контролере");
-                    DisableDoor();
-                }
-                else if (accessController.allowedRoles.FirstOrDefault() != PlayerManager.Instance.GetRole())
-                {
-                    MessageManager.Instance.ShowMessage("Нет доступа для роли: " + PlayerManager.Instance.GetRole());
-                    DisableDoor();
-                }
-                else if (accessController.allowedRoles.FirstOrDefault() == PlayerManager.Instance.GetRole())
+            }
+            if (LockOnWall != null && status == 2)
                 {
                     MessageManager.Instance.ShowMessage("Доступ разрешен");
                     EnableDoor();

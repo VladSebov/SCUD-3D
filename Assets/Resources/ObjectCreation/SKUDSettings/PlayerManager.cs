@@ -1,6 +1,4 @@
-
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
@@ -13,7 +11,7 @@ public class PlayerManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                // Create a new GameObject to hold the manager if it doesn't exist
+                // Создаем новый GameObject для менеджера, если его нет
                 GameObject managerObject = new GameObject("PlayerManager");
                 _instance = managerObject.AddComponent<PlayerManager>();
             }
@@ -21,29 +19,30 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    private string role;
+    private User user; // Ссылка на объект User
 
     private void Awake()
     {
-        // Ensure that there is only one instance of the manager
+        // Гарантируем, что существует только один экземпляр менеджера
         if (_instance == null)
         {
             _instance = this;
-            DontDestroyOnLoad(gameObject); // Optional: Keep the manager across scenes
+            DontDestroyOnLoad(gameObject); // Опционально: сохраняем менеджер между сценами
         }
         else
         {
-            Destroy(gameObject); // Destroy duplicate instances
+            Destroy(gameObject); // Уничтожаем дубликаты
         }
     }
 
-    public string GetRole()
+    // Методы для работы с User
+    public User GetUser()
     {
-        return role;
+        return user;
     }
     
-    public void SetRole(string newRole)
+    public void SetUser(User newUser)
     {
-        role = newRole;
+        user = newUser;
     }
 }

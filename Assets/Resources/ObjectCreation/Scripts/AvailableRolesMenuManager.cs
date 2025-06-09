@@ -37,9 +37,9 @@ public class AvailableRolesMenuManager : MonoBehaviour
         menuAvailableRoles.SetActive(false);
     }
 
-    public void UpdateMenu()
+     public void UpdateMenu()
     {
-        FillRoles();
+        //FillRoles();
     }
 
     public void SelectDevice(string deviceId)
@@ -58,7 +58,7 @@ public class AvailableRolesMenuManager : MonoBehaviour
         }
     }
 
-    public void FillRoles()
+    /* public void FillRoles()
     {
         // Clear existing items in the scroll view
         foreach (Transform child in scrollContent)
@@ -101,7 +101,7 @@ public class AvailableRolesMenuManager : MonoBehaviour
 
             // button.onClick.AddListener(() => SelectDevice(deviceId));
         }
-    }
+    } */
 
     public void OnSaveButtonClick()
     {

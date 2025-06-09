@@ -27,9 +27,17 @@ public class ScudManager : MonoBehaviour
 
     private List<User> users = new List<User>();
 
-    public GameObject userInputPanel; // Панель для ввода названия роли
-
+    public GameObject createUserPanel;
+    
+    public TextMeshProUGUI createUserPanelHeader;
+    //public Image createUserImage;
     public TMP_InputField userNameInputField; // Поле ввода названия роли
+    public TMP_InputField PasswordInputField;
+
+    [Header("Access Type Toggles")]
+    public Toggle cardAccessToggle;
+    public Toggle passwordAccessToggle;
+    public Toggle fingerAccessToggle;
     public Button addRoleButton; // Кнопка для добавления роли
     public Button CancelButton;
 
@@ -58,31 +66,67 @@ public class ScudManager : MonoBehaviour
             image = 0
         };
         users.Add(adminUser);
+        PlayerManager.Instance.SetUser(adminUser);
 
-        // Скрываем панель при старте
-        userInputPanel.SetActive(false);
-
-        // Привязываем метод к кнопке "Добавить роль"
-        addRoleButton.onClick.AddListener(ShowUserInputPanel);
-        CancelButton.onClick.AddListener(CancelAddRole);
     }
 
-    // Метод для отображения панели ввода
-    public void ShowUserInputPanel()
+    public void HideCreateUserPanel()
     {
-        userInputPanel.SetActive(true);
-        userNameInputField.Select(); // Устанавливаем фокус на поле ввода
-        userNameInputField.ActivateInputField(); // Активируем поле ввода
+        createUserPanel.SetActive(false);
     }
 
-    // Метод для отмены ввода
+    public void FillUserForm(User user)
+    {
+        // Заполняем поля имени и пароля
+        if (userNameInputField != null)
+            userNameInputField.text = user.username;
+
+        if (PasswordInputField != null)
+            PasswordInputField.text = user.password;
+
+        // Устанавливаем значения Toggle в соответствии с chosenAccessTypes
+        if (cardAccessToggle != null)
+            cardAccessToggle.isOn = user.chosenAccessTypes.Contains(AccessType.Card);
+
+        if (passwordAccessToggle != null)
+        {
+            passwordAccessToggle.isOn = user.chosenAccessTypes.Contains(AccessType.Password);
+            // Активируем поле пароля если нужно
+            if (passwordAccessToggle.isOn && !string.IsNullOrEmpty(user.password))
+            {
+                PasswordInputField.gameObject.SetActive(true);
+                PasswordInputField.text = user.password;
+            }
+            else
+            {
+                PasswordInputField.text = "";
+            }
+        }
+
+        if (fingerAccessToggle != null)
+            fingerAccessToggle.isOn = user.chosenAccessTypes.Contains(AccessType.Finger);
+
+        // Показываем панель
+        if (createUserPanel != null)
+            createUserPanel.SetActive(true);
+
+        // Фокусируемся на поле имени
+        if (userNameInputField != null)
+        {
+            userNameInputField.Select();
+            userNameInputField.ActivateInputField();
+        }
+    }
+
+
+    /* // Метод для отмены ввода
     public void CancelAddRole()
     {
         userNameInputField.text = ""; // Очищаем поле ввода
         userInputPanel.SetActive(false); // Скрываем панель
         userNameInputField.DeactivateInputField(); // Деактивируем поле ввода
     }
-
+    
     // Метод для добавления роли
     public void ConfirmAddRole()
     {
@@ -141,27 +185,69 @@ public class ScudManager : MonoBehaviour
     public List<string> GetRoles()
     {
         return new List<string>(roles);
+    } */
+
+
+
+    public List<User> GetUsers()
+    {
+        return new List<User>(users); // Возвращаем копию списка
     }
+
+    private List<AccessType> GetSelectedAccessTypes()
+    {
+        List<AccessType> selectedTypes = new List<AccessType>();
+
+        if (cardAccessToggle != null && cardAccessToggle.isOn)
+            selectedTypes.Add(AccessType.Card);
+
+        if (passwordAccessToggle != null && passwordAccessToggle.isOn)
+            selectedTypes.Add(AccessType.Password);
+
+        if (fingerAccessToggle != null && fingerAccessToggle.isOn)
+            selectedTypes.Add(AccessType.Finger);
+
+        return selectedTypes;
+    }
+
+    public void ConfirmAddUser()
+    {
+        string username = userNameInputField.text;
+        string password = passwordAccessToggle.isOn ? PasswordInputField.text : ""; // Пароль только если выбран соответствующий тип доступа
+
+        List<AccessType> accessTypes = GetSelectedAccessTypes();
+
+        // Проверяем, выбран ли хотя бы один тип доступа
+        if (accessTypes.Count == 0)
+        {
+            MessageManager.Instance.ShowMessage("Выберите хотя бы один тип доступа");
+            return;
+        }
+
+        // Добавляем пользователя
+        if (AddUser(username, password, accessTypes))
+        {
+            ResetUserForm();
+            HideCreateUserPanel();
+        }
+    }
+
+    public void ResetUserForm()
+    {
+        userNameInputField.text = "";
+        PasswordInputField.text = "";
+        if (cardAccessToggle != null) cardAccessToggle.isOn = false;
+        if (passwordAccessToggle != null) passwordAccessToggle.isOn = false;
+        if (fingerAccessToggle != null) fingerAccessToggle.isOn = false;
+        createUserPanel.SetActive(false);
+    }
+
 
     public bool AddUser(string username, string password, List<AccessType> accessTypes = null, int imageId = 0)
     {
-        // Проверка обязательных полей
-        if (string.IsNullOrEmpty(username))
+        // Проверка данных пользователя
+        if (!CheckUserDataCorrect(username, password))
         {
-            MessageManager.Instance.ShowMessage("Имя пользователя не может быть пустым");
-            return false;
-        }
-
-        if (string.IsNullOrEmpty(password))
-        {
-            MessageManager.Instance.ShowMessage("Пароль не может быть пустым");
-            return false;
-        }
-
-        // Проверка уникальности имени пользователя
-        if (users.Exists(u => u.username == username))
-        {
-            MessageManager.Instance.ShowMessage("Пользователь с таким именем уже существует");
             return false;
         }
 
@@ -169,11 +255,10 @@ public class ScudManager : MonoBehaviour
         int newId = 1;
         if (users.Count > 0)
         {
-            // Находим максимальный существующий ID и добавляем 1
             newId = users.Max(u => u.id) + 1;
         }
 
-        // Создаем нового пользователя
+        // Создание и добавление пользователя
         User newUser = new User
         {
             id = newId,
@@ -183,15 +268,47 @@ public class ScudManager : MonoBehaviour
             image = imageId
         };
 
-        // Добавляем в список
         users.Add(newUser);
+        PlayerManager.Instance.SetUser(newUser);
         Debug.Log($"Добавлен новый пользователь: {username} (ID: {newId})");
         return true;
     }
 
-    public List<User> GetUsers()
+    private bool CheckUserDataCorrect(string username, string password)
     {
-        return new List<User>(users); // Возвращаем копию списка
+        // Проверка обязательных полей
+        if (string.IsNullOrEmpty(username))
+        {
+            MessageManager.Instance.ShowMessage("Имя пользователя не может быть пустым");
+            return false;
+        }
+
+
+        // Проверка уникальности имени
+        if (users.Exists(u => u.username == username))
+        {
+            MessageManager.Instance.ShowMessage("Пользователь с таким именем уже существует");
+            return false;
+        }
+
+
+        return true;
+    }
+
+    public void ActivatePasswordField()
+    {
+        if (PasswordInputField != null && passwordAccessToggle.isOn == true)
+        {
+            PasswordInputField.interactable = true;
+        }
+        else if (PasswordInputField != null && passwordAccessToggle.isOn == false)
+        {
+            PasswordInputField.interactable = false;
+        }
+        else
+        {
+            Debug.LogError("PasswordInputField не назначен в инспекторе!");
+        }
     }
 
     public void UpdateAccessControllerRoles(string interactiveObjectId, List<string> roles)

@@ -10,6 +10,7 @@ namespace SCUD3D
 {
     public class ObjectAdder : MonoBehaviour
     {
+    	public GameObject EnterPanel;
         public Camera playerCam;
         public int gameState = 2; // 0 - objectSelection; 1 - objectCreation; 2 - AnySettings;
                                   // 3 - objectChangingPosition
@@ -238,6 +239,7 @@ namespace SCUD3D
             if (objectData.type == ObjectType.DoorLock.ToString())
             {
                 DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
+                ParentDoorWall.EnterPanel = EnterPanel;
                 if (ParentDoorWall.LockOnWall != null)
                 {
                     MessageManager.Instance.ShowMessage("У этой двери уже есть электронный замок");
@@ -386,7 +388,7 @@ namespace SCUD3D
                     CatalogManager.ShowExitMenu();
             }
 
-            if (ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || CatalogManager.ExitMenu.activeSelf || Guide.guideMenu.activeSelf)
+            if (EnterPanel.activeSelf || ObjectSettingsManager.objectSettings.activeSelf || UPSSettingsManager.UPSSettings.activeSelf || ScudSettings.scudSettings.activeSelf || CatalogManager.isItemsVisible || CatalogManager.ExitMenu.activeSelf || Guide.guideMenu.activeSelf)
             {
                 inputs.SetInputsState(false);
                 gameState = 2;

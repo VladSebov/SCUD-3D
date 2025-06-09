@@ -67,7 +67,7 @@ public class RestrictionsManager : MonoBehaviour
     public bool CheckRoleAvailable()
     {
         int maxRoles = restrictions.Find(r => r.type == RestrictionType.MaxRoles).value;
-        int currentRolesCount = ScudManager.Instance.GetRoles().Count;
+        int currentRolesCount = ScudManager.Instance.GetUsers().Count;
 
         return currentRolesCount < maxRoles;
     }
