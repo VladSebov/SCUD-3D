@@ -39,7 +39,10 @@ public class ScudManager : MonoBehaviour
     public Toggle passwordAccessToggle;
     public Toggle fingerAccessToggle;
     public Button addRoleButton; // Кнопка для добавления роли
+    public Button CreateUserButton;
     public Button CancelButton;
+
+    public ScudSettings ScudSettings;
 
     private void Awake()
     {
@@ -56,6 +59,7 @@ public class ScudManager : MonoBehaviour
 
     private void Start()
     {
+        ScudSettings = GetComponent<ScudSettings>();
         // Создаем администратора
         User adminUser = new User
         {
@@ -67,7 +71,6 @@ public class ScudManager : MonoBehaviour
         };
         users.Add(adminUser);
         PlayerManager.Instance.SetUser(adminUser);
-
     }
 
     public void HideCreateUserPanel()
@@ -117,7 +120,6 @@ public class ScudManager : MonoBehaviour
             userNameInputField.ActivateInputField();
         }
     }
-
 
     /* // Метод для отмены ввода
     public void CancelAddRole()
@@ -229,6 +231,7 @@ public class ScudManager : MonoBehaviour
         {
             ResetUserForm();
             HideCreateUserPanel();
+            ScudSettings.FillUsers();
         }
     }
 
