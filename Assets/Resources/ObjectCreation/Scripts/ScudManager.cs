@@ -28,7 +28,7 @@ public class ScudManager : MonoBehaviour
     private List<User> users = new List<User>();
 
     public GameObject createUserPanel;
-    
+
     public TextMeshProUGUI createUserPanelHeader;
     //public Image createUserImage;
     public TMP_InputField userNameInputField; // Поле ввода названия роли
@@ -39,7 +39,7 @@ public class ScudManager : MonoBehaviour
     public Toggle passwordAccessToggle;
     public Toggle fingerAccessToggle;
     public Button addRoleButton; // Кнопка для добавления роли
-    public Button CreateUserButton;
+
     public Button CancelButton;
 
     public ScudSettings ScudSettings;
@@ -312,6 +312,19 @@ public class ScudManager : MonoBehaviour
         {
             Debug.LogError("PasswordInputField не назначен в инспекторе!");
         }
+    }
+
+    public void UpdateUserFromForm(ref User user)
+    {
+        if (user == null) return;
+
+        user.username = userNameInputField.text;
+
+        // Обновляем пароль только если выбран соответствующий тип доступа
+        if (passwordAccessToggle.isOn)
+            user.password = PasswordInputField.text;
+
+        user.chosenAccessTypes = GetSelectedAccessTypes();
     }
 
     public void UpdateAccessControllerRoles(string interactiveObjectId, List<string> roles)

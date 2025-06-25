@@ -72,10 +72,12 @@ public class ScudSettings : MonoBehaviour
     public GameObject AddUserItem;
 
     public GameObject createUserPanel;
+
+    public Button CreateUserButton;
     public TextMeshProUGUI createUserPanelHeader;
 
     public GameObject AddGroupItem;
-    
+
     public GameObject createAccessGroupsPanel;
     public TextMeshProUGUI userHintText; // Add this field
     private string selectedUserRole;
@@ -96,13 +98,15 @@ public class ScudSettings : MonoBehaviour
         CancelRestrictionsButton.onClick.AddListener(FillRestrictions);
         SaveRestrictionsButton.onClick.AddListener(SaveRestrictions);
     }
-    
-    public void ShowAccessGroups() {
-    	createAccessGroupsPanel.SetActive(true);
+
+    public void ShowAccessGroups()
+    {
+        createAccessGroupsPanel.SetActive(true);
     }
-    
-    public void HideAccessGroups() {
-    	createAccessGroupsPanel.SetActive(false);
+
+    public void HideAccessGroups()
+    {
+        createAccessGroupsPanel.SetActive(false);
     }
 
     private void SaveRestrictions()
@@ -439,12 +443,27 @@ public class ScudSettings : MonoBehaviour
         createUserPanel.SetActive(true);
         createUserPanelHeader.text = "Редактирование пользователя";
         ScudManager.Instance.FillUserForm(user);
+        CreateUserButton.onClick.RemoveAllListeners();
+        CreateUserButton.onClick.AddListener(() => SaveUserChanges(ref user));
     }
 
     public void ShowCreateUserPanel()
     {
         createUserPanel.SetActive(true);
         createUserPanelHeader.text = "Создание пользователя";
+        CreateUserButton.onClick.RemoveAllListeners();
+        CreateUserButton.onClick.AddListener(() => ScudManager.Instance.ConfirmAddUser());
+    }
+
+    private void SaveUserChanges(ref User user)
+    {
+        if (user != null)
+        {
+            ScudManager.Instance.UpdateUserFromForm(ref user);
+            ScudManager.Instance.ResetUserForm();
+            MessageManager.Instance.ShowMessage("Изменения сохранены");
+            FillUsers();
+        }
     }
 
 
