@@ -74,6 +74,9 @@ public class ScudSettings : MonoBehaviour
     public GameObject createUserPanel;
 
     public Button CreateUserButton;
+    public Button ApplyUserButton;
+    public GameObject DeleteUserButton;
+
     public TextMeshProUGUI createUserPanelHeader;
 
     public GameObject AddGroupItem;
@@ -442,14 +445,30 @@ public class ScudSettings : MonoBehaviour
     {
         createUserPanel.SetActive(true);
         createUserPanelHeader.text = "Редактирование пользователя";
+        if (user.id == 0)
+        {
+            ScudManager.Instance.userNameInputField.interactable = false;
+            DeleteUserButton.SetActive(false);
+        }
+        if (user.id != 0)
+        {
+            ScudManager.Instance.userNameInputField.interactable = true;
+            DeleteUserButton.SetActive(true);
+        }
+        ApplyUserButton.gameObject.SetActive(true);
         ScudManager.Instance.FillUserForm(user);
         CreateUserButton.onClick.RemoveAllListeners();
         CreateUserButton.onClick.AddListener(() => SaveUserChanges(ref user));
+        ApplyUserButton.onClick.RemoveAllListeners();
+        ApplyUserButton.onClick.AddListener(() => ScudManager.Instance.ApplyUser(ref user));
+        DeleteUserButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        DeleteUserButton.GetComponent<Button>().onClick.AddListener(() => ScudManager.Instance.DeleteUser(ref user));
     }
 
     public void ShowCreateUserPanel()
     {
         createUserPanel.SetActive(true);
+        DeleteUserButton.SetActive(false);
         createUserPanelHeader.text = "Создание пользователя";
         CreateUserButton.onClick.RemoveAllListeners();
         CreateUserButton.onClick.AddListener(() => ScudManager.Instance.ConfirmAddUser());

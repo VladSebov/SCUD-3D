@@ -239,6 +239,8 @@ public class ScudManager : MonoBehaviour
     {
         userNameInputField.text = "";
         PasswordInputField.text = "";
+        userNameInputField.interactable = true;
+        ScudSettings.ApplyUserButton.gameObject.SetActive(false);
         if (cardAccessToggle != null) cardAccessToggle.isOn = false;
         if (passwordAccessToggle != null) passwordAccessToggle.isOn = false;
         if (fingerAccessToggle != null) fingerAccessToggle.isOn = false;
@@ -325,6 +327,20 @@ public class ScudManager : MonoBehaviour
             user.password = PasswordInputField.text;
 
         user.chosenAccessTypes = GetSelectedAccessTypes();
+    }
+
+    public void ApplyUser(ref User user)
+    {
+        PlayerManager.Instance.SetUser(user);
+        ResetUserForm();
+        Debug.Log("Текущий профиль: "+PlayerManager.Instance.GetUser().username);
+    }
+
+    public void DeleteUser(ref User user)
+    {
+        ResetUserForm();
+        users.Remove(user);
+        ScudSettings.FillUsers();
     }
 
     public void UpdateAccessControllerRoles(string interactiveObjectId, List<string> roles)
