@@ -79,9 +79,13 @@ public class ScudSettings : MonoBehaviour
 
     public TextMeshProUGUI createUserPanelHeader;
 
-    public GameObject AddGroupItem;
+    public ScrollRect AccessGroupsScroll;
+    public GameObject AccessGroupItem;
+    public GameObject AddAccessGroupItem;
 
     public GameObject createAccessGroupsPanel;
+    public TextMeshProUGUI createAccessGroupsPanelHeader;
+    
     public TextMeshProUGUI userHintText; // Add this field
     private string selectedUserRole;
     public Button SaveUserSettingsButton;
@@ -102,15 +106,9 @@ public class ScudSettings : MonoBehaviour
         SaveRestrictionsButton.onClick.AddListener(SaveRestrictions);
     }
 
-    public void ShowAccessGroups()
-    {
-        createAccessGroupsPanel.SetActive(true);
-    }
+   
 
-    public void HideAccessGroups()
-    {
-        createAccessGroupsPanel.SetActive(false);
-    }
+    
 
     private void SaveRestrictions()
     {
@@ -441,6 +439,28 @@ public class ScudSettings : MonoBehaviour
         createUserButton.onClick.AddListener(() => { ShowCreateUserPanel(); });
     }
 
+    public void FillAccessGroups()
+    {
+        var accessGroups = ScudManager.Instance.GetAccessGroups();
+        // Clear existing items in the scroll view
+        foreach (Transform child in AccessGroupsScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var accessGroup in accessGroups)
+        {
+            GameObject item = Instantiate(AccessGroupItem, AccessGroupsScroll.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = accessGroup.name;
+            Button AccessGroupButton = item.GetComponentInChildren<Button>();
+            AccessGroupButton.onClick.AddListener(() => { ShowEditAccessGroups(accessGroup); });
+        }
+        GameObject createAccessGroupItem = Instantiate(AddAccessGroupItem, AccessGroupsScroll.content);
+        Button createAccessGroupButton = createAccessGroupItem.GetComponentInChildren<Button>();
+        createAccessGroupButton.onClick.AddListener(() => { ShowCreateAccessGroups(); });
+    }
+
     public void ShowEditUserPanel(User user)
     {
         createUserPanel.SetActive(true);
@@ -483,6 +503,19 @@ public class ScudSettings : MonoBehaviour
             MessageManager.Instance.ShowMessage("Изменения сохранены");
             FillUsers();
         }
+    }
+
+    public void ShowCreateAccessGroups()
+    {
+        createAccessGroupsPanel.SetActive(true);
+        createAccessGroupsPanelHeader.text = "Создание группы доступа";
+
+    }
+
+    public void ShowEditAccessGroups(AccessGroup accessGroup)
+    {
+        createAccessGroupsPanel.SetActive(true);
+        createAccessGroupsPanelHeader.text = "Редактирование группы доступа";
     }
 
 

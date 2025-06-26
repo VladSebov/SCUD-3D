@@ -27,6 +27,8 @@ public class ScudManager : MonoBehaviour
 
     private List<User> users = new List<User>();
 
+    private List<AccessGroup> accessGroups = new List<AccessGroup>();
+
     public GameObject createUserPanel;
 
     public TextMeshProUGUI createUserPanelHeader;
@@ -40,7 +42,9 @@ public class ScudManager : MonoBehaviour
     public Toggle fingerAccessToggle;
     public Button addRoleButton; // Кнопка для добавления роли
 
-    public Button CancelButton;
+    public GameObject createAccessGroupsPanel;
+
+    public GameObject AccessGroupsUsersList;
 
     public ScudSettings ScudSettings;
 
@@ -76,6 +80,11 @@ public class ScudManager : MonoBehaviour
     public void HideCreateUserPanel()
     {
         createUserPanel.SetActive(false);
+    }
+
+    public void HideCreateAccessGroupsPanel()
+    {
+        createAccessGroupsPanel.SetActive(false);
     }
 
     public void FillUserForm(User user)
@@ -195,6 +204,12 @@ public class ScudManager : MonoBehaviour
     {
         return new List<User>(users); // Возвращаем копию списка
     }
+
+     public List<AccessGroup> GetAccessGroups()
+    {
+        return new List<AccessGroup>(accessGroups); // Возвращаем копию списка
+    }
+
 
     private List<AccessType> GetSelectedAccessTypes()
     {
@@ -333,7 +348,7 @@ public class ScudManager : MonoBehaviour
     {
         PlayerManager.Instance.SetUser(user);
         ResetUserForm();
-        Debug.Log("Текущий профиль: "+PlayerManager.Instance.GetUser().username);
+        Debug.Log("Текущий профиль: " + PlayerManager.Instance.GetUser().username);
     }
 
     public void DeleteUser(ref User user)
@@ -371,3 +386,22 @@ public class User
 
     public int image;
 }
+
+[System.Serializable]
+public class AccessGroup
+{
+    public int id;
+    public string name;
+    public List<User> chosenUsers;
+    public List<Schedule> chosenSchedules;
+
+}
+
+[System.Serializable]
+public class Schedule
+{
+    public string day;
+    public string startTime;
+    public string endTime;
+}
+
