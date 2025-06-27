@@ -101,6 +101,9 @@ public class MenuDevicesManager : MonoBehaviour
             {
                 button.GetComponent<Image>().color = Color.gray;
             }
+            Debug.Log("finding bug 00");
+            Debug.Log(deviceId);
+            Debug.Log(button);
             button.onClick.AddListener(() => SelectDevice(deviceId));
         }
     }

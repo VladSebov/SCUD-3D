@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.PlasticSCM.Editor.WebApi;
 using System.Linq;
+using System;
+using Unity.VisualScripting;
 
 public class ScudManager : MonoBehaviour
 {
@@ -44,8 +46,6 @@ public class ScudManager : MonoBehaviour
 
     public GameObject createAccessGroupsPanel;
 
-    public GameObject AccessGroupsUsersList;
-
     public ScudSettings ScudSettings;
 
     private void Awake()
@@ -68,7 +68,7 @@ public class ScudManager : MonoBehaviour
         User adminUser = new User
         {
             id = 0,
-            username = "administrator",
+            username = "Администратор",
             chosenAccessTypes = new List<AccessType> { AccessType.Card, AccessType.Password, AccessType.Finger },
             password = "admin",
             image = 0
@@ -128,6 +128,11 @@ public class ScudManager : MonoBehaviour
             userNameInputField.Select();
             userNameInputField.ActivateInputField();
         }
+    }
+
+    public void FillAccessGroupForm(AccessGroup accessGroup)
+    {
+        
     }
 
     /* // Метод для отмены ввода
@@ -227,6 +232,18 @@ public class ScudManager : MonoBehaviour
         return selectedTypes;
     }
 
+    private List<string> GetSelectedItems(RectTransform ScrollContent)
+    {
+        List<string> selectedItems = new List<string>();
+
+        foreach (Transform child in ScrollContent)
+        {
+            if (child.GetComponentInChildren<Toggle>().isOn) selectedItems.Add(child.GetComponentInChildren<TextMeshProUGUI>().text);
+        }
+
+        return selectedItems;
+    }
+
     public void ConfirmAddUser()
     {
         string username = userNameInputField.text;
@@ -289,7 +306,6 @@ public class ScudManager : MonoBehaviour
         };
 
         users.Add(newUser);
-        PlayerManager.Instance.SetUser(newUser);
         Debug.Log($"Добавлен новый пользователь: {username} (ID: {newId})");
         return true;
     }
@@ -314,6 +330,7 @@ public class ScudManager : MonoBehaviour
 
         return true;
     }
+
 
     public void ActivatePasswordField()
     {
@@ -358,6 +375,51 @@ public class ScudManager : MonoBehaviour
         ScudSettings.FillUsers();
     }
 
+    public void ConfirmAddAccessGroup()
+    {
+        string name = ScudSettings.accessGroupNameInputField.text;
+        if (string.IsNullOrEmpty(name))
+        {
+            MessageManager.Instance.ShowMessage("Имя группы доступа не может быть пустым");
+            return;
+        }
+        if (accessTypes.Count == 0)
+        {
+            MessageManager.Instance.ShowMessage("Выберите хотя бы один тип доступа");
+            return;
+        }
+    }
+
+    public bool AddAccessGroup(string name, List<User> users = null, List<string> devices = null, List<Schedule> schedules = null)
+    {
+        // Проверка данных пользователя
+        if (!CheckUserDataCorrect(username, password))
+        {
+            return false;
+        }
+
+        // Генерация уникального ID
+        int newId = 1;
+        if (users.Count > 0)
+        {
+            newId = users.Max(u => u.id) + 1;
+        }
+
+        // Создание и добавление пользователя
+        User newUser = new User
+        {
+            id = newId,
+            username = username,
+            password = password,
+            chosenAccessTypes = accessTypes ?? new List<AccessType>(),
+            image = imageId
+        };
+
+        users.Add(newUser);
+        Debug.Log($"Добавлена новая группа доступа: {name} (ID: {newId})");
+        return true;
+    }
+
     public void UpdateAccessControllerRoles(string interactiveObjectId, List<string> roles)
     {
         InteractiveObject obj = ObjectManager.Instance.GetObject(interactiveObjectId);
@@ -392,7 +454,8 @@ public class AccessGroup
 {
     public int id;
     public string name;
-    public List<User> chosenUsers;
+    public List<string> chosenUsers;
+    public List<string> chosenDevices;
     public List<Schedule> chosenSchedules;
 
 }

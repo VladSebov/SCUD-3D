@@ -211,6 +211,12 @@ public class ObjectManager : MonoBehaviour
             // Remove the object from the dictionary
             gameObjects.Remove(id);
 
+            List<AccessGroup> accessGroups = ScudManager.Instance.GetAccessGroups();
+            foreach (AccessGroup accessGroup in accessGroups)
+            {
+                accessGroup.chosenDevices.Remove(id);
+            }
+
             // Destroy the GameObject in the scene
             Destroy(gameObject);
         }

@@ -85,7 +85,13 @@ public class ScudSettings : MonoBehaviour
 
     public GameObject createAccessGroupsPanel;
     public TextMeshProUGUI createAccessGroupsPanelHeader;
-    
+
+    public TMP_InputField accessGroupNameInputField;
+
+    public ScrollRect AccessGroupsUsersScroll;
+    public ScrollRect AccessGroupsDevicesScroll;
+    public GameObject AccessGroupUserItem;
+    public GameObject AccessGroupDeviceItem;
     public TextMeshProUGUI userHintText; // Add this field
     private string selectedUserRole;
     public Button SaveUserSettingsButton;
@@ -106,9 +112,9 @@ public class ScudSettings : MonoBehaviour
         SaveRestrictionsButton.onClick.AddListener(SaveRestrictions);
     }
 
-   
 
-    
+
+
 
     private void SaveRestrictions()
     {
@@ -204,7 +210,7 @@ public class ScudSettings : MonoBehaviour
         SetButtonTextColor(RolesSettingsButton, Color.white);
         HideAllContent();
         RolesSettingsContent.SetActive(true);
-        //FillRoles();
+        FillAccessGroups();
     }
 
     private void ShowCamerasSettingsContent()
@@ -509,7 +515,9 @@ public class ScudSettings : MonoBehaviour
     {
         createAccessGroupsPanel.SetActive(true);
         createAccessGroupsPanelHeader.text = "Создание группы доступа";
-
+        accessGroupNameInputField.text = "";
+        FillUsersList();
+        FillDevicesList();
     }
 
     public void ShowEditAccessGroups(AccessGroup accessGroup)
@@ -518,6 +526,67 @@ public class ScudSettings : MonoBehaviour
         createAccessGroupsPanelHeader.text = "Редактирование группы доступа";
     }
 
+    public void FillUsersList()
+    {
+        var users = ScudManager.Instance.GetUsers();
+        // Clear existing items in the scroll view
+        foreach (Transform child in AccessGroupsUsersScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var user in users)
+        {
+            GameObject item = Instantiate(AccessGroupUserItem, AccessGroupsUsersScroll.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = user.username;
+        }
+    }
+
+    public void FillUsersListToogles()
+    {
+        var users = ScudManager.Instance.GetUsers();
+        // Clear existing items in the scroll view
+        foreach (Transform child in UserRolesScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate the scroll view with connected device IDs
+        foreach (var user in users)
+        {
+            GameObject item = Instantiate(AccessGroupUserItem, AccessGroupsUsersScroll.content);
+            item.GetComponentInChildren<TextMeshProUGUI>().text = user.username;
+        }
+    }
+
+    public void FillDevicesList()
+    {
+        foreach (Transform child in AccessGroupsDevicesScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+        var controllers = ObjectManager.Instance.GetAllObjects()
+            .Where(io => io.type == ObjectType.AccessController &&
+                        ConnectionsManager.Instance.GetConnectedObjectsByType(io, ObjectType.Computer).Any())
+            .ToList();
+        foreach (var controller in controllers)
+        {
+            List<Connection> connections = ConnectionsManager.Instance.GetAllConnections(controller);
+            foreach (var connection in connections)
+            {
+                if (connection != null)
+                {
+                    InteractiveObject device = connection.ObjectA == controller ? connection.ObjectB : connection.ObjectA;
+                    if (device != null && (device.type == ObjectType.DoorLock || device.type == ObjectType.Turnstile))
+                    {
+                        GameObject item = Instantiate(AccessGroupDeviceItem, AccessGroupsDevicesScroll.content);
+                        item.GetComponentInChildren<TextMeshProUGUI>().text = device.id;
+                    }
+                }
+            }
+        }
+    }
 
     //Calculate Power
     public static float CalculateTotalPowerConsumption(List<InteractiveObject> allObjects)
