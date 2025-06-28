@@ -30822,7 +30822,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!224 &568452086
 RectTransform:
@@ -53106,6 +53106,8 @@ MonoBehaviour:
     type: 3}
   AccessGroupDeviceItem: {fileID: 1274804206817538837, guid: a9557446076ac9b3ebb127c7145c7071,
     type: 3}
+  CreateAccessGroupButton: {fileID: 533823563}
+  DeleteAccessGroupButton: {fileID: 0}
   userHintText: {fileID: 303359302}
   SaveUserSettingsButton: {fileID: 0}
   CancelUserSettingsButton: {fileID: 0}
@@ -100996,7 +100998,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!224 &2133922813
 RectTransform:

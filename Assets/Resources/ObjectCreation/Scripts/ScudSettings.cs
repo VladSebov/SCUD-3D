@@ -92,6 +92,8 @@ public class ScudSettings : MonoBehaviour
     public ScrollRect AccessGroupsDevicesScroll;
     public GameObject AccessGroupUserItem;
     public GameObject AccessGroupDeviceItem;
+    public Button CreateAccessGroupButton;
+    public Button DeleteAccessGroupButton;
     public TextMeshProUGUI userHintText; // Add this field
     private string selectedUserRole;
     public Button SaveUserSettingsButton;
@@ -511,6 +513,17 @@ public class ScudSettings : MonoBehaviour
         }
     }
 
+    private void SaveAccessGroupChanges(ref AccessGroup accessGroup)
+    {
+        if (accessGroup != null)
+        {
+            ScudManager.Instance.UpdateAccessGroupFromForm(ref accessGroup);
+            ScudManager.Instance.HideCreateAccessGroupsPanel();
+            MessageManager.Instance.ShowMessage("Изменения сохранены");
+            FillAccessGroups();
+        }
+    }
+
     public void ShowCreateAccessGroups()
     {
         createAccessGroupsPanel.SetActive(true);
@@ -518,12 +531,20 @@ public class ScudSettings : MonoBehaviour
         accessGroupNameInputField.text = "";
         FillUsersList();
         FillDevicesList();
+        CreateAccessGroupButton.onClick.RemoveAllListeners();
+        CreateAccessGroupButton.onClick.AddListener(() => ScudManager.Instance.ConfirmAddAccessGroup());
     }
 
     public void ShowEditAccessGroups(AccessGroup accessGroup)
     {
         createAccessGroupsPanel.SetActive(true);
         createAccessGroupsPanelHeader.text = "Редактирование группы доступа";
+        accessGroupNameInputField.text = accessGroup.name;
+        FillUsersList();
+        FillDevicesList();
+        FillAccessGroupListsToogles(accessGroup);
+        CreateAccessGroupButton.onClick.RemoveAllListeners();
+        CreateAccessGroupButton.onClick.AddListener(() => SaveAccessGroupChanges(ref accessGroup));
     }
 
     public void FillUsersList()
@@ -543,20 +564,15 @@ public class ScudSettings : MonoBehaviour
         }
     }
 
-    public void FillUsersListToogles()
+    public void FillAccessGroupListsToogles(AccessGroup accessGroup)
     {
-        var users = ScudManager.Instance.GetUsers();
-        // Clear existing items in the scroll view
-        foreach (Transform child in UserRolesScroll.content)
+        foreach (Transform child in AccessGroupsUsersScroll.content)
         {
-            Destroy(child.gameObject);
+            if (accessGroup.chosenUsers.Contains(child.GetComponentInChildren<TextMeshProUGUI>().text)) child.GetComponentInChildren<Toggle>().isOn = true;
         }
-
-        // Populate the scroll view with connected device IDs
-        foreach (var user in users)
+        foreach (Transform child in AccessGroupsDevicesScroll.content)
         {
-            GameObject item = Instantiate(AccessGroupUserItem, AccessGroupsUsersScroll.content);
-            item.GetComponentInChildren<TextMeshProUGUI>().text = user.username;
+            if (accessGroup.chosenDevices.Contains(child.GetComponentInChildren<TextMeshProUGUI>().text)) child.GetComponentInChildren<Toggle>().isOn = true;
         }
     }
 

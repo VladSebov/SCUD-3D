@@ -132,7 +132,7 @@ public class ScudManager : MonoBehaviour
 
     public void FillAccessGroupForm(AccessGroup accessGroup)
     {
-        
+
     }
 
     /* // Метод для отмены ввода
@@ -210,7 +210,7 @@ public class ScudManager : MonoBehaviour
         return new List<User>(users); // Возвращаем копию списка
     }
 
-     public List<AccessGroup> GetAccessGroups()
+    public List<AccessGroup> GetAccessGroups()
     {
         return new List<AccessGroup>(accessGroups); // Возвращаем копию списка
     }
@@ -361,6 +361,15 @@ public class ScudManager : MonoBehaviour
         user.chosenAccessTypes = GetSelectedAccessTypes();
     }
 
+    public void UpdateAccessGroupFromForm(ref AccessGroup accessGroup)
+    {
+        if (accessGroup == null) return;
+
+        accessGroup.name = ScudSettings.accessGroupNameInputField.text;
+        accessGroup.chosenUsers = GetSelectedItems(ScudSettings.AccessGroupsUsersScroll.content);
+        accessGroup.chosenDevices = GetSelectedItems(ScudSettings.AccessGroupsDevicesScroll.content);
+    }
+
     public void ApplyUser(ref User user)
     {
         PlayerManager.Instance.SetUser(user);
@@ -383,39 +392,45 @@ public class ScudManager : MonoBehaviour
             MessageManager.Instance.ShowMessage("Имя группы доступа не может быть пустым");
             return;
         }
-        if (accessTypes.Count == 0)
+
+        List<string> users = GetSelectedItems(ScudSettings.AccessGroupsUsersScroll.content);
+        List<string> devices = GetSelectedItems(ScudSettings.AccessGroupsDevicesScroll.content);
+
+        if (users.Count == 0 || devices.Count == 0)
         {
-            MessageManager.Instance.ShowMessage("Выберите хотя бы один тип доступа");
+            if (users.Count == 0 && devices.Count > 0) MessageManager.Instance.ShowMessage("Пользователи не выбраны");
+            if (users.Count > 0 && devices.Count == 0) MessageManager.Instance.ShowMessage("Устройства не выбраны");
+            if (users.Count == 0 && devices.Count == 0) MessageManager.Instance.ShowMessage("Пользователи и устройства не выбраны");
             return;
+        }
+        
+        if (AddAccessGroup(name, users, devices))
+        {
+            HideCreateAccessGroupsPanel();
+            ScudSettings.FillAccessGroups();
         }
     }
 
-    public bool AddAccessGroup(string name, List<User> users = null, List<string> devices = null, List<Schedule> schedules = null)
+    public bool AddAccessGroup(string name, List<string> users = null, List<string> devices = null, List<Schedule> schedules = null)
     {
-        // Проверка данных пользователя
-        if (!CheckUserDataCorrect(username, password))
-        {
-            return false;
-        }
-
         // Генерация уникального ID
-        int newId = 1;
-        if (users.Count > 0)
+        int newId = 0;
+        if (accessGroups.Count > 0)
         {
-            newId = users.Max(u => u.id) + 1;
+            newId = accessGroups.Max(u => u.id) + 1;
         }
 
         // Создание и добавление пользователя
-        User newUser = new User
+        AccessGroup newAccessGroup = new AccessGroup
         {
             id = newId,
-            username = username,
-            password = password,
-            chosenAccessTypes = accessTypes ?? new List<AccessType>(),
-            image = imageId
+            name = name,
+            chosenUsers = users,
+            chosenDevices = devices,
+            chosenSchedules = schedules
         };
 
-        users.Add(newUser);
+        accessGroups.Add(newAccessGroup);
         Debug.Log($"Добавлена новая группа доступа: {name} (ID: {newId})");
         return true;
     }
