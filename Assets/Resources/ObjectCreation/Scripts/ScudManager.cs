@@ -383,6 +383,13 @@ public class ScudManager : MonoBehaviour
         users.Remove(user);
         ScudSettings.FillUsers();
     }
+    
+    public void DeleteAccessGroup(ref AccessGroup accessGroup)
+    {
+        accessGroups.Remove(accessGroup);
+        HideCreateAccessGroupsPanel();
+        ScudSettings.FillAccessGroups();
+    }
 
     public void ConfirmAddAccessGroup()
     {
@@ -403,7 +410,7 @@ public class ScudManager : MonoBehaviour
             if (users.Count == 0 && devices.Count == 0) MessageManager.Instance.ShowMessage("Пользователи и устройства не выбраны");
             return;
         }
-        
+
         if (AddAccessGroup(name, users, devices))
         {
             HideCreateAccessGroupsPanel();

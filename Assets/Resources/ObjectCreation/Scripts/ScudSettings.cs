@@ -90,8 +90,11 @@ public class ScudSettings : MonoBehaviour
 
     public ScrollRect AccessGroupsUsersScroll;
     public ScrollRect AccessGroupsDevicesScroll;
+    public ScrollRect AccessGroupsScheduleScroll;
     public GameObject AccessGroupUserItem;
     public GameObject AccessGroupDeviceItem;
+    public GameObject AccessGroupScheduleItem;
+    public GameObject AddAccessGroupScheduleItem;
     public Button CreateAccessGroupButton;
     public Button DeleteAccessGroupButton;
     public TextMeshProUGUI userHintText; // Add this field
@@ -531,6 +534,7 @@ public class ScudSettings : MonoBehaviour
         accessGroupNameInputField.text = "";
         FillUsersList();
         FillDevicesList();
+        FillScheduleList();
         CreateAccessGroupButton.onClick.RemoveAllListeners();
         CreateAccessGroupButton.onClick.AddListener(() => ScudManager.Instance.ConfirmAddAccessGroup());
     }
@@ -542,6 +546,7 @@ public class ScudSettings : MonoBehaviour
         accessGroupNameInputField.text = accessGroup.name;
         FillUsersList();
         FillDevicesList();
+        FillScheduleList(accessGroup);
         FillAccessGroupListsToogles(accessGroup);
         CreateAccessGroupButton.onClick.RemoveAllListeners();
         CreateAccessGroupButton.onClick.AddListener(() => SaveAccessGroupChanges(ref accessGroup));
@@ -563,6 +568,8 @@ public class ScudSettings : MonoBehaviour
             item.GetComponentInChildren<TextMeshProUGUI>().text = user.username;
         }
     }
+
+
 
     public void FillAccessGroupListsToogles(AccessGroup accessGroup)
     {
@@ -602,6 +609,61 @@ public class ScudSettings : MonoBehaviour
                 }
             }
         }
+    }
+
+
+
+    public void FillScheduleList(AccessGroup accessGroup = null)
+    {
+        foreach (Transform child in AccessGroupsScheduleScroll.content)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if (accessGroup != null)
+        {
+            foreach (var schedule in accessGroup.chosenSchedules)
+            {
+                GameObject item = Instantiate(AccessGroupScheduleItem, AccessGroupsScheduleScroll.content);
+                var dropdowns = item.GetComponentsInChildren<TMP_Dropdown>();
+                SetDropdownSelectedByText(dropdowns[0], schedule.day);
+                SetDropdownSelectedByText(dropdowns[1], schedule.startTime);
+                SetDropdownSelectedByText(dropdowns[1], schedule.endTime);
+                AddListenerToRemoveSchedule(item);
+            }
+        }
+
+        GameObject createScheduleItem = InstantiateCreateScheduleItem();
+    }
+
+    public void SetDropdownSelectedByText(TMP_Dropdown dropdown, string text)
+    {
+        int index = dropdown.options.FindIndex(option => option.text == text);
+        if (index >= 0)
+        {
+            dropdown.value = index;
+            dropdown.RefreshShownValue();
+        }
+    }
+
+    public GameObject InstantiateCreateScheduleItem(GameObject createScheduleItem = null)
+    {
+        if (createScheduleItem != null) Destroy(createScheduleItem);
+        createScheduleItem = Instantiate(AddAccessGroupScheduleItem, AccessGroupsScheduleScroll.content);
+        Button createScheduleButton = createScheduleItem.GetComponentInChildren<Button>();
+        createScheduleButton.onClick.AddListener(() =>
+        {
+            GameObject ScheduleItem = Instantiate(AccessGroupScheduleItem, AccessGroupsScheduleScroll.content);
+            AddListenerToRemoveSchedule(ScheduleItem);
+            InstantiateCreateScheduleItem(createScheduleItem);
+        });
+        return createScheduleItem;
+    }
+
+    public void AddListenerToRemoveSchedule(GameObject item)
+    {
+        var DeleteItemButton = item.GetComponentInChildren<Button>();
+        DeleteItemButton.onClick.AddListener(() => { Destroy(item); });
     }
 
     //Calculate Power
