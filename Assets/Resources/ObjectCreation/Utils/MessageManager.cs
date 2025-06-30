@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class MessageManager : MonoBehaviour
@@ -15,6 +16,9 @@ public class MessageManager : MonoBehaviour
 
     // Для подсказок (hints)
     public GameObject hintPanel;
+    public Camera playerCam;
+    public GameObject EnterPanel;
+    public Button EnterPanelCardButton;
     public TextMeshProUGUI hintText;
 
     private void Awake()
@@ -56,5 +60,13 @@ public class MessageManager : MonoBehaviour
 
         // Hide the panel
         messagePanel.SetActive(false);
+    }
+    public void ShowEnterPanel()
+    {
+        EnterPanel.SetActive(true);
+    }
+    public void HideEnterPanel()
+    {
+        EnterPanel.SetActive(false);
     }
 }

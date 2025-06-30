@@ -628,7 +628,7 @@ public class ScudSettings : MonoBehaviour
                 var dropdowns = item.GetComponentsInChildren<TMP_Dropdown>();
                 SetDropdownSelectedByText(dropdowns[0], schedule.day);
                 SetDropdownSelectedByText(dropdowns[1], schedule.startTime);
-                SetDropdownSelectedByText(dropdowns[1], schedule.endTime);
+                SetDropdownSelectedByText(dropdowns[2], schedule.endTime);
                 AddListenerToRemoveSchedule(item);
             }
         }

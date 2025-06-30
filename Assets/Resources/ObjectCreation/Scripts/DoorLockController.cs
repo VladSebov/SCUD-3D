@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DoorLockController : MonoBehaviour
 {
@@ -14,13 +15,10 @@ public class DoorLockController : MonoBehaviour
     public static bool IsInTrigger = false;
 
     public GameObject LockOnWall;
-    
-    public GameObject EnterPanel;
 
     void Start()
     {
         // Получаем компонент HingeJoint
-        EnterPanel = GameObject.Find("MessageForm (1)");
         DoorRigidbody = GetComponentInChildren<Rigidbody>();
         DoorHingeJoint = GetComponentInChildren<HingeJoint>();
         if (DoorHingeJoint == null)
@@ -49,10 +47,12 @@ public class DoorLockController : MonoBehaviour
         }
 
     }
-    
-    public void hideEnterPanel1() {
-    	MessageManager.Instance.ShowMessage("Доступ запрещен");
+
+    public void hideEnterPanel1()
+    {
+        MessageManager.Instance.ShowMessage("Доступ запрещен");
         DisableDoor();
+        MessageManager.Instance.HideEnterPanel();
     	
     }
     public void hideEnterPanel2() {
@@ -68,8 +68,8 @@ public class DoorLockController : MonoBehaviour
         {
             if (LockOnWall != null && Input.GetKeyDown(KeyCode.E))
             {
-            	EnterPanel.SetActive(true);
-                
+                MessageManager.Instance.ShowEnterPanel();
+            
             }
             else if (LockOnWall == null)
             {

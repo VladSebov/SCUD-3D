@@ -87206,8 +87206,8 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 189746273}
   m_HandleRect: {fileID: 189746272}
-  m_Direction: 3
-  m_Value: 1
+  m_Direction: 2
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

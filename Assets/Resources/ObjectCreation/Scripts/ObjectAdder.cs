@@ -239,7 +239,6 @@ namespace SCUD3D
             if (objectData.type == ObjectType.DoorLock.ToString())
             {
                 DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
-                ParentDoorWall.EnterPanel = EnterPanel;
                 if (ParentDoorWall.LockOnWall != null)
                 {
                     MessageManager.Instance.ShowMessage("У этой двери уже есть электронный замок");

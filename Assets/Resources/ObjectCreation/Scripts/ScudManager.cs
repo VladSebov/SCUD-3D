@@ -244,6 +244,29 @@ public class ScudManager : MonoBehaviour
         return selectedItems;
     }
 
+    private List<Schedule> GetSchedulesList()
+    {
+        List<Schedule> selectedSchedule = new List<Schedule>();
+
+        foreach (Transform scheduleItem in ScudSettings.AccessGroupsScheduleScroll.content)
+        {
+            var dropdowns = scheduleItem.GetComponentsInChildren<TMP_Dropdown>();
+            if (dropdowns.Length != 0)
+            {
+                Debug.Log("finding bug 00");
+                Schedule schedule = new Schedule
+                {
+                    day = dropdowns[0].options[dropdowns[0].value].text,
+                    startTime = dropdowns[1].options[dropdowns[1].value].text,
+                    endTime = dropdowns[2].options[dropdowns[2].value].text,
+                };
+                selectedSchedule.Add(schedule);
+            }
+        }
+
+        return selectedSchedule;
+    }
+
     public void ConfirmAddUser()
     {
         string username = userNameInputField.text;
@@ -365,9 +388,40 @@ public class ScudManager : MonoBehaviour
     {
         if (accessGroup == null) return;
 
-        accessGroup.name = ScudSettings.accessGroupNameInputField.text;
-        accessGroup.chosenUsers = GetSelectedItems(ScudSettings.AccessGroupsUsersScroll.content);
-        accessGroup.chosenDevices = GetSelectedItems(ScudSettings.AccessGroupsDevicesScroll.content);
+        string name = ScudSettings.accessGroupNameInputField.text;
+        if (string.IsNullOrEmpty(name))
+        {
+            MessageManager.Instance.ShowMessage("Имя группы доступа не может быть пустым");
+            return;
+        }
+
+        var schedules = GetSchedulesList();
+        foreach (var item in schedules)
+        {
+            int startTime = 0;
+            int.TryParse(item.startTime.Substring(0, 2), out startTime);
+            int endTime = 0;
+            int.TryParse(item.endTime.Substring(0, 2), out endTime);
+            if (startTime > endTime)
+            {
+                MessageManager.Instance.ShowMessage("В расписании допущена ошибка: время начала периода > время завершения периода");
+                return;
+            }
+        }
+
+        List<string> users = GetSelectedItems(ScudSettings.AccessGroupsUsersScroll.content);
+        List<string> devices = GetSelectedItems(ScudSettings.AccessGroupsDevicesScroll.content);
+
+        if (users.Count == 0 || devices.Count == 0 || schedules.Count == 0)
+        {
+            MessageManager.Instance.ShowMessage("Не выбраны пользователи, устройства или расписание");
+            return;
+        }
+
+        accessGroup.name = name;
+        accessGroup.chosenUsers = users;
+        accessGroup.chosenDevices = devices;
+        accessGroup.chosenSchedules = schedules;
     }
 
     public void ApplyUser(ref User user)
@@ -383,7 +437,7 @@ public class ScudManager : MonoBehaviour
         users.Remove(user);
         ScudSettings.FillUsers();
     }
-    
+
     public void DeleteAccessGroup(ref AccessGroup accessGroup)
     {
         accessGroups.Remove(accessGroup);
@@ -402,16 +456,28 @@ public class ScudManager : MonoBehaviour
 
         List<string> users = GetSelectedItems(ScudSettings.AccessGroupsUsersScroll.content);
         List<string> devices = GetSelectedItems(ScudSettings.AccessGroupsDevicesScroll.content);
+        List<Schedule> schedules = GetSchedulesList();
 
-        if (users.Count == 0 || devices.Count == 0)
+        if (users.Count == 0 || devices.Count == 0 || schedules.Count == 0)
         {
-            if (users.Count == 0 && devices.Count > 0) MessageManager.Instance.ShowMessage("Пользователи не выбраны");
-            if (users.Count > 0 && devices.Count == 0) MessageManager.Instance.ShowMessage("Устройства не выбраны");
-            if (users.Count == 0 && devices.Count == 0) MessageManager.Instance.ShowMessage("Пользователи и устройства не выбраны");
+            MessageManager.Instance.ShowMessage("Не выбраны пользователи, устройства или расписание");
             return;
         }
 
-        if (AddAccessGroup(name, users, devices))
+        foreach (var item in schedules)
+        {
+            int startTime = 0;
+            int.TryParse(item.startTime.Substring(0, 2), out startTime);
+            int endTime = 0;
+            int.TryParse(item.endTime.Substring(0, 2), out endTime);
+            if (startTime > endTime)
+            {
+                MessageManager.Instance.ShowMessage("В расписании допущена ошибка: время начала периода > время завершения периода");
+                return;
+            }
+        }
+
+        if (AddAccessGroup(name, users, devices, schedules))
         {
             HideCreateAccessGroupsPanel();
             ScudSettings.FillAccessGroups();
