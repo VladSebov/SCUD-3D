@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -74,7 +76,12 @@ public class DoorLockController : MonoBehaviour
         {
             if (LockOnWall != null && Input.GetKeyDown(KeyCode.E) && IsPlayerLookingAtDoor())
             {
-                MessageManager.Instance.ShowEnterPanel();
+                if (CheckCorrectConnection() == true)
+                {
+                    MessageManager.Instance.ShowEnterPanel();
+                    MessageManager.Instance.EnterPanelCardButton.onClick.RemoveAllListeners();
+                    MessageManager.Instance.EnterPanelCardButton.onClick.AddListener(() => CheckEnterMethod(0));
+                }
             }
         }
     }
@@ -169,32 +176,62 @@ public class DoorLockController : MonoBehaviour
         doorStatus = 1;
     }
 
-    /* void CheckRoleEnabled()
+    // 0 = card, 1 = finger, 2 = password
+    public bool CheckEnterMethod(int method)
     {
+        bool status = false;
+        bool deviceCorrect = false;
+        bool userCorrect = false;
+        bool scheduleCorrect = false;
+        foreach (var accessGroup in ScudManager.Instance.GetAccessGroups())
+        {
+            if (accessGroup.chosenDevices.Contains(this.gameObject.GetComponent<DoorLock>().id))
+            {
+                deviceCorrect = true;
+                Debug.Log("accessGroup contains device");
+            }
+            if (accessGroup.chosenUsers.Contains(PlayerManager.Instance.GetUser().username))
+            {
+                userCorrect = true;
+                Debug.Log("accessGroup contains user");
+            }
+            if (accessGroup.chosenSchedules.Any(io =>
+                int.TryParse(io.startTime, out int startTime) &&
+                int.TryParse(DateTime.Now.ToString("HH"), out int nowTime) &&
+                int.TryParse(io.endTime, out int endTime) &&
+                startTime <= nowTime && endTime > nowTime && Array.IndexOf(ScudManager.Instance.russianDays, io.day) == (int)DateTime.Now.DayOfWeek))
+            {
+                scheduleCorrect = true;
+                Debug.Log("accessGroup contains schedule");
+            }
+            if (deviceCorrect && userCorrect && scheduleCorrect && PlayerManager.Instance.GetUser().chosenAccessTypes.Any(io => (int)io == method))
+            {
+                status = true;
+                break;
+            }
+            //текущее время в пределах тех, что есть в группе доступа для текущего устройства, т.е. сначала надо найти данное устройство в группе доступа, потом пользователя, потом расписание
+        }
+        return status;
+    }
+
+    public bool CheckCorrectConnection()
+    {
+        bool status = false;
         InteractiveObject obj = ObjectManager.Instance.GetObject(LockOnWall.name);
         Connection connection = ConnectionsManager.Instance.GetAllConnections(obj).FirstOrDefault();
-        
+
         if (connection != null)
         {
             InteractiveObject controller = connection.ObjectA == obj ? connection.ObjectB : connection.ObjectA;
-            if (controller is AccessController accessController)
+            if (controller is AccessController accessController && ConnectionsManager.Instance.GetConnectedObjectsByType(accessController, ObjectType.Computer).Any())
             {
-                if (LockOnWall != null && status == 1)
-                {
-                    MessageManager.Instance.ShowMessage("Доступ запрещен");
-                    DisableDoor();
-                }
-                if (LockOnWall != null && status == 2)
-                {
-                    MessageManager.Instance.ShowMessage("Доступ разрешен");
-                    EnableDoor();
-                }
+                status = true;
             }
         }
         else
         {
             MessageManager.Instance.ShowMessage("Устройство не подключено к Контролеру");
-            DisableDoor();
         }
-    } */
+        return status;
+    }
 }

@@ -29,6 +29,9 @@ public class ScudManager : MonoBehaviour
 
     private List<User> users = new List<User>();
 
+    public string[] russianDays = { "Воскресенье", "Понедельник", "Вторник", 
+                                   "Среда", "Четверг", "Пятница", "Суббота" };
+
     private List<AccessGroup> accessGroups = new List<AccessGroup>();
 
     public GameObject createUserPanel;

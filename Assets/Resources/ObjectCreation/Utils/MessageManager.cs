@@ -16,7 +16,6 @@ public class MessageManager : MonoBehaviour
 
     // Для подсказок (hints)
     public GameObject hintPanel;
-    public Camera playerCam;
     public GameObject EnterPanel;
     public Button EnterPanelCardButton;
     public TextMeshProUGUI hintText;
