@@ -44,7 +44,11 @@ public class ScudSettings : MonoBehaviour
 
     //Access
     public ScrollRect AccessControllersScroll;
-    public GameObject AccessControllerItem;
+    public GameObject ControlleritemName;
+    public GameObject AccessDevicesScroll;
+    public GameObject DeviceItem;
+    public GameObject LogHeader;
+    public GameObject LogScroll;
     public TextMeshProUGUI accessHintText; // Add this field
 
     private string selectedAccessControllerId;
@@ -342,12 +346,38 @@ public class ScudSettings : MonoBehaviour
         accessHintText.gameObject.SetActive(false);
 
         // Populate the scroll view with connected device IDs
-        foreach (var device in accessControllers)
+        foreach (var accessController in accessControllers)
         {
-            GameObject item = Instantiate(AccessControllerItem, AccessControllersScroll.content);
-            item.GetComponentInChildren<TextMeshProUGUI>().text = device.id;
-            Button button = item.GetComponentInChildren<Button>();
-            button.onClick.AddListener(() => { ShowAvailableRoles(device); });
+            GameObject controllerName = Instantiate(ControlleritemName, AccessControllersScroll.content);
+            controllerName.GetComponentInChildren<TextMeshProUGUI>().text = accessController.id;
+            GameObject accessDevicesScroll = Instantiate(AccessDevicesScroll, AccessControllersScroll.content);
+
+            List<Connection> connections = ConnectionsManager.Instance.GetAllConnections(accessController);
+            foreach (var connection in connections)
+            {
+                if (connection != null)
+                {
+                    InteractiveObject device = connection.ObjectA == accessController ? connection.ObjectB : connection.ObjectA;
+                    if (device != null && (device.type == ObjectType.DoorLock || device.type == ObjectType.Turnstile))
+                    {
+                        GameObject item = Instantiate(DeviceItem, accessDevicesScroll.GetComponent<ScrollRect>().content);
+                        item.GetComponentInChildren<TextMeshProUGUI>().text = device.id;
+                        var deviceButtons = item.GetComponentsInChildren<Button>();
+                        if (device is DoorLock doorLock)
+                        {
+                            deviceButtons[0].onClick.AddListener(() =>
+                            {
+                                doorLock.ParentDoorWallLockController.ChangeDoorStatusToOpen();
+                            });
+                            deviceButtons[1].onClick.AddListener(() =>
+                            {
+                                doorLock.ParentDoorWallLockController.ChangeDoorStatusToClosed();
+                            });
+                        }
+                    }
+                }
+            }
+        
         }
     }
 

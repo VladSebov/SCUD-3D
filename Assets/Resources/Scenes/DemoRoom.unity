@@ -52072,7 +52072,15 @@ MonoBehaviour:
   PowerConsumptionText: {fileID: 1843925953}
   UPSPercentageText: {fileID: 1369011898}
   AccessControllersScroll: {fileID: 2612154339000362901}
-  AccessControllerItem: {fileID: 6495976628028012987, guid: 0fb7433f4c9d22a28806a1d095d29b34,
+  ControlleritemName: {fileID: 1149910591679773086, guid: b31fb398b0abca7eb8c874eba6222a34,
+    type: 3}
+  AccessDevicesScroll: {fileID: 5304508647868888470, guid: c3c161766d7829133ad271af409603d7,
+    type: 3}
+  DeviceItem: {fileID: 1160962119071296496, guid: c05318ee7fc039268a93a3c6937e0d9d,
+    type: 3}
+  LogHeader: {fileID: 5876927046372667810, guid: 1ce4d2dbc097caa1990ad5b0342b1cc3,
+    type: 3}
+  LogScroll: {fileID: 6467197783865370417, guid: a015603c2809307d8881bbcc6dd1cf1f,
     type: 3}
   accessHintText: {fileID: 1379257511}
   RolesScroll: {fileID: 1472825516}
@@ -104602,8 +104610,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4684490268365596469}
   m_HandleRect: {fileID: 8363275053926936258}
   m_Direction: 2
-  m_Value: 1.0000006
-  m_Size: 0.8450705
+  m_Value: 1
+  m_Size: 0.8450704
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

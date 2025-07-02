@@ -7,7 +7,7 @@ public class DoorLockController : MonoBehaviour
     private HingeJoint DoorHingeJoint;
     public Rigidbody DoorRigidbody;
     private static string CurrentDoor;
-    private int status = 0;
+    public int doorStatus = 1; // 0 = open; 1 = closed;
     public static bool IsInTrigger = false;
     public GameObject LockOnWall;
 
@@ -39,7 +39,7 @@ public class DoorLockController : MonoBehaviour
         if (IsInTrigger)
         {
             bool isLookingNow = IsPlayerLookingAtDoor();
-            
+
             if (isLookingNow && !wasLookingAtDoor)
             {
                 ShowDoorMessage();
@@ -48,7 +48,7 @@ public class DoorLockController : MonoBehaviour
             {
                 HideDoorMessages();
             }
-            
+
             wasLookingAtDoor = isLookingNow;
         }
     }
@@ -57,15 +57,12 @@ public class DoorLockController : MonoBehaviour
     {
         if (PlayerCollider.CompareTag("Player"))
         {
-            Debug.Log("finding bug 00");
-            Debug.Log(playerCamera.gameObject.name);
+
             CurrentDoor = gameObject.name;
             IsInTrigger = true;
             wasLookingAtDoor = IsPlayerLookingAtDoor();
-
             if (wasLookingAtDoor)
             {
-                Debug.Log("finding bug 01");
                 ShowDoorMessage();
             }
         }
@@ -78,10 +75,6 @@ public class DoorLockController : MonoBehaviour
             if (LockOnWall != null && Input.GetKeyDown(KeyCode.E) && IsPlayerLookingAtDoor())
             {
                 MessageManager.Instance.ShowEnterPanel();
-            }
-            else if (LockOnWall == null && IsPlayerLookingAtDoor())
-            {
-                EnableDoor();
             }
         }
     }
@@ -103,24 +96,29 @@ public class DoorLockController : MonoBehaviour
 
         // Дополнительная проверка с Raycast для точности
         RaycastHit hit;
-        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, 150f) && hit.collider.gameObject.name == "Interior_Door_Frame")
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, 150f) && hit.collider.gameObject.name == "Interior_Door")
         {
             return true;
         }
         else return false;
-        
+
     }
 
     private void ShowDoorMessage()
     {
-        if (LockOnWall != null)
+        if (LockOnWall != null && doorStatus == 1)
         {
             MessageManager.Instance.ShowHint("Для взаимодействия с электронным замком нажмите E.");
+        }
+        else if (LockOnWall != null && doorStatus == 0)
+        {
+            EnableDoor();
+            MessageManager.Instance.ShowMessage("Дверь открыта");
         }
         else
         {
             EnableDoor();
-            MessageManager.Instance.ShowMessage("Для двери не установлен электронный замок");
+            MessageManager.Instance.ShowMessage("Для двери не установлен электронный замок. Дверь открыта");
         }
     }
 
@@ -136,13 +134,13 @@ public class DoorLockController : MonoBehaviour
         MessageManager.Instance.HideEnterPanel();
     }
 
-    public void hideEnterPanel2() 
+    public void hideEnterPanel2()
     {
         MessageManager.Instance.ShowMessage("Доступ разрешен");
         EnableDoor();
     }
 
-    void EnableDoor()
+    public void EnableDoor()
     {
         if (gameObject.name == CurrentDoor && DoorRigidbody != null)
         {
@@ -152,7 +150,7 @@ public class DoorLockController : MonoBehaviour
         }
     }
 
-    void DisableDoor()
+    public void DisableDoor()
     {
         if (gameObject.name == CurrentDoor && DoorRigidbody != null && !DoorRigidbody.isKinematic)
         {
@@ -161,7 +159,17 @@ public class DoorLockController : MonoBehaviour
         }
     }
 
-    void CheckRoleEnabled()
+    public void ChangeDoorStatusToOpen()
+    {
+        doorStatus = 0;
+    }
+
+    public void ChangeDoorStatusToClosed()
+    {
+        doorStatus = 1;
+    }
+
+    /* void CheckRoleEnabled()
     {
         InteractiveObject obj = ObjectManager.Instance.GetObject(LockOnWall.name);
         Connection connection = ConnectionsManager.Instance.GetAllConnections(obj).FirstOrDefault();
@@ -188,5 +196,5 @@ public class DoorLockController : MonoBehaviour
             MessageManager.Instance.ShowMessage("Устройство не подключено к Контролеру");
             DisableDoor();
         }
-    }
+    } */
 }

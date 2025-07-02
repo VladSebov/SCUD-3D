@@ -296,12 +296,13 @@ namespace SCUD3D
 
 
             objectPrefab = Instantiate(objectPrefab, transform.position, transform.rotation);
+            ObjectManager.Instance.AddObject(objectData, objectPrefab, collider); // creates an object 
             if (objectData.type == ObjectType.DoorLock.ToString())
             {
                 DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
                 ParentDoorWall.LockOnWall = objectPrefab;
+                objectPrefab.GetComponent<DoorLock>().ParentDoorWallLockController = ParentDoorWall;
             }
-            ObjectManager.Instance.AddObject(objectData, objectPrefab, collider); // creates an object 
             Destroy(previewObject); // Удаляем объект предварительного просмотра
             gameState = 0;
 

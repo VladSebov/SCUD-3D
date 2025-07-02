@@ -129,6 +129,7 @@ public class Turnstile : InteractiveObject, ConnectableToUPS
 [Serializable]
 public class DoorLock : InteractiveObject
 {
+    public DoorLockController ParentDoorWallLockController;
 }
 
 [Serializable]
