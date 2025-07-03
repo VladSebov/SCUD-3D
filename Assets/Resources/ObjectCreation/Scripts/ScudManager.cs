@@ -29,7 +29,7 @@ public class ScudManager : MonoBehaviour
 
     private List<User> users = new List<User>();
 
-    public string[] russianDays = { "Воскресенье", "Понедельник", "Вторник", 
+    public string[] russianDays = {"Воскресенье", "Понедельник", "Вторник", 
                                    "Среда", "Четверг", "Пятница", "Суббота" };
 
     private List<AccessGroup> accessGroups = new List<AccessGroup>();
@@ -256,7 +256,6 @@ public class ScudManager : MonoBehaviour
             var dropdowns = scheduleItem.GetComponentsInChildren<TMP_Dropdown>();
             if (dropdowns.Length != 0)
             {
-                Debug.Log("finding bug 00");
                 Schedule schedule = new Schedule
                 {
                     day = dropdowns[0].options[dropdowns[0].value].text,

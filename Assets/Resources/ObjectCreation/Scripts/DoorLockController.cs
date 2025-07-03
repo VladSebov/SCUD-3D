@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +12,7 @@ public class DoorLockController : MonoBehaviour
     private static string CurrentDoor;
     public int doorStatus = 1; // 0 = open; 1 = closed;
     public static bool IsInTrigger = false;
-    public GameObject LockOnWall;
+    public static GameObject LockOnWall;
 
     // Добавленные переменные для проверки взгляда
     private Camera playerCamera;
@@ -19,6 +20,7 @@ public class DoorLockController : MonoBehaviour
 
     void Start()
     {
+        Debug.Log(this.gameObject.name);
         // Получаем компонент HingeJoint
         DoorRigidbody = GetComponentInChildren<Rigidbody>();
         DoorHingeJoint = GetComponentInChildren<HingeJoint>();
@@ -122,7 +124,7 @@ public class DoorLockController : MonoBehaviour
             EnableDoor();
             MessageManager.Instance.ShowMessage("Дверь открыта");
         }
-        else
+        else if (LockOnWall == null)
         {
             EnableDoor();
             MessageManager.Instance.ShowMessage("Для двери не установлен электронный замок. Дверь открыта");
@@ -176,6 +178,16 @@ public class DoorLockController : MonoBehaviour
         doorStatus = 1;
     }
 
+    public GameObject GetDoorLock()
+    {
+        return LockOnWall;
+    }
+
+    public void SetDoorLock(GameObject DoorLock)
+    {
+        LockOnWall = DoorLock;
+    }
+
     // 0 = card, 1 = finger, 2 = password
     public bool CheckEnterMethod(int method)
     {
@@ -185,7 +197,8 @@ public class DoorLockController : MonoBehaviour
         bool scheduleCorrect = false;
         foreach (var accessGroup in ScudManager.Instance.GetAccessGroups())
         {
-            if (accessGroup.chosenDevices.Contains(this.gameObject.GetComponent<DoorLock>().id))
+
+            if (accessGroup.chosenDevices.Contains(LockOnWall.GetComponent<DoorLock>().id))
             {
                 deviceCorrect = true;
                 Debug.Log("accessGroup contains device");
@@ -195,10 +208,19 @@ public class DoorLockController : MonoBehaviour
                 userCorrect = true;
                 Debug.Log("accessGroup contains user");
             }
+            foreach (var io in accessGroup.chosenSchedules)
+            {
+                int.TryParse(io.startTime.Substring(0, 2), out int startTime);
+                int.TryParse(DateTime.Now.ToString("HH"), out int nowTime);
+                int.TryParse(io.endTime.Substring(0, 2), out int endTime);
+                Debug.Log("starttime: " + startTime + " nowtime: " + nowTime + " endtime: " + endTime);
+                Debug.Log("russianDaysIndex:" + Array.IndexOf(ScudManager.Instance.russianDays, io.day));
+                Debug.Log("DayOfWeek:" + (int)DateTime.Now.DayOfWeek);
+            }
             if (accessGroup.chosenSchedules.Any(io =>
-                int.TryParse(io.startTime, out int startTime) &&
+                int.TryParse(io.startTime.Substring(0, 2), out int startTime) &&
                 int.TryParse(DateTime.Now.ToString("HH"), out int nowTime) &&
-                int.TryParse(io.endTime, out int endTime) &&
+                int.TryParse(io.endTime.Substring(0, 2), out int endTime) &&
                 startTime <= nowTime && endTime > nowTime && Array.IndexOf(ScudManager.Instance.russianDays, io.day) == (int)DateTime.Now.DayOfWeek))
             {
                 scheduleCorrect = true;
@@ -207,9 +229,9 @@ public class DoorLockController : MonoBehaviour
             if (deviceCorrect && userCorrect && scheduleCorrect && PlayerManager.Instance.GetUser().chosenAccessTypes.Any(io => (int)io == method))
             {
                 status = true;
+                Debug.Log("user's accessType is correct");
                 break;
             }
-            //текущее время в пределах тех, что есть в группе доступа для текущего устройства, т.е. сначала надо найти данное устройство в группе доступа, потом пользователя, потом расписание
         }
         return status;
     }

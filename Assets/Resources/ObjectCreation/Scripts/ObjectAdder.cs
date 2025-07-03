@@ -239,7 +239,7 @@ namespace SCUD3D
             if (objectData.type == ObjectType.DoorLock.ToString())
             {
                 DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
-                if (ParentDoorWall.LockOnWall != null)
+                if (ParentDoorWall.GetDoorLock() != null)
                 {
                     MessageManager.Instance.ShowMessage("У этой двери уже есть электронный замок");
                     Destroy(previewObject); // Удаляем объект предварительного просмотра
@@ -300,7 +300,7 @@ namespace SCUD3D
             if (objectData.type == ObjectType.DoorLock.ToString())
             {
                 DoorLockController ParentDoorWall = collider.GetComponentInParent<DoorLockController>();
-                ParentDoorWall.LockOnWall = objectPrefab;
+                ParentDoorWall.SetDoorLock(objectPrefab);
                 objectPrefab.GetComponent<DoorLock>().ParentDoorWallLockController = ParentDoorWall;
             }
             Destroy(previewObject); // Удаляем объект предварительного просмотра
