@@ -18,6 +18,9 @@ public class MessageManager : MonoBehaviour
     public GameObject hintPanel;
     public GameObject EnterPanel;
     public Button EnterPanelCardButton;
+    public Button EnterPanelFingerButton;
+    public Button EnterPanelPasswordButton;
+    public TMP_InputField EnterPanelPasswordInputField;
     public TextMeshProUGUI hintText;
 
     private void Awake()
@@ -67,5 +70,10 @@ public class MessageManager : MonoBehaviour
     public void HideEnterPanel()
     {
         EnterPanel.SetActive(false);
+    }
+
+    public string GetPasswordFromEnterPanel()
+    {
+        return EnterPanelPasswordInputField.text;
     }
 }

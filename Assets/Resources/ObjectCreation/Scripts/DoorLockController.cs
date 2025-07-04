@@ -83,6 +83,10 @@ public class DoorLockController : MonoBehaviour
                     MessageManager.Instance.ShowEnterPanel();
                     MessageManager.Instance.EnterPanelCardButton.onClick.RemoveAllListeners();
                     MessageManager.Instance.EnterPanelCardButton.onClick.AddListener(() => CheckEnterMethod(0));
+                    MessageManager.Instance.EnterPanelFingerButton.onClick.RemoveAllListeners();
+                    MessageManager.Instance.EnterPanelFingerButton.onClick.AddListener(() => CheckEnterMethod(1));
+                    MessageManager.Instance.EnterPanelPasswordButton.onClick.RemoveAllListeners();
+                    MessageManager.Instance.EnterPanelPasswordButton.onClick.AddListener(() => CheckEnterMethod(2));
                 }
             }
         }
@@ -136,19 +140,6 @@ public class DoorLockController : MonoBehaviour
         MessageManager.Instance.HideHint();
     }
 
-    public void hideEnterPanel1()
-    {
-        MessageManager.Instance.ShowMessage("Доступ запрещен");
-        DisableDoor();
-        MessageManager.Instance.HideEnterPanel();
-    }
-
-    public void hideEnterPanel2()
-    {
-        MessageManager.Instance.ShowMessage("Доступ разрешен");
-        EnableDoor();
-    }
-
     public void EnableDoor()
     {
         if (gameObject.name == CurrentDoor && DoorRigidbody != null)
@@ -197,12 +188,13 @@ public class DoorLockController : MonoBehaviour
         bool scheduleCorrect = false;
         foreach (var accessGroup in ScudManager.Instance.GetAccessGroups())
         {
-
+            //поиск дверного замка в группе доступа
             if (accessGroup.chosenDevices.Contains(LockOnWall.GetComponent<DoorLock>().id))
             {
                 deviceCorrect = true;
                 Debug.Log("accessGroup contains device");
             }
+            //поиск пользователя в группе доступа
             if (accessGroup.chosenUsers.Contains(PlayerManager.Instance.GetUser().username))
             {
                 userCorrect = true;
@@ -217,6 +209,7 @@ public class DoorLockController : MonoBehaviour
                 Debug.Log("russianDaysIndex:" + Array.IndexOf(ScudManager.Instance.russianDays, io.day));
                 Debug.Log("DayOfWeek:" + (int)DateTime.Now.DayOfWeek);
             }
+            // проверка расписания в группе доступа
             if (accessGroup.chosenSchedules.Any(io =>
                 int.TryParse(io.startTime.Substring(0, 2), out int startTime) &&
                 int.TryParse(DateTime.Now.ToString("HH"), out int nowTime) &&
@@ -226,13 +219,32 @@ public class DoorLockController : MonoBehaviour
                 scheduleCorrect = true;
                 Debug.Log("accessGroup contains schedule");
             }
-            if (deviceCorrect && userCorrect && scheduleCorrect && PlayerManager.Instance.GetUser().chosenAccessTypes.Any(io => (int)io == method))
+            if (deviceCorrect && userCorrect && scheduleCorrect)
             {
                 status = true;
-                Debug.Log("user's accessType is correct");
                 break;
             }
         }
+        if (status == true && PlayerManager.Instance.GetUser().chosenAccessTypes.Any(io => (int)io == method) == false)
+        {
+            status = false;
+            Debug.Log("user's accessType isn't correct");
+        }
+        if (status == true && method == 2 && PlayerManager.Instance.GetUser().password != MessageManager.Instance.GetPasswordFromEnterPanel())
+        {
+            status = false;
+            Debug.Log("user's password isn't correct");
+        }
+        if (status == false)
+        {
+            MessageManager.Instance.ShowMessage("Доступ запрещен");
+        }
+        if (status == true)
+        {
+            MessageManager.Instance.ShowMessage("Доступ разрешен");
+            EnableDoor();
+        }
+        MessageManager.Instance.HideEnterPanel();
         return status;
     }
 
