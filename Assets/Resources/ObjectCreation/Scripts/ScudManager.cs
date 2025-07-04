@@ -29,8 +29,13 @@ public class ScudManager : MonoBehaviour
 
     private List<User> users = new List<User>();
 
-    public string[] russianDays = {"Воскресенье", "Понедельник", "Вторник", 
+    public string[] russianDays = {"Воскресенье", "Понедельник", "Вторник",
                                    "Среда", "Четверг", "Пятница", "Суббота" };
+
+    public string[] russianDaysShort = {"ВС", "ПН", "ВТ",
+                                   "СР", "ЧТ", "ПТ", "СБ" };
+
+    private List<LogItem> logs = new List<LogItem>();
 
     private List<AccessGroup> accessGroups = new List<AccessGroup>();
 
@@ -206,7 +211,22 @@ public class ScudManager : MonoBehaviour
         return new List<string>(roles);
     } */
 
+    public void AddLogItem(string device, string date, string user, string action)
+    {
+        LogItem logItem = new LogItem
+        {
+            device = device,
+            date = date,
+            user = user,
+            action = action
+        };
+        logs.Add(logItem);
+    }
 
+    public List<LogItem> GetLog()
+    {
+        return new List<LogItem>(logs); // Возвращаем копию списка
+    }
 
     public List<User> GetUsers()
     {
@@ -558,3 +578,11 @@ public class Schedule
     public string endTime;
 }
 
+[System.Serializable]
+public class LogItem
+{
+    public string device;
+    public string date;
+    public string user;
+    public string action;
+}

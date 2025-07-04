@@ -182,6 +182,10 @@ public class DoorLockController : MonoBehaviour
     // 0 = card, 1 = finger, 2 = password
     public bool CheckEnterMethod(int method)
     {
+        string device = LockOnWall.GetComponent<DoorLock>().id;
+        string user = PlayerManager.Instance.GetUser().username;
+        string date = ScudManager.Instance.russianDaysShort[(int)DateTime.Now.DayOfWeek]+", "+DateTime.Now.ToString("HH:mm");
+        string action = "";
         bool status = false;
         bool deviceCorrect = false;
         bool userCorrect = false;
@@ -189,13 +193,13 @@ public class DoorLockController : MonoBehaviour
         foreach (var accessGroup in ScudManager.Instance.GetAccessGroups())
         {
             //поиск дверного замка в группе доступа
-            if (accessGroup.chosenDevices.Contains(LockOnWall.GetComponent<DoorLock>().id))
+            if (accessGroup.chosenDevices.Contains(device))
             {
                 deviceCorrect = true;
                 Debug.Log("accessGroup contains device");
             }
             //поиск пользователя в группе доступа
-            if (accessGroup.chosenUsers.Contains(PlayerManager.Instance.GetUser().username))
+            if (accessGroup.chosenUsers.Contains(user))
             {
                 userCorrect = true;
                 Debug.Log("accessGroup contains user");
@@ -225,14 +229,19 @@ public class DoorLockController : MonoBehaviour
                 break;
             }
         }
-        if (status == true && PlayerManager.Instance.GetUser().chosenAccessTypes.Any(io => (int)io == method) == false)
+        if (PlayerManager.Instance.GetUser().chosenAccessTypes.Any(io => (int)io == method) == false || status == false)
         {
             status = false;
+            if (method == 0) action = "Неизвестная карта";
+            if (method == 1) action = "Неизвестный отпечаток";
+            if (method == 2) action = "Неизвестный пароль";
+            user = "-";
             Debug.Log("user's accessType isn't correct");
         }
         if (status == true && method == 2 && PlayerManager.Instance.GetUser().password != MessageManager.Instance.GetPasswordFromEnterPanel())
         {
             status = false;
+            action = "Неверный пароль";
             Debug.Log("user's password isn't correct");
         }
         if (status == false)
@@ -243,7 +252,11 @@ public class DoorLockController : MonoBehaviour
         {
             MessageManager.Instance.ShowMessage("Доступ разрешен");
             EnableDoor();
+            if (method == 0) action = "Вход по карте";
+            if (method == 1) action = "Вход по отпечатку";
+            if (method == 2) action = "Вход по па ролю";
         }
+        ScudManager.Instance.AddLogItem(device, user, date, action);
         MessageManager.Instance.HideEnterPanel();
         return status;
     }

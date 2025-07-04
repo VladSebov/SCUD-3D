@@ -49,6 +49,7 @@ public class ScudSettings : MonoBehaviour
     public GameObject DeviceItem;
     public GameObject LogHeader;
     public GameObject LogScroll;
+    public GameObject LogItem;
     public TextMeshProUGUI accessHintText; // Add this field
 
     private string selectedAccessControllerId;
@@ -377,7 +378,19 @@ public class ScudSettings : MonoBehaviour
                     }
                 }
             }
-        
+        }
+
+        GameObject logHeader = Instantiate(LogHeader, AccessControllersScroll.content);
+        GameObject logScroll = Instantiate(LogScroll, AccessControllersScroll.content);
+
+        foreach (var item in ScudManager.Instance.GetLog())
+        {
+            GameObject logItem = Instantiate(LogItem, logScroll.GetComponent<ScrollRect>().content);
+            var logItemFields = logItem.GetComponentsInChildren<TextMeshProUGUI>();
+            logItemFields[0].text = item.device;
+            logItemFields[1].text = item.date;
+            logItemFields[2].text = item.user;
+            logItemFields[3].text = item.action;
         }
     }
 
