@@ -2,10 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Unity.PlasticSCM.Editor.WebApi;
 using System.Linq;
-using System;
-using Unity.VisualScripting;
 
 public class ScudManager : MonoBehaviour
 {
