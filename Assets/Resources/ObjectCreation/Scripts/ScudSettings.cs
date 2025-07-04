@@ -375,6 +375,17 @@ public class ScudSettings : MonoBehaviour
                                 doorLock.ParentDoorWallLockController.ChangeDoorStatusToClosed();
                             });
                         }
+                        if (device is Turnstile turnstile)
+                        {
+                            deviceButtons[0].onClick.AddListener(() =>
+                            {
+                                turnstile.gameObject.GetComponent<TurnstileController>().ChangeDoorStatusToOpen();
+                            });
+                            deviceButtons[1].onClick.AddListener(() =>
+                            {
+                                turnstile.gameObject.GetComponent<TurnstileController>().ChangeDoorStatusToClosed();
+                            });
+                        }
                     }
                 }
             }
@@ -575,6 +586,7 @@ public class ScudSettings : MonoBehaviour
         createAccessGroupsPanel.SetActive(true);
         createAccessGroupsPanelHeader.text = "Создание группы доступа";
         accessGroupNameInputField.text = "";
+        DeleteAccessGroupButton.gameObject.SetActive(false);
         FillUsersList();
         FillDevicesList();
         FillScheduleList();
@@ -587,12 +599,15 @@ public class ScudSettings : MonoBehaviour
         createAccessGroupsPanel.SetActive(true);
         createAccessGroupsPanelHeader.text = "Редактирование группы доступа";
         accessGroupNameInputField.text = accessGroup.name;
+        DeleteAccessGroupButton.gameObject.SetActive(true);
         FillUsersList();
         FillDevicesList();
         FillScheduleList(accessGroup);
         FillAccessGroupListsToogles(accessGroup);
         CreateAccessGroupButton.onClick.RemoveAllListeners();
         CreateAccessGroupButton.onClick.AddListener(() => SaveAccessGroupChanges(ref accessGroup));
+        DeleteAccessGroupButton.onClick.RemoveAllListeners();
+        DeleteAccessGroupButton.onClick.AddListener(() => ScudManager.Instance.DeleteAccessGroup(ref accessGroup));
     }
 
     public void FillUsersList()
